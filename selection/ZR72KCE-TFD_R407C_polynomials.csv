@@ -1,0 +1,30 @@
+﻿"ZR72KCE-TFD",,"R407C"
+Version,"8.5.3.3316 / 44475"
+
+
+Liquid Subcooling,,"8.33","K"
+Voltage,,"400","V"
+Power Supply,,"380-420 V / 3~ / 50 Hz"
+Suction Superheat,,"11.11","K"
+Swept Volume,,"98.00","cm³"
+Dew Point
+
+
+,C0,C1,C2,C3,C4,C5,C6,C7,C8,C9
+"Cooling Capacity," kW,"21.729651642452","0.806285310644","-0.158072719805","0.011309003855","-0.005642713034","-0.000401865786","0.000066225339","-0.000075380102","0.000010871179","0.000002586338"
+
+"Power," kW,"1.661610714411","0.039662877917","0.020254939045","0.001029311646","-0.001774050876","0.000628369850","0.000012675404","-0.000025916997","0.000020544699","0.000003236305"
+
+"Current," A,"3.926583914894","0.050907676826","0.057668795666","0.001366474815","-0.002291404529","-0.000200341448","0.000017097769","-0.000034481990","0.000026839984","0.000016053243"
+
+"Suction Mass Flow," g/s,"88.253510731361","3.285978428024","0.066714274923","0.040867505304","-0.013035065580","-0.006847370468","0.000297810410","-0.000082051235","0.000190185564","0.000046037229"
+
+,X = C0 + C1*S + C2*D + C3*S^2 + C4*S*D + C5*D^2 + C6*S^3 + C7*D*S^2 +C8*S*D^2 + C9*D^3
+
+,"X = Cooling Capacity, kW; Power Input, kW; Current, A; Suction Mass Flow, g/s"
+,"S = Evaporating Temperature, °C"
+,"D = Cond. Temp., °C"
+
+WARNING - Data from coefficients valid only within operating range
+WARNING - Cooling capacity is valid only for the given Liquid Subcooling and Return Gas Temperature or Suction Superheat
+
