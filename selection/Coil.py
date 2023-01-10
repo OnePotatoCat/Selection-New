@@ -7,13 +7,13 @@ class Coil(ABC):
     def __init__(self, model :str, type :str) -> None:
         self.type = type
         self.model = model
-        path = os.getcwd() + "\\selection\\Coil"
+        path = os.getcwd() + "\\Coil"
         data_list = os.listdir(path)
 
         for data in data_list:
             filename = os.path.basename(data)
             if type in filename.lower():
-                self.data =  "selection\\"+ path +"\\" + data 
+                self.data =  path +"\\" + data 
                 break
 
         self.dry_coef = []
