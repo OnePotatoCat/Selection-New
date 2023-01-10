@@ -12,6 +12,8 @@ class Unit(object):
         # filter type = G4 , F7
         self.model = model
         self.esp = esp
+        self.outlet_temp = 0
+        self.outlet_rh = 0
         self.filter_type = filter_type
         path = os.getcwd()
         data_list = os.listdir(path)
@@ -23,7 +25,8 @@ class Unit(object):
                 break
         
         self.__get_data()
-
+        self.total_capacity = 0
+        self.sensible_capacity = 0
 
     def __get_data(self):
         with open(self.data, mode = 'r') as file:
@@ -55,6 +58,7 @@ class Unit(object):
     
 
     def get_tsp(self, airflow:float) -> float:
+        self.airflow = airflow
         self.tsp = self.esp + self.__get_isp(airflow)
         return self.tsp
 

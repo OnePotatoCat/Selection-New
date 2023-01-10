@@ -260,7 +260,13 @@ def main(t, rh, q):
     print(f"Condensing Temp = {round(t_cond, 2)}")
     print(f"Heat Reject = {round(heat_reject, 2)}")
     print(f"Condenser Capacity = {round(condenser_cap, 2)}")
-    return Q_total
+    unit.total_capacity = Q_total
+    unit.sensible_capacity = Q_sen
+    unit.outlet_temp = t_outlet
+    unit.outlet_rh = rh_outlet
+    unit.evaporator.evap_temp=t_evap
+    unit.condenser.cond_temp=t_cond
+    return unit
 
 
 def dry_capacity(coil :Coil,t_drybulb :float, t_sat :float, t_sat_mid :float, airflow :float):
