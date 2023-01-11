@@ -29,17 +29,17 @@ class Fan(object):
         return self._current
 
     def set_properties(self, q :float, p :float) -> float:
-        self.__set_capacity(q, p)
+        self.__set_rpm(q, p)
         self.__set_power(q, p)
         self.__set_current(q, p)
 
-    def __set_capacity(self, q, p):
+    def __set_rpm(self, q, p):
         # Output = rpm (rpm)
         self._rpm = self.__calculate_properties(q, p, self.rpm_coef)
         
     def __set_power(self, q, p):
         # Output = power (kW)
-        self._power = self.__calculate_properties(q, p, self.pow_coef)
+        self._power = self.__calculate_properties(q, p, self.pow_coef)/1000
 
     def __set_current(self, q, p):
         # Output = current (A)

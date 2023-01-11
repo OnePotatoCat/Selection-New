@@ -4,7 +4,7 @@ class Condenser(Coil):
     def __init__(self, model :str) -> None:
         type = "condenser"
         super().__init__(model, type)
-        self.cond_temp=0
+        self.saturated_temp=0
 
 
 def main():

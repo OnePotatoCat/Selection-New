@@ -38,8 +38,8 @@ class Unit(object):
                     self.compressor = Compressor(line[3])
                     self.fan = Fan(line[4])
                     self.no_of_fan = int(line[5])
-                    self.isp_g4 = np.array(line[6:9]).astype(float)
-                    self.isp_f7 = np.array(line[9:]).astype(float)
+                    self.isp_g4 = np.array(line[7:10]).astype(float)
+                    self.isp_f7 = np.array(line[10:]).astype(float)
                     return
             raise Exception(f"Invalid unit model name, {self.model}")
 
@@ -70,7 +70,7 @@ def main():
     print(unit.compressor.model)
     print(unit.fan.model)
     print(unit.get_tsp(6500))
-    print(unit.fan.set_properties(6500,unit.get_tsp(6500)))
+    print(unit.fan.set_properties(6500/unit.no_of_fan,unit.get_tsp(6500)))
 
 if __name__ == "__main__":
     main()

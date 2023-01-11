@@ -12,7 +12,7 @@ T_EVAP_MIN = 0.0
 T_COND_MAX = 60
 T_COND_MIN = 30
 DENSITY = 1.176103
-
+MAX_COUNTER = 500
 
 def main(t, rh, q):
     # Declare component
@@ -65,12 +65,12 @@ def main(t, rh, q):
     flag_dew = False
     flag_condenser = False
     flag_compressor = False
-
-    while(not flag_condenser):
+    counter = 0
+    while(not flag_condenser) and (check_diverge_counter(counter)):
         t_cond = 0.5*(t_cond_temp_max + t_cond_temp_min)
         flag_compressor = False
 
-        while(not flag_compressor):
+        while(not flag_compressor) and (check_diverge_counter(counter)):
             t_evap = 0.5*(t_evap_temp_max + t_evap_temp_min)
             t1 = t_evap+sh_suction
 
@@ -136,7 +136,6 @@ def main(t, rh, q):
             # ------ End Refrigerant Data -------- #
 
 
-
             # ---------- Air Side Data ---------- #
             # Air Prop Saturated @ Te 
             saturated_air = HumidAir().with_state(
@@ -162,7 +161,7 @@ def main(t, rh, q):
 
             t_startdew = t_evap + starting_dewpoint(airflow/3600/unit.evaporator.frontal_area, t_evap,t_inlet)
             
-            if (dp_inlet <= t_startdew) and (not flag_dew):
+            if (dp_inlet <= t_startdew) and (not flag_dew) and (check_diverge_counter(counter)):
                 Q_total = dry_capacity(unit.evaporator,t_inlet, t_evap, t_evap_mid, airflow)
                 Q_sen = Q_total
 
@@ -173,6 +172,9 @@ def main(t, rh, q):
                     InputHumidAir.humidity(w_inlet)
                 )
                 t_outlet = outlet_air.temperature
+                w_outlet = w_inlet
+                counter += 1
+
                 try:
                     rh_outlet = outlet_air.relative_humidity
                 except ValueError:
@@ -182,7 +184,7 @@ def main(t, rh, q):
 
             else:
                 flag_U = False
-                while(not flag_U):
+                while(not flag_U and check_diverge_counter(counter)):
                     U_h_guess = U_h_new
 
                     h_outlet = h_saturated_te +(h_inlet-h_saturated_te)*math.exp(-U_h_guess*unit.evaporator.surface_area/massflow)
@@ -223,6 +225,7 @@ def main(t, rh, q):
                     
                     U_h_new = unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
+                    counter += 1
 
                     if (U_h_new - U_h_guess)**2 < 10 ** (-9):
                         flag_U= True
@@ -247,7 +250,17 @@ def main(t, rh, q):
             t_evap_temp_min = t_evap_temp_min -1
             t_cond_temp_min= t_cond 
 
+    if not check_diverge_counter(counter):
+        return False, "Failed to converge"
     
+    t_outlet_net = t_outlet + unit.fan.get_power()/(massflow*1.006)
+    net_outlet_air = HumidAir().with_state(
+        InputHumidAir.altitude(0),
+        InputHumidAir.humidity(w_outlet),
+        InputHumidAir.temperature(t_outlet_net)
+    )
+    rh_outlet_net = net_outlet_air.relative_humidity
+
     print(f"Compressor Capacity = {round(cap_comp, 2)}")
     print(f"Coil Total Capacity = {round(Q_total, 2)}")
     print(f"Coil Sensible Capacity = {round(Q_sen, 2)}")
@@ -262,12 +275,17 @@ def main(t, rh, q):
     print(f"Condenser Capacity = {round(condenser_cap, 2)}")
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
-    unit.outlet_temp = t_outlet
-    unit.outlet_rh = rh_outlet
-    unit.evaporator.evap_temp=t_evap
-    unit.condenser.cond_temp=t_cond
-    return unit
+    unit.outlet_temp = t_outlet_net
+    unit.outlet_rh = rh_outlet_net
+    unit.evaporator.saturated_temp=t_evap
+    unit.condenser.saturated_temp=t_cond
+    return True, unit
 
+
+def check_diverge_counter(counter: int) -> bool:
+    if counter < MAX_COUNTER:
+        return True 
+    return False
 
 def dry_capacity(coil :Coil,t_drybulb :float, t_sat :float, t_sat_mid :float, airflow :float):
     delta_t = abs(t_drybulb - t_sat)
@@ -326,4 +344,4 @@ def ConvertPa_Psi(pressure_pa):
 
 
 if __name__ == "__main__":
-    main()
+    main(22, 55, 4500)
