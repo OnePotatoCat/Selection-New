@@ -14,9 +14,9 @@ class Fan(object):
                 self.data =  data
                 break
         
-        self.rpm_coef = []
-        self.pow_coef = []
-        self.cur_coef = []
+        self._rpm_coef = []
+        self._pow_coef = []
+        self._cur_coef = []
         self.__set_coefficient()
 
     def get_rpm(self) -> float:
@@ -35,15 +35,15 @@ class Fan(object):
 
     def __set_rpm(self, q, p):
         # Output = rpm (rpm)
-        self._rpm = self.__calculate_properties(q, p, self.rpm_coef)
+        self._rpm = self.__calculate_properties(q, p, self._rpm_coef)
         
     def __set_power(self, q, p):
         # Output = power (kW)
-        self._power = self.__calculate_properties(q, p, self.pow_coef)/1000
+        self._power = self.__calculate_properties(q, p, self._pow_coef)/1000
 
     def __set_current(self, q, p):
         # Output = current (A)
-        self._current = self.__calculate_properties(q, p, self.cur_coef)
+        self._current = self.__calculate_properties(q, p, self._cur_coef)
 
 
     def __set_coefficient(self):
@@ -52,9 +52,9 @@ class Fan(object):
             data = csv.reader(file)
             for line in data:
                 if self.model in line[0]:
-                    self.rpm_coef = np.array(line[1:10]).astype(float)
-                    self.pow_coef = np.array(line[10:19]).astype(float)
-                    self.cur_coef = np.array(line[19:]).astype(float)
+                    self._rpm_coef = np.array(line[1:10]).astype(float)
+                    self._pow_coef = np.array(line[10:19]).astype(float)
+                    self._cur_coef = np.array(line[19:]).astype(float)
                     break
         
 

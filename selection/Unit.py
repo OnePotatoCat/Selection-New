@@ -38,18 +38,18 @@ class Unit(object):
                     self.compressor = Compressor(line[3])
                     self.fan = Fan(line[4])
                     self.no_of_fan = int(line[5])
-                    self.isp_g4 = np.array(line[7:10]).astype(float)
-                    self.isp_f7 = np.array(line[10:]).astype(float)
+                    self._isp_g4_coef = np.array(line[7:10]).astype(float)
+                    self._isp_f7_coef = np.array(line[10:]).astype(float)
                     return
             raise Exception(f"Invalid unit model name, {self.model}")
 
 
     def __get_isp(self, airflow :float) -> float:
         if self.filter_type == "g4":
-            c = self.isp_g4
+            c = self._isp_g4_coef
             self._isp = c[0] + c[1]*airflow + c[2]*airflow**2
         elif self.filter_type == "f7":
-            c = self.isp_f7
+            c = self._isp_f7_coef
             self._isp = c[0] + c[1]*airflow + c[2]*airflow**2
         else:
             raise Exception(f"Invalid filter type, {self.filter_type}.")
