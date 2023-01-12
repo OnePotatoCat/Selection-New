@@ -1,0 +1,18 @@
+{% extends "selecting/layout.html" %}
+
+
+{% block body %}
+    <div class="m-5">
+        <h1>ESU20AES v HEC274 Trial</h1>
+        <form action="{% url 'selecting:index' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit">
+        </form>
+        {% block calculation %}
+        {% endblock %}
+    </div>
+
+
+
+  {% endblock %}
