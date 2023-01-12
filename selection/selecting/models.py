@@ -35,7 +35,7 @@ class Evaporator(models.Model):
     wet_c7 = models.FloatField()
     wet_c8 = models.FloatField()
 
-    tags = ArrayField(models.CharField(max_length=200), blank=True)
+    tags = ArrayField(models.CharField(max_length=200, blank=True), size= 3)
 
     def __str__(self):
         return f"{self.model.upper()}, surface area: ({self.area_surface}, frontal area: ({self.area_frontal})"
