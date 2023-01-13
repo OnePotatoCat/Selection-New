@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'selection.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'selection',
+        'NAME': 'model_db',
         'USER': 'admin',
         'PASSWORD': 'admin'
     }

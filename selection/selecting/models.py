@@ -7,12 +7,10 @@ class Condenser(models.Model):
     area_surface = models.FloatField()
     area_frontal = models.FloatField()
     # Dry coil coefficients
-    dry_coef0 = models.FloatField()
-    dry_coef1 = models.FloatField()
-    dry_coef2 = models.FloatField()
+    dry_coefficient = ArrayField(models.FloatField(), size = 3, null=True)
  
     def __str__(self):
-        return f"{self.model.upper()}, surface area: ({self.area_surface}, frontal area: ({self.area_frontal})"
+        return f"{self.model.upper()}, surface area: {self.area_surface}, frontal area: {self.area_frontal}"
 
 class Evaporator(models.Model):
     model = models.CharField(max_length=16)
@@ -21,21 +19,42 @@ class Evaporator(models.Model):
     min_airflow = models.FloatField()
     max_airflow = models.FloatField()
     # Dry coil coefficients
-    dry_c0 = models.FloatField()
-    dry_c1 = models.FloatField()
-    dry_c2 = models.FloatField()
-    # Wet coil coefficients
-    wet_c0 = models.FloatField()
-    wet_c1 = models.FloatField()
-    wet_c2 = models.FloatField()
-    wet_c3 = models.FloatField()
-    wet_c4 = models.FloatField()
-    wet_c5 = models.FloatField()
-    wet_c6 = models.FloatField()
-    wet_c7 = models.FloatField()
-    wet_c8 = models.FloatField()
+    dry_coefficient = ArrayField(models.FloatField(), size = 3, null=True)
 
-    tags = ArrayField(models.CharField(max_length=200, blank=True), size= 3)
+    # Wet coil coefficients
+    wet_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
+
 
     def __str__(self):
-        return f"{self.model.upper()}, surface area: ({self.area_surface}, frontal area: ({self.area_frontal})"
+        return f"{self.model.upper()}, surface area: {self.area_surface}, frontal area: {self.area_frontal}"
+
+
+class Compressor(models.Model):
+    model = models.CharField(max_length=16)
+    refrigerant = models.CharField(max_length=10)
+    voltage = models.IntegerField()
+    
+    subcool = models.FloatField()
+    superheat = models.FloatField()
+    volume = models.FloatField()
+
+    capacity_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+    power_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+    supply_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+    massflow_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+
+
+    def __str__(self):
+        return f"{self.model.upper()}, refrigerant: {self.refrigerant.upper()}"
+
+
+class Fan(models.Model):
+    model = models.CharField(max_length=32)
+
+    rpm_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
+    power_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
+    current_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
+
+
+    def __str__(self):
+        return f"{self.model.upper()}"
