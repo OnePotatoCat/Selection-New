@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from django import forms
+from .models import Unit
+
 import sys
 sys.path.append('../parentdirectory')
 import Selection
-import Unit
+
+
+def get_all_units():
+    return Unit.objects.all()
 
 # Create your views here.
-
 class NewTaskForm(forms.Form):
     temp = forms.FloatField(label="Return Air Temperature", min_value=5.0, max_value=40.0,
         widget=forms.NumberInput(attrs = {
@@ -26,6 +30,16 @@ class NewTaskForm(forms.Form):
             'style': 'width:200px;',
             'class':'form-control'
         }))
+
+class NewUnitSelectionForm(forms.Form):
+    unit = forms.MultipleChoiceField(choices=[])
+
+    def __init__(self, units):
+        super(NewUnitSelectionForm, self).__init__()
+        print(units)
+        self.fields['unit'].choices = get_all_units()
+
+
 
 def index(request):
     if request.method == "POST":
@@ -69,4 +83,14 @@ def index(request):
     else:
         return render(request, "selecting/index.html", {
             "form" : NewTaskForm()
+        })
+
+
+def selection(request):
+    if request.method == "GET":
+        units = Unit.objects.all()
+        id, model = units.values_list('id').order_by('id'), units.values_list('model').order_by('id')
+        print(id.values, model.values)
+        return render(request, "selecting/selection.html", {
+            "form": NewUnitSelectionForm([id, model])
         })
