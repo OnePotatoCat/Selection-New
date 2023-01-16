@@ -1,7 +1,7 @@
 from Coil import Coil
 
 class Evaporator(Coil):
-    def __init__(self, model :str) -> None:
+    def __init__(self, model :int) -> None:
         type = "evaporator"
         super().__init__(model, type)
 

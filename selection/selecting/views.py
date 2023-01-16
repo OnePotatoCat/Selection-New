@@ -1,14 +1,17 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django import forms
-from .models import Unit
+from .models import Unit, Condenser
 
-import sys
-sys.path.append('../parentdirectory')
 import Selection
+from . import Selection as sel
+from .Compressor import Compressor_Cal
+from .Evaporator import Evaporator_Cal
+from .Condenser import Condenser_Cal
+from .Fan import Fan_Cal
+from .Unit import Unit_Cal
 
-
-def get_all_units():
-    return Unit.objects.all()
+CONDENSER_MODEL = []
 
 # Create your views here.
 class NewTaskForm(forms.Form):
@@ -18,26 +21,60 @@ class NewTaskForm(forms.Form):
             'style': 'width:200px;',
             'class':'form-control'
         }))
-    rh = forms.FloatField(label="Return Air Relative Humidity", min_value=10, max_value=99.0,
+    rh = forms.FloatField(label = "Return Air Relative Humidity", min_value=10, max_value=99.0,
         widget=forms.NumberInput(attrs = {
             'placeholder': '50',
             'style': 'width:200px;',
             'class':'form-control'
         }))
-    airflow = forms.FloatField(label="Airflow Rate", min_value=4000, max_value=8000,
+    airflow = forms.FloatField(label = "Airflow Rate, m3/hr", min_value=4000, max_value=8000,
         widget=forms.NumberInput(attrs = {
             'placeholder': '6650',
             'style': 'width:200px;',
             'class':'form-control'
         }))
 
-class NewUnitSelectionForm(forms.Form):
-    unit = forms.MultipleChoiceField(choices=[])
 
-    def __init__(self, units):
+class Calculation_Form(forms.Form):
+
+    def __init__(self, condensers):
+        super(Calculation_Form, self).__init__()
+        self.fields['condenser_Model'] = forms.ChoiceField(choices = condensers, 
+            widget = forms.Select(attrs={
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+        
+    temp = forms.FloatField(label="Return Air Temperature", min_value=5.0, max_value=40.0,
+        widget=forms.NumberInput(attrs = {
+            'placeholder': '24',
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+
+    rh = forms.FloatField(label = "Return Air Relative Humidity", min_value=10, max_value=99.0,
+        widget=forms.NumberInput(attrs = {
+            'placeholder': '50',
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+
+    airflow = forms.FloatField(label = "Airflow Rate, m3/hr", min_value=4000, max_value=8000,
+        widget=forms.NumberInput(attrs = {
+            'placeholder': '6650',
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+
+
+class NewUnitSelectionForm(forms.Form):
+    def __init__(self):
         super(NewUnitSelectionForm, self).__init__()
-        print(units)
-        self.fields['unit'].choices = get_all_units()
+        units = Unit.objects.all()
+        ids, models = units.values_list('id').order_by('id'), units.values_list('model').order_by('id')
+        id_model_pairs = [(ids[i][0], models[i][0].upper()) for i in range(0, len(ids))]
+        self.fields['selections'] = forms.ChoiceField(
+            choices = [(pair[0], pair[1]) for pair in id_model_pairs])
 
 
 
@@ -86,11 +123,38 @@ def index(request):
         })
 
 
-def selection(request):
+def unit_selection(request):
+    units = Unit.objects.all()
     if request.method == "GET":
-        units = Unit.objects.all()
-        id, model = units.values_list('id').order_by('id'), units.values_list('model').order_by('id')
-        print(id.values, model.values)
         return render(request, "selecting/selection.html", {
-            "form": NewUnitSelectionForm([id, model])
+            "units" : units
+        })
+    else:
+        unit = Unit.objects.get(pk=int(request.POST["unit"]))
+        unit_id = unit.id
+
+        compressor = unit.compressor
+        fan = unit.fan
+        condensers = unit.condenser.all()
+        condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
+        # print(condensers)
+        # Compressor.main()
+        # Evaporator.main()
+        # Condenser.main()
+        Fan.main()
+        Unit.main()
+        return render(request, "selecting/selection.html", {
+            "units" : units,
+            "sel_unit" : unit_id,
+            "compressor" : compressor,
+            "fan" : fan,
+            "calc_form" : Calculation_Form(condensers)
+        })
+
+
+def calculate_selection(request):
+    if request.method == "POST":
+
+        return render(request, "selecting/calculation_selection.html", {
+            "form" : NewUnitSelectionForm()
         })

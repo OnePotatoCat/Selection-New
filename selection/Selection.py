@@ -250,6 +250,9 @@ def main(t, rh, q):
             t_evap_temp_min = t_evap_temp_min -1
             t_cond_temp_min= t_cond 
 
+        if t_evap_temp_max > T_EVAP_MAX: t_evap_temp_max = T_EVAP_MAX
+        if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_max = T_EVAP_MIN
+        
     if not check_diverge_counter(counter):
         return False, "Failed to converge"
     

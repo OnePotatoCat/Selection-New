@@ -13,6 +13,7 @@ class Condenser(models.Model):
     def __str__(self):
         return f"{self.model.upper()}"
 
+
 class Evaporator(models.Model):
     model = models.CharField(max_length=16)
     area_surface = models.FloatField()
@@ -33,14 +34,12 @@ class Compressor(models.Model):
     model = models.CharField(max_length=16)
     refrigerant = models.CharField(max_length=10)
     voltage = models.IntegerField()
-    
     subcool = models.FloatField()
     superheat = models.FloatField()
     volume = models.FloatField()
-
     capacity_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
     power_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
-    supply_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+    current_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
     massflow_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
 
     def __str__(self):
@@ -49,7 +48,6 @@ class Compressor(models.Model):
 
 class Fan(models.Model):
     model = models.CharField(max_length=32)
-
     rpm_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
     power_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
     current_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
@@ -67,9 +65,8 @@ class FlowOrientation(models.Model):
 
 class Unit(models.Model):
     model = models.CharField(max_length = 16, blank = True)
-    flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="unit")
+    flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="flow")
     evaporator = models.ForeignKey(Evaporator, null = True, on_delete = models.CASCADE, related_name = "evaporator")
-
     compressor = models.ForeignKey(Compressor, null = True, on_delete = models.CASCADE, related_name = "compressor")
     condenser = models.ManyToManyField(Condenser, blank = True, related_name = "condenser")
     fan = models.ForeignKey(Fan, null = True, on_delete = models.CASCADE, related_name = "fan")

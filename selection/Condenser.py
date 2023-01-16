@@ -7,7 +7,7 @@ class Condenser(Coil):
 
 
 def main():
-    cond = Condenser("hec274")
+    cond = Condenser(1)
     print(cond.dry_coef)
     print(cond.U_dry(12, 3.0))
 
