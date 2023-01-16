@@ -1,0 +1,31 @@
+{% extends "selecting/index.html" %}
+
+{% block body %}
+    <div class="m-5">
+        <h1>Select Model</h1>
+        <form action="{% url 'selecting:selection' %}" method="post" class = "mb-2">
+            {% csrf_token %}
+            <select name = "unit">
+                {% for unit in units %}
+                    <option value = "{{ unit.id }}" {% if unit.id == sel_unit %}selected = "selected" {% endif %}>{{ unit }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit">
+        </form>
+
+        {% if compressor is not defined and fan is not defined %}
+            <h5 name = "compressor">Compressor : {{ compressor }}</h2>
+            <h5 name = "fan">Fan : {{ fan }}</h2>
+            
+            <form action = "{ url 'selecting:calculate_selection' %}" method = "post">
+                {% csrf_token %}
+                {{ calc_form }}
+                <input type="submit">
+            </form>
+        {% endif %}
+
+        {% block calculation %}
+        {% endblock %}
+
+    </div>
+  {% endblock %}
