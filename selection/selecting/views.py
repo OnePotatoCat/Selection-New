@@ -39,7 +39,7 @@ class Calculation_Form(forms.Form):
 
     def __init__(self, condensers):
         super(Calculation_Form, self).__init__()
-        self.fields['condenser_Model'] = forms.ChoiceField(choices = condensers, 
+        self.fields['condenser'] = forms.ChoiceField(choices = condensers, 
             widget = forms.Select(attrs={
             'style': 'width:200px;',
             'class':'form-control'
@@ -137,12 +137,7 @@ def unit_selection(request):
         fan = unit.fan
         condensers = unit.condenser.all()
         condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
-        # print(condensers)
-        # Compressor.main()
-        # Evaporator.main()
-        # Condenser.main()
-        Fan.main()
-        Unit.main()
+
         return render(request, "selecting/selection.html", {
             "units" : units,
             "sel_unit" : unit_id,
@@ -154,7 +149,14 @@ def unit_selection(request):
 
 def calculate_selection(request):
     if request.method == "POST":
-
-        return render(request, "selecting/calculation_selection.html", {
-            "form" : NewUnitSelectionForm()
-        })
+        form = NewUnitSelectionForm(request.POST)
+        if form.is_valid():
+            temp = form.cleaned_data['temp']
+            rh = form.cleaned_data['rh']
+            airflow =form.cleaned_data['airflow']
+            condenser_id = form.cleaned_data['condenser']
+            output = sel.main(1,1,condenser_id,1,1,temp,rh,airflow,50)
+            print(output)
+            return render(request, "selecting/calculate_selection.html", {
+                "form" : NewUnitSelectionForm()
+            })
