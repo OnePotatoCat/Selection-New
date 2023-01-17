@@ -1,28 +1,69 @@
 {% extends "selecting/index.html" %}
 
 {% block body %}
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function(){
+            let selected_unit = document.querySelector('#unit')
+            let selected_compressor = document.querySelector('#compressor')
+            let selected_fan = document.querySelector('#fan')
+
+            // Storing unit selection
+            if (!localStorage.getItem('unit_id')){
+                localStorage.setItem('unit_id', selected_unit.value);
+            }
+
+            // Updating unit selection
+            document.querySelector('#unit').onchange = function(){
+                localStorage.setItem('unit_id', selected_unit.value);
+            }
+
+            if (selected_compressor){
+                if(!localStorage.getItem('compressor_id')){
+                    localStorage.setItem('compressor_id', selected_compressor.value);
+                }
+            }
+
+            if (selected_fan){
+                if(!localStorage.getItem('fan_id')){
+                    localStorage.setItem('fan_id', selected_fan.value);
+                }
+            }
+        })
+
+    </script>
     <div class="m-5">
         <h1>Select Model</h1>
         <form action="{% url 'selecting:selection' %}" method="post" class = "mb-2">
             {% csrf_token %}
-            <select name = "unit">
+            <select id="unit" name="unit">
                 {% for unit in units %}
                     <option value = "{{ unit.id }}" {% if unit.id == sel_unit %}selected = "selected" {% endif %}>{{ unit }}</option>
                 {% endfor %}
             </select>
-            <input type="submit">
+            <input id="unit_form" type="submit">
         </form>
 
-        {% if compressor is not defined and fan is not defined %}
-            <h5 name = "compressor">Compressor : {{ compressor }}</h2>
-            <h5 name = "fan">Fan : {{ fan }}</h2>
+         
+        <form action ="{% url 'selecting:calculate_selection' %}" method = "post">
             
-            <form action = "{ url 'selecting:calculate_selection' %}" method = "post">
-                {% csrf_token %}
-                {{ calc_form }}
-                <input type="submit">
-            </form>
-        {% endif %}
+            <!-- <label>Compressor :</label>
+            <select id="compressor" name="compressor" disabled="disabled">
+                <option value="{{ compressor.id }}" selected="selected">{{ compressor }}</option>
+            </select>
+
+
+            <label>Fan :</label>
+            <select id="fan" name="fan" disabled="disabled">
+                <option value="{{ fan.id }}" selected="selected">{{ fan }}</option>
+            </select> -->
+
+            {% csrf_token %}
+            {{ calc_form }}
+            <input type="submit">
+        </form>            
+
+
 
         {% block calculation %}
         {% endblock %}

@@ -37,12 +37,28 @@ class NewTaskForm(forms.Form):
 
 class Calculation_Form(forms.Form):
 
-    def __init__(self, condensers):
+    compressor = forms.ChoiceField(choices = [])
+    fan = forms.ChoiceField(choices = [])
+    condenser = forms.ChoiceField(choices = [])
+
+    def __init__(self, compressor, fan, condensers):
         super(Calculation_Form, self).__init__()
+        self.fields['compressor'] = forms.ChoiceField(choices = compressor, 
+            widget = forms.Select(attrs={
+            'style': 'width:200px;',
+            'class': 'form-control'
+        }))
+
+        self.fields['fan'] = forms.ChoiceField(choices = fan, 
+            widget = forms.Select(attrs={
+            'style': 'width:200px;',
+            'class': 'form-control'
+        }))
+
         self.fields['condenser'] = forms.ChoiceField(choices = condensers, 
             widget = forms.Select(attrs={
             'style': 'width:200px;',
-            'class':'form-control'
+            'class': 'form-control'
         }))
         
     temp = forms.FloatField(label="Return Air Temperature", min_value=5.0, max_value=40.0,
@@ -134,29 +150,33 @@ def unit_selection(request):
         unit_id = unit.id
 
         compressor = unit.compressor
+        compressor = [(compressor.id, compressor.model.upper())]
         fan = unit.fan
+        fan = [(fan.id, fan.model.upper())]
         condensers = unit.condenser.all()
         condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
 
+        print(fan)
+        print(condensers)
         return render(request, "selecting/selection.html", {
             "units" : units,
             "sel_unit" : unit_id,
             "compressor" : compressor,
             "fan" : fan,
-            "calc_form" : Calculation_Form(condensers)
+            "calc_form" : Calculation_Form(compressor, fan, condensers)
         })
 
 
 def calculate_selection(request):
     if request.method == "POST":
-        form = NewUnitSelectionForm(request.POST)
-        if form.is_valid():
-            temp = form.cleaned_data['temp']
-            rh = form.cleaned_data['rh']
-            airflow =form.cleaned_data['airflow']
-            condenser_id = form.cleaned_data['condenser']
-            output = sel.main(1,1,condenser_id,1,1,temp,rh,airflow,50)
-            print(output)
-            return render(request, "selecting/calculate_selection.html", {
-                "form" : NewUnitSelectionForm()
-            })
+        form = request.POST
+
+        temp = float(request.POST["temp"])
+        rh = float(request.POST["rh"])
+        airflow = float(request.POST["airflow"])
+        compressor_id = int(request.POST["compressor"])
+        fan_id = int(request.POST["fan"])
+        condenser_id = int(request.POST["condenser"])
+        output = sel.main(1,1,condenser_id,compressor_id,fan_id,temp,rh,airflow,50)
+        print(output)
+        return render(request, "selecting/calculate_selection.html")
