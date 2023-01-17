@@ -46,18 +46,6 @@
 
          
         <form action ="{% url 'selecting:calculate_selection' %}" method = "post">
-            
-            <!-- <label>Compressor :</label>
-            <select id="compressor" name="compressor" disabled="disabled">
-                <option value="{{ compressor.id }}" selected="selected">{{ compressor }}</option>
-            </select>
-
-
-            <label>Fan :</label>
-            <select id="fan" name="fan" disabled="disabled">
-                <option value="{{ fan.id }}" selected="selected">{{ fan }}</option>
-            </select> -->
-
             {% csrf_token %}
             {{ calc_form }}
             <input type="submit">

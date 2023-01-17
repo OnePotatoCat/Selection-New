@@ -82,6 +82,13 @@ class Calculation_Form(forms.Form):
             'class':'form-control'
         }))
 
+    esp = forms.FloatField(label = "External Static Pressure, Pa", min_value=10, max_value=400,
+        widget=forms.NumberInput(attrs = {
+            'placeholder': '50',
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+
 
 class NewUnitSelectionForm(forms.Form):
     def __init__(self):
@@ -156,8 +163,6 @@ def unit_selection(request):
         condensers = unit.condenser.all()
         condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
 
-        print(fan)
-        print(condensers)
         return render(request, "selecting/selection.html", {
             "units" : units,
             "sel_unit" : unit_id,
@@ -170,13 +175,14 @@ def unit_selection(request):
 def calculate_selection(request):
     if request.method == "POST":
         form = request.POST
-
         temp = float(request.POST["temp"])
         rh = float(request.POST["rh"])
         airflow = float(request.POST["airflow"])
+        esp = float(request.POST["esp"])
+
         compressor_id = int(request.POST["compressor"])
         fan_id = int(request.POST["fan"])
         condenser_id = int(request.POST["condenser"])
-        output = sel.main(1,1,condenser_id,compressor_id,fan_id,temp,rh,airflow,50)
+        output = sel.main(1, 1, condenser_id, compressor_id, fan_id, temp, rh, airflow, esp)
         print(output)
         return render(request, "selecting/calculate_selection.html")
