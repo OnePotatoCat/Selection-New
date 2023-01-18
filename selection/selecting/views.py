@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django import forms
 from .models import Unit, Condenser
 
+import json
 import Selection
 from . import Selection as sel
 from .Compressor import Compressor_Cal
@@ -82,6 +83,13 @@ class Calculation_Form(forms.Form):
             'class':'form-control'
         }))
 
+    esp = forms.FloatField(label = "External Static Pressure, Pa", min_value=10, max_value=400,
+        widget=forms.NumberInput(attrs = {
+            'placeholder': '50',
+            'style': 'width:200px;',
+            'class':'form-control'
+        }))
+
 
 class NewUnitSelectionForm(forms.Form):
     def __init__(self):
@@ -156,8 +164,6 @@ def unit_selection(request):
         condensers = unit.condenser.all()
         condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
 
-        print(fan)
-        print(condensers)
         return render(request, "selecting/selection.html", {
             "units" : units,
             "sel_unit" : unit_id,
@@ -170,13 +176,59 @@ def unit_selection(request):
 def calculate_selection(request):
     if request.method == "POST":
         form = request.POST
-
         temp = float(request.POST["temp"])
         rh = float(request.POST["rh"])
         airflow = float(request.POST["airflow"])
+        esp = float(request.POST["esp"])
+
         compressor_id = int(request.POST["compressor"])
         fan_id = int(request.POST["fan"])
         condenser_id = int(request.POST["condenser"])
-        output = sel.main(1, 1, condenser_id, compressor_id, fan_id, temp, rh, airflow, 50)
+        converge, output = sel.main(1,  1,  condenser_id,  compressor_id,  fan_id,  temp,  rh,  airflow,  esp)
         print(output)
-        return render(request, "selecting/calculate_selection.html")
+        return render(request, "selecting/calculate_selection.html", {
+                    "form" : form,
+                    "total_cap" : round(output.total_capacity, 2),
+                    "sens_cap" : round(output.sensible_capacity, 2),
+                    "net_cap" : round(output.total_capacity - output.fan.get_power(),2),
+                    "net_sen_cap" : round(output.sensible_capacity - output.fan.get_power(),2),
+                    
+                    "outlet_temp" : round(output.outlet_temp, 1),
+                    "outlet_rh" : round(output.outlet_rh, 1),
+                    "evap_temp" : round(output.evaporator.saturated_temp, 1),
+                    "cond_temp" : round(output.condenser.saturated_temp, 1),
+                    
+                    "comp_model" : output.compressor.model.upper(),
+                    "comp_power" : round(output.compressor.get_power(), 0),
+                    "comp_current" : round(output.compressor.get_current(), 0),
+
+                    "fan_model" : output.fan.model.upper(),
+                    "fan_rpm" : round(output.fan.get_rpm(), 0),
+                    "tsp" : round(output.tsp, 0),
+                })
+
+def newselection(request):
+    units = Unit.objects.all()
+    return render(request, "selecting/newselection.html", {
+        "units" : units
+    })
+
+def showcomponents(request, unit):
+    data = {}
+    comp_dict= {}
+    unit = Unit.objects.get(pk=int(unit))
+    comps = unit.compressor
+    for comp in comps:
+        comp_dict["id"] = comp.id
+        comp_dict["model"] = comp.model
+
+    data["compressor"] = comp_dict
+
+    fan = unit.fan
+    condensers = unit.condenser.all()
+    condensers = [(condenser.id, condenser.model.upper()) for condenser in condensers]
+
+    jsonData = json.dumps(data)
+
+    print(unit)
+    return HttpResponse(jsonData)
