@@ -177,6 +177,6 @@ def calculate_selection(request):
         compressor_id = int(request.POST["compressor"])
         fan_id = int(request.POST["fan"])
         condenser_id = int(request.POST["condenser"])
-        output = sel.main(1,1,condenser_id,compressor_id,fan_id,temp,rh,airflow,50)
+        output = sel.main(1, 1, condenser_id, compressor_id, fan_id, temp, rh, airflow, 50)
         print(output)
         return render(request, "selecting/calculate_selection.html")
