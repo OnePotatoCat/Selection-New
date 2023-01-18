@@ -1,0 +1,58 @@
+{% extends "selecting/index.html" %}
+
+{% block body %}
+    <script>
+
+        function showComponents(unit) {
+            fetch(`showcomponents/${unit}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                var dataObj = JSON.parse(data)
+                const compressor_selection = document.getElementById('comp');
+                dataObj.compressor.array.forEach(element => {
+                    compressor_selection.add(new Option(element.id, element.model));
+                });
+                
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add button functionality
+            let selection = document.querySelector('#unit');
+            selection.onchange = function(e) {
+                const unit = this.options[this.selectedIndex].dataset.unit
+                history.pushState({unit: unit}, "", `newselection`);
+                showComponents(this.options[this.selectedIndex].dataset.unit);
+            }
+        });
+
+    </script>
+
+    <div class="m-5">
+        <h1>Selection</h1>
+        <div class="m-1">
+            <label>Unit Model</label>
+            <select id="unit" name="unit">
+                {% for unit in units %}
+                    <option data-unit="{{ unit.id }}">{{ unit }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="comp_selection" class="m-1">
+            <label>Compressor</label>
+            <select id="comp" name="comp">
+                {% for comp in comps %}
+                    <option data-unit="{{ comp.id }}">{{ comp }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+         
+
+        {% block calculation %}
+        {% endblock %}
+
+    
+  {% endblock %}
