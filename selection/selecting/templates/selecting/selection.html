@@ -32,10 +32,12 @@
         })
 
     </script>
+
     <div class="m-5">
         <h1>Select Model</h1>
         <form action="{% url 'selecting:selection' %}" method="post" class = "mb-2">
             {% csrf_token %}
+            <label>Unit: </label>
             <select id="unit" name="unit">
                 {% for unit in units %}
                     <option value = "{{ unit.id }}" {% if unit.id == sel_unit %}selected = "selected" {% endif %}>{{ unit }}</option>
@@ -48,13 +50,17 @@
         <form action ="{% url 'selecting:calculate_selection' %}" method = "post">
             {% csrf_token %}
             {{ calc_form }}
-            <input type="submit">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit">Calculate</button>
+            <!-- <input type="submit"> -->
         </form>            
-
-
-
+        
         {% block calculation %}
         {% endblock %}
+        
+        {% if output %}
+            <h2>{{ output }}</h2>
+        {% endif %}
 
     </div>
   {% endblock %}

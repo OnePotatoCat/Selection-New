@@ -8,51 +8,144 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                var dataObj = JSON.parse(data)
-                const compressor_selection = document.getElementById('comp');
-                dataObj.compressor.array.forEach(element => {
-                    compressor_selection.add(new Option(element.id, element.model));
-                });
-                
+
+                selectionUpdate(data.compressor, 'comp');
+                selectionUpdate(data.fan, 'fan');
+                selectionUpdate(data.condenser, 'cond');
+            });
+
+            document.getElementById("inlet_condition").style.display = ''
+        }
+
+        function selectionUpdate(data, name){
+            const selection = document.getElementById(name);
+            while (selection.options.length > 0){
+                selection.remove(0);
+            }
+            Object.keys(data).forEach(function(key) {
+                selection.add(new Option(data[key], key));
             });
         }
+
+        function calculateSelection(form){
+            fetch(`calculatecapacity/${form}`, {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+            .then(response => response.json())
+            .then(json => {
+                console.log(json);
+            })
+        }
+
 
         document.addEventListener('DOMContentLoaded', function() {
             // Add button functionality
             let selection = document.querySelector('#unit');
-            selection.onchange = function(e) {
+            selection.onchange = function() {
                 const unit = this.options[this.selectedIndex].dataset.unit
                 history.pushState({unit: unit}, "", `newselection`);
                 showComponents(this.options[this.selectedIndex].dataset.unit);
             }
+            showComponents(selection.options[selection.selectedIndex].dataset.unit);
         });
+
 
     </script>
 
-    <div class="m-5">
-        <h1>Selection</h1>
-        <div class="m-1">
-            <label>Unit Model</label>
-            <select id="unit" name="unit">
-                {% for unit in units %}
-                    <option data-unit="{{ unit.id }}">{{ unit }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <div class="m-3">
+        <div class="container">
+            <h1>Selection</h1>
+            <div class="row flex-xl-nowarp">
+                <div class="col-md-4">
+                    <!-- Unit Selection -->
+                    <div class="m-1">
+                        <label>Unit Model</label>
+                        <select id="unit" name="unit">
+                            {% for unit in units %}
+                                <option data-unit="{{ unit.id }}">{{ unit }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Compressor Selection -->
+                    <div id="comp_selection" class="m-1">
+                        <label>Compressor</label>
+                        <select id="comp" name="comp">
+                            {% for comp in comps %}
+                                <option data-unit="{{ comp.id }}">{{ comp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Fan Selection -->
+                    <div id="fan_selection" class="m-1">
+                        <label>Fan</label>
+                        <select id="fan" name="fan">
+                            {% for fan in fans %}
+                                <option data-unit="{{ fan.id }}">{{ fan }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Condenser Selection -->
+                    <div id="cond_selection" class="m-1">
+                        <label>Condenser</label>
+                        <select id="cond" name="cond">
+                            {% for cond in conds %}
+                                <option data-unit="{{ cond.id }}">{{ cond }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
 
-        <div id="comp_selection" class="m-1">
-            <label>Compressor</label>
-            <select id="comp" name="comp">
-                {% for comp in comps %}
-                    <option data-unit="{{ comp.id }}">{{ comp }}</option>
-                {% endfor %}
-            </select>
+                <div class="col-md-5">
+                    <!-- Inlet Conditions -->
+                    <form id="inlet_condition">
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <div class="form-group row">
+                                    <label class="col-sm-5 col-form-label">Inlet Temperature</label>
+                                    <div class="col-sm-4">
+                                        <input type="number" id="temp" name="temp" class="form-control text-right" placeholder="24" max="40" min="15">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label input-unit">(&#176;C)</label>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-sm-5 col-form-label">Inlet RH</label>
+                                    <div class="col-sm-4">
+                                        <input type="number" id="rh" name="rh" class="form-control text-right" placeholder="45" max="90" min="10">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label input-unit">%</label>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-sm-5 col-form-label">Airflow Rate</label>
+                                    <div class="col-sm-4">
+                                        <input type="number" id="airflow" name="airflow" class="form-control text-right" placeholder="6630" max="8000" min="4000">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary col-sm-2">Calc.</button>
+                        </div>
+                        
+                    </form>
+
+                </div>
+            </div>
+            
+
         </div>
+        
+
     </div>
          
 
-        {% block calculation %}
-        {% endblock %}
+    {% block calculation %}
+    {% endblock %}
 
     
   {% endblock %}
