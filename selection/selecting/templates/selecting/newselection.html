@@ -42,13 +42,18 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Add button functionality
-            let selection = document.querySelector('#unit');
+            let selection = document.getElementById('unit');
             selection.onchange = function() {
                 const unit = this.options[this.selectedIndex].dataset.unit
                 history.pushState({unit: unit}, "", `newselection`);
                 showComponents(this.options[this.selectedIndex].dataset.unit);
             }
             showComponents(selection.options[selection.selectedIndex].dataset.unit);
+
+            // Hide the Calculation onload
+            let calculation = document.getElementById('calculation');
+            calculation.style.display = "none";
+
         });
 
 
@@ -60,43 +65,51 @@
             <div class="row flex-xl-nowarp">
                 <div class="col-md-4">
                     <!-- Unit Selection -->
-                    <div class="m-1">
-                        <label>Unit Model</label>
-                        <select id="unit" name="unit">
-                            {% for unit in units %}
-                                <option data-unit="{{ unit.id }}">{{ unit }}</option>
-                            {% endfor %}
-                        </select>
+                    <div class="row">
+                        <label class ="col-sm-5 col-form-label">Unit Model</label>
+                        <div class="col-sm-7">
+                            <select id="unit" name="unit" class="form-select form-select-sm">
+                                {% for unit in units %}
+                                    <option data-unit="{{ unit.id }}">{{ unit }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     
                     <!-- Compressor Selection -->
-                    <div id="comp_selection" class="m-1">
-                        <label>Compressor</label>
-                        <select id="comp" name="comp">
-                            {% for comp in comps %}
-                                <option data-unit="{{ comp.id }}">{{ comp }}</option>
-                            {% endfor %}
-                        </select>
+                    <div id="comp_selection" class="row">
+                        <label class ="col-sm-5 col-form-label">Compressor</label>
+                        <div class="col-sm-7">
+                            <select id="comp" name="comp" class="form-select form-select-sm">
+                                {% for comp in comps %}
+                                    <option data-unit="{{ comp.id }}">{{ comp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     
                     <!-- Fan Selection -->
-                    <div id="fan_selection" class="m-1">
-                        <label>Fan</label>
-                        <select id="fan" name="fan">
-                            {% for fan in fans %}
-                                <option data-unit="{{ fan.id }}">{{ fan }}</option>
-                            {% endfor %}
-                        </select>
+                    <div id="fan_selection" class="row">
+                        <label class ="col-sm-5 col-form-label">Fan</label>
+                        <div class="col-sm-7">
+                            <select id="fan" name="fan" class="form-select form-select-sm">
+                                {% for fan in fans %}
+                                    <option data-unit="{{ fan.id }}">{{ fan }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     
                     <!-- Condenser Selection -->
-                    <div id="cond_selection" class="m-1">
-                        <label>Condenser</label>
-                        <select id="cond" name="cond">
-                            {% for cond in conds %}
-                                <option data-unit="{{ cond.id }}">{{ cond }}</option>
-                            {% endfor %}
-                        </select>
+                    <div id="cond_selection" class="row">
+                        <label class ="col-sm-5 col-form-label">Condenser</label>
+                        <div class="col-sm-7">
+                            <select id="cond" name="cond" class="form-select form-select-sm">
+                                {% for cond in conds %}
+                                    <option data-unit="{{ cond.id }}">{{ cond }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -129,18 +142,25 @@
                                     <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary col-sm-2">Calc.</button>
+
+                            <button type="submit" class="btn btn-primary col-sm-2" onclick="calculateSelection">Calc.</button>
                         </div>
-                        
                     </form>
 
                 </div>
             </div>
-            
+
+            <div id="calculation">
+                <h1 >Result</h1>
+                <div class="row flex-xl-nowarp">
+                    <div class="col-md-6">
+                        
+                    </div>
+                </div>
+            </div>
 
         </div>
         
-
     </div>
          
 

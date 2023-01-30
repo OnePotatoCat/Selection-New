@@ -288,7 +288,15 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     unit.outlet_rh = rh_outlet_net
     unit.evaporator.saturated_temp=t_evap
     unit.condenser.saturated_temp=t_cond
-    return True, unit
+
+    performance_dict = {
+        "total_cap": Q_total,
+        "total_sen": Q_sen,
+        "net_cap": Q_total - fan_power,
+        "net_sen": Q_sen - fan_power
+    }
+
+    return True, unit ,performance_dict
 
 
 def check_diverge_counter(counter: int) -> bool:

@@ -110,7 +110,7 @@ def index(request):
             temp = form.cleaned_data['temp']
             rh = form.cleaned_data['rh']
             airflow =form.cleaned_data['airflow']
-            converge, output = Selection.main(temp, rh, airflow)
+            converge, output , perf_dict = Selection.main(temp, rh, airflow)
             print(converge)
             if converge:
                 return render(request, "selecting/calculated.html", {
