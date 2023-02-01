@@ -72,6 +72,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     flag_condenser = False
     flag_compressor = False
     counter = 0
+    converge = True
     while(not flag_condenser) and (check_diverge_counter(counter)):
         t_cond = 0.5*(t_cond_temp_max + t_cond_temp_min)
         flag_compressor = False
@@ -231,6 +232,9 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     
                     U_h_new = unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
+                    
+                    if (Q_sen > Q_total): 
+                        Q_sen = Q_total
                     counter += 1
 
                     if (U_h_new - U_h_guess)**2 < 10 ** (-9):
@@ -258,10 +262,8 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
         if t_evap_temp_max > T_EVAP_MAX: t_evap_temp_max = T_EVAP_MAX
         if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_max = T_EVAP_MIN
-        
-    if not check_diverge_counter(counter):
-        return False, "Failed to converge"
     
+
     t_outlet_net = t_outlet + unit.fan.get_power()/(massflow*1.006)
     net_outlet_air = HumidAir().with_state(
         InputHumidAir.altitude(0),
@@ -270,33 +272,35 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     )
     rh_outlet_net = net_outlet_air.relative_humidity
 
-    print(f"Compressor Capacity = {round(cap_comp, 2)}")
-    print(f"Coil Total Capacity = {round(Q_total, 2)}")
-    print(f"Coil Sensible Capacity = {round(Q_sen, 2)}")
-    print(f"Superheat Capacity = {round(Q_sh, 2)}")
-    print(f"Outlet Temp = {round(t_outlet, 2)}")
-    print(f"Outlet RH = {round(rh_outlet, 2)}")
-    print(f"Fan Power = {round(fan_power,2)}")
-    print(f"Fan RPM = {round(fan_rpm,0)}")
-    print(f"Evaporating Temp = {round(t_evap, 2)}")
-    print(f"Condensing Temp = {round(t_cond, 2)}")
-    print(f"Heat Reject = {round(heat_reject, 2)}")
-    print(f"Condenser Capacity = {round(condenser_cap, 2)}")
+    # print(f"Compressor Capacity = {round(cap_comp, 2)}")
+    # print(f"Coil Total Capacity = {round(Q_total, 2)}")
+    # print(f"Coil Sensible Capacity = {round(Q_sen, 2)}")
+    # print(f"Superheat Capacity = {round(Q_sh, 2)}")
+    # print(f"Outlet Temp = {round(t_outlet, 2)}")
+    # print(f"Outlet RH = {round(rh_outlet, 2)}")
+    # print(f"Fan Power = {round(fan_power,2)}")
+    # print(f"Fan RPM = {round(fan_rpm,0)}")
+    # print(f"Evaporating Temp = {round(t_evap, 2)}")
+    # print(f"Condensing Temp = {round(t_cond, 2)}")
+    # print(f"Heat Reject = {round(heat_reject, 2)}")
+    # print(f"Condenser Capacity = {round(condenser_cap, 2)}")
+    # print(f"Counter = {int(counter)}")
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net
     unit.outlet_rh = rh_outlet_net
-    unit.evaporator.saturated_temp=t_evap
-    unit.condenser.saturated_temp=t_cond
+    unit.evaporator.saturated_temp = t_evap
+    unit.condenser.saturated_temp = t_cond
 
     performance_dict = {
+        "converged": check_diverge_counter(counter),
         "total_cap": Q_total,
         "total_sen": Q_sen,
         "net_cap": Q_total - fan_power,
         "net_sen": Q_sen - fan_power
     }
 
-    return True, unit ,performance_dict
+    return performance_dict
 
 
 def check_diverge_counter(counter: int) -> bool:
@@ -361,4 +365,4 @@ def ConvertPa_Psi(pressure_pa):
 
 
 if __name__ == "__main__":
-    main(22, 55, 4500)
+    main(24, 46.1, 5550)

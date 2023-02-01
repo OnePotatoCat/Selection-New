@@ -7,7 +7,7 @@
             fetch(`showcomponents/${unit}`)
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                // console.log(data);
 
                 selectionUpdate(data.compressor, 'comp');
                 selectionUpdate(data.fan, 'fan');
@@ -27,15 +27,49 @@
             });
         }
 
+        // import Cookies from 'js-cookies';
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies.toString().replace(/^([\s]*)|([\s]*)$/g, '');
+                    // var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
         function calculateSelection(form){
-            fetch(`calculatecapacity/${form}`, {
+            let unit = document.getElementById('unit').value;
+            let compressor = document.getElementById('comp').value;
+            let fan = document.getElementById('fan').value;
+            let condenser = document.getElementById('cond').value;
+            let data = new FormData(form);
+            data.append('unit', unit)
+            data.append('comp', compressor)
+            data.append('fan', fan)
+            data.append('cond', condenser)
+
+            //data.append('csrfmiddlewaretoken', $('#csrf-helper input[name="csrfmiddlewaretoken"]').attr('value'));
+            let headers = new Headers();
+            const csrftoken = getCookie('csrftoken')
+            headers.append('X-CSRFToken', csrftoken);
+            fetch(`calculatecapacity`, {
                 method: "POST",
-                body: JSON.stringify(data),
-                headers: {"Content-type": "application/json; charset=UTF-8"}
+                body: data,
+                headers: {headers}
             })
             .then(response => response.json())
-            .then(json => {
-                console.log(json);
+            .then(result => {
+                console.log(result.converged);
+                let calculation = document.getElementById('calculation');
+                calculation.style.display = " ";
             })
         }
 
@@ -66,11 +100,11 @@
                 <div class="col-md-4">
                     <!-- Unit Selection -->
                     <div class="row">
-                        <label class ="col-sm-5 col-form-label">Unit Model</label>
-                        <div class="col-sm-7">
+                        <label class ="col-sm-4 col-form-label">Unit Model</label>
+                        <div class="col-sm-6">
                             <select id="unit" name="unit" class="form-select form-select-sm">
                                 {% for unit in units %}
-                                    <option data-unit="{{ unit.id }}">{{ unit }}</option>
+                                    <option data-unit="{{ unit.id }}" value ="{{ unit.id }}">{{ unit }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -78,8 +112,8 @@
                     
                     <!-- Compressor Selection -->
                     <div id="comp_selection" class="row">
-                        <label class ="col-sm-5 col-form-label">Compressor</label>
-                        <div class="col-sm-7">
+                        <label class ="col-sm-4 col-form-label">Compressor</label>
+                        <div class="col-sm-6">
                             <select id="comp" name="comp" class="form-select form-select-sm">
                                 {% for comp in comps %}
                                     <option data-unit="{{ comp.id }}">{{ comp }}</option>
@@ -90,8 +124,8 @@
                     
                     <!-- Fan Selection -->
                     <div id="fan_selection" class="row">
-                        <label class ="col-sm-5 col-form-label">Fan</label>
-                        <div class="col-sm-7">
+                        <label class ="col-sm-4 col-form-label">Fan</label>
+                        <div class="col-sm-6">
                             <select id="fan" name="fan" class="form-select form-select-sm">
                                 {% for fan in fans %}
                                     <option data-unit="{{ fan.id }}">{{ fan }}</option>
@@ -102,8 +136,8 @@
                     
                     <!-- Condenser Selection -->
                     <div id="cond_selection" class="row">
-                        <label class ="col-sm-5 col-form-label">Condenser</label>
-                        <div class="col-sm-7">
+                        <label class ="col-sm-4 col-form-label">Condenser</label>
+                        <div class="col-sm-6">
                             <select id="cond" name="cond" class="form-select form-select-sm">
                                 {% for cond in conds %}
                                     <option data-unit="{{ cond.id }}">{{ cond }}</option>
@@ -111,17 +145,18 @@
                             </select>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="col-md-5">
                     <!-- Inlet Conditions -->
-                    <form id="inlet_condition">
+                    <form id="inlet_condition" method = "post">{% csrf_token %}
                         <div class="row">
                             <div class="col-sm-9">
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Inlet Temperature</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="temp" name="temp" class="form-control text-right" placeholder="24" max="40" min="15">
+                                        <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" placeholder="24" max="40" min="15">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">(&#176;C)</label>
                                 </div>
@@ -129,7 +164,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Inlet RH</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="rh" name="rh" class="form-control text-right" placeholder="45" max="90" min="10">
+                                        <input type="number" id="rh" name="rh" class="form-control form-control-sm text-right" placeholder="45" max="90" min="10">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">%</label>
                                 </div>
@@ -137,13 +172,13 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Airflow Rate</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="airflow" name="airflow" class="form-control text-right" placeholder="6630" max="8000" min="4000">
+                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right" placeholder="6630" max="8000" min="4000">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                 </div>
                             </div>
-
-                            <button type="submit" class="btn btn-primary col-sm-2" onclick="calculateSelection">Calc.</button>
+                            
+                            <button type="submit" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
                         </div>
                     </form>
 

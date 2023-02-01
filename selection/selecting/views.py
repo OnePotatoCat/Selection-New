@@ -110,7 +110,7 @@ def index(request):
             temp = form.cleaned_data['temp']
             rh = form.cleaned_data['rh']
             airflow =form.cleaned_data['airflow']
-            converge, output , perf_dict = Selection.main(temp, rh, airflow)
+            converge, output = Selection.main(temp, rh, airflow)
             print(converge)
             if converge:
                 return render(request, "selecting/calculated.html", {
@@ -246,11 +246,23 @@ def showcomponents(request, unit):
     data["condenser"] = cond_dict
 
     jsonData = json.dumps(data)
-    print(unit)
+    # print(unit)
     return HttpResponse(jsonData)
 
-def calculatecapacity(request, form):
+def calculatecapacity(request):
     if request.method =="POST":
-        data = {1:1}
-        jsonData = json.dumps(data)
-        return HttpResponse(jsonData)
+        form = request.POST
+        unit_id = int(form["unit"])
+        evap_id = Unit.objects.get(pk=int(unit_id)).evaporator.id
+        comp_id = int(form["comp"])
+        fan_id = int(form["fan"])
+        cond_id = int(form["cond"])
+        inlet_temp = float(form["temp"])
+        rh = float(form["rh"])
+        airflow = float(form["airflow"])
+        
+        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow)
+        
+        jsonResult= json.dumps(result)
+        print(jsonResult)
+        return HttpResponse(jsonResult)

@@ -225,6 +225,8 @@ def main(t, rh, q):
                     
                     U_h_new = unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
+                    
+                    if (Q_sen > Q_total): Q_sen = Q_total
                     counter += 1
 
                     if (U_h_new - U_h_guess)**2 < 10 ** (-9):
@@ -276,6 +278,7 @@ def main(t, rh, q):
     print(f"Condensing Temp = {round(t_cond, 2)}")
     print(f"Heat Reject = {round(heat_reject, 2)}")
     print(f"Condenser Capacity = {round(condenser_cap, 2)}")
+    print(f"Counter = {counter}")
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net
