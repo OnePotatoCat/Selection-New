@@ -1,11 +1,12 @@
 .input-unit{
-    offset: -2px;
+    margin-left: -15px;
 }
 
-h1{
-    font-size: 5.5rem;
+.font-weight-bold{
+    font-weight: bold;
 }
 
-.larger{
-    text-align: right;
+sub_title{
+    font-size: medium;
+    font-weight: bold;
 }

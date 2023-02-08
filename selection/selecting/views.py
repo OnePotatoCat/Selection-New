@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.urls import reverse
 from django import forms
 from .models import Unit, Condenser
@@ -260,9 +260,10 @@ def calculatecapacity(request):
         inlet_temp = float(form["temp"])
         rh = float(form["rh"])
         airflow = float(form["airflow"])
+        esp = float(form["esp"])
         
-        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow)
-        
+        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp)
+        print(result)
         jsonResult= json.dumps(result)
-        print(jsonResult)
-        return HttpResponse(jsonResult)
+        # print(jsonResult)
+        return JsonResponse(result)

@@ -11,8 +11,8 @@ from .Evaporator import Evaporator_Cal
 
 
 ATM_PRESSURE = 14.7
-T_EVAP_MAX = 15.0
-T_EVAP_MIN = 0.0
+T_EVAP_MAX = 15
+T_EVAP_MIN = 1
 T_COND_MAX = 60
 T_COND_MIN = 30
 DENSITY = 1.176103
@@ -21,13 +21,9 @@ MAX_COUNTER = 500
 def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int, 
         t :float, rh :float, q :float, 
         esp = 50.0, filter_type="g4"):
-    # Declare component
+   
+   # Declare component
     unit = Unit_Cal(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
-        # comp = Compressor_Cal(1)
-        # evap = Evaporator_Cal(1)
-        # cond = Condenser_Cal(1)
-    # MAX_AIRFLOW =unit.evaporator.max_airflow
-    # MIN_AIRFLOW = unit.evaporator.min_airflow
 
     # Inlet air Properties
     t_inlet = t
@@ -64,7 +60,8 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     subcool = 5
 
     # Initiate Calculation
-    t_evap_temp_max = T_EVAP_MAX
+    t_evap_temp_max = unit.compressor.evap_temp_limit
+    T_EVAP_MAX = unit.compressor.evap_temp_limit
     t_evap_temp_min = T_EVAP_MIN
     t_cond_temp_max = T_COND_MAX
     t_cond_temp_min = T_COND_MIN
@@ -276,10 +273,13 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     # print(f"Coil Total Capacity = {round(Q_total, 2)}")
     # print(f"Coil Sensible Capacity = {round(Q_sen, 2)}")
     # print(f"Superheat Capacity = {round(Q_sh, 2)}")
+
     # print(f"Outlet Temp = {round(t_outlet, 2)}")
     # print(f"Outlet RH = {round(rh_outlet, 2)}")
+
     # print(f"Fan Power = {round(fan_power,2)}")
     # print(f"Fan RPM = {round(fan_rpm,0)}")
+
     # print(f"Evaporating Temp = {round(t_evap, 2)}")
     # print(f"Condensing Temp = {round(t_cond, 2)}")
     # print(f"Heat Reject = {round(heat_reject, 2)}")
@@ -291,13 +291,41 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     unit.outlet_rh = rh_outlet_net
     unit.evaporator.saturated_temp = t_evap
     unit.condenser.saturated_temp = t_cond
+    unit.compressor.get_power()
+
+    cap_dict = {
+        "Total Capacity": (round(Q_total, 2), "kW"),
+        "Total Sensible Cap.": (round(Q_sen, 2), "kW"),
+        "Net Capacity": (round(Q_total - fan_power, 2), "kW"),
+        "Net Sensible Cap.": (round(Q_sen - fan_power, 2), "kW")
+    }
+
+    fan_dict = {
+        "Fan": (unit.fan.model.upper(), ""),
+        "Fan Power": (round(fan_power, 2), "kW"),
+        "Fan RPM": (round(fan_rpm,0), "rpm"),
+        "Total Static Pressure": (round(unit.tsp, 0), "Pa")
+    }
+
+    comp_dict = {
+        "Compressor": (unit.compressor.model.upper(), ""),
+        "Comp. Power": (round(unit.compressor.get_power(), 1), "kW"),
+        "Comp. Current": (round(unit.compressor.get_current(), 1), "A"),
+        "Evaporating Temp.": (round(t_evap, 1), "°C"),
+        "Condensing Temp.": (round(t_cond, 1), "°C")
+    }
+
+    air_dict = {
+        "Outlet Temperature": (round(t_outlet, 1), "°C"),
+        "Outlet RH": (round(rh_outlet, 1), "%")
+    }
 
     performance_dict = {
         "converged": check_diverge_counter(counter),
-        "total_cap": Q_total,
-        "total_sen": Q_sen,
-        "net_cap": Q_total - fan_power,
-        "net_sen": Q_sen - fan_power
+        "capacity": cap_dict,
+        "fan": fan_dict,
+        "compressor": comp_dict,
+        "air": air_dict
     }
 
     return performance_dict

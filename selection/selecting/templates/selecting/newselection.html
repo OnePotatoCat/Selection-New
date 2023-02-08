@@ -13,8 +13,6 @@
                 selectionUpdate(data.fan, 'fan');
                 selectionUpdate(data.condenser, 'cond');
             });
-
-            document.getElementById("inlet_condition").style.display = ''
         }
 
         function selectionUpdate(data, name){
@@ -57,20 +55,65 @@
             data.append('cond', condenser)
 
             //data.append('csrfmiddlewaretoken', $('#csrf-helper input[name="csrfmiddlewaretoken"]').attr('value'));
+            let calculating_tag = document.getElementById("calculating_tag");
+            calculating_tag.style.display = "";
             let headers = new Headers();
             const csrftoken = getCookie('csrftoken')
             headers.append('X-CSRFToken', csrftoken);
             fetch(`calculatecapacity`, {
                 method: "POST",
                 body: data,
-                headers: {headers}
+                headers: {headers},
             })
             .then(response => response.json())
             .then(result => {
-                console.log(result.converged);
                 let calculation = document.getElementById('calculation');
-                calculation.style.display = " ";
-            })
+                calculation.style.display = "";
+                console.log(result);
+
+                let result_table_cap = document.getElementById('result_table_cap');
+                let result_table_fan = document.getElementById('result_table_fan');
+                let result_table_comp = document.getElementById('result_table_comp');
+                let result_table_outlet = document.getElementById('result_table_outlet');
+                let table1 = "";
+                let table2 = "";
+
+                if(result.converged){
+                    let temp_table = null;
+                    for(let key in result){
+                        // if(key != "converged"){
+                        //     table1 += "<tr>";
+                        //     table1 += "<th>" + key + "</th>";
+                        //     table1 += "<td>" + result[key][0] + " " + result[key][1] + "</td>";
+                        //     table1 += "</tr>";
+                        // }
+                        console.log(key);
+                        if(key == "converged")  {continue;}
+                        if(key == "capacity")   {temp_table = result_table_cap;}
+                        if(key == "fan")        {temp_table = result_table_fan;}
+                        if(key == "compressor") {temp_table = result_table_comp;}
+                        if(key == "air")        {temp_table = result_table_outlet;}
+
+                        for(let subkey in result[key]){
+                                table1 += "<tr>";
+                                table1 += "<th class='col-sm-8'>" + subkey + "</th>";
+                                table1 += "<td class='col-sm-4'>" + result[key][subkey][0] + " " + result[key][subkey][1] + "</td>";
+                                table1 += "</tr>";
+                        }
+
+                        if(temp_table != null){
+                            temp_table.innerHTML = table1;
+                        }
+                        table1 = "";
+                    }
+                }
+                else{
+                    table1 = "<tr><th>Failed to converge, please change the inlet conditions.</th></tr>"
+                }
+                calculating_tag.style.display = "none";
+                console.log(result.converged);
+
+            });
         }
 
 
@@ -86,7 +129,9 @@
 
             // Hide the Calculation onload
             let calculation = document.getElementById('calculation');
+            let calculating_tag = document.getElementById("calculating_tag");
             calculation.style.display = "none";
+            calculating_tag.style.display = "none";
 
         });
 
@@ -151,6 +196,9 @@
                 <div class="col-md-5">
                     <!-- Inlet Conditions -->
                     <form id="inlet_condition" method = "post">{% csrf_token %}
+                        <!-- <div class="row">
+                            <label class="font-weight-bold col-form-label">Inlet Conditions</label>
+                        </div> -->
                         <div class="row">
                             <div class="col-sm-9">
                                 <div class="form-group row">
@@ -176,20 +224,67 @@
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                 </div>
+
+                                <div class="form-group row">
+                                    <label class="col-sm-5 col-form-label">ESP</label>
+                                    <div class="col-sm-4">
+                                        <input type="number" id="esp" name="esp" class="form-control form-control-sm text-right" placeholder="50" max="300" min="10">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label input-unit">Pa</label>
+                                </div>
                             </div>
                             
-                            <button type="submit" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
+                            <button type="button" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
                         </div>
                     </form>
 
                 </div>
             </div>
+            <br>
+
 
             <div id="calculation">
-                <h1 >Result</h1>
+                <h1>Result <small id="calculating_tag" class="font-italic">calculating...</small></h1>
+                <!-- First row of tables -->
+
                 <div class="row flex-xl-nowarp">
-                    <div class="col-md-6">
-                        
+                    <div class="col-md-4">
+                        <p class="subtitle">Capacity</p>
+                        <table class="table">
+                            <tbody id="result_table_cap">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-4">
+                        <p class="subtitle">Fan</p>
+                        <table class="table">
+                            <tbody id="result_table_fan">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Second row of tables -->
+                <div class="row flex-xl-nowarp">
+                    <div class="col-md-4">
+                        <p class="subtitle">Compressor</p>
+                        <table class="table">
+                            <tbody id="result_table_comp">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-4">
+                        <p class="subtitle">Air Properties</p>
+                        <table class="table">
+                            <tbody id="result_table_outlet">
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
