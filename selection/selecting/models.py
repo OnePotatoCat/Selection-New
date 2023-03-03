@@ -33,15 +33,16 @@ class Evaporator(models.Model):
 class Compressor(models.Model):
     model = models.CharField(max_length=16)
     refrigerant = models.CharField(max_length=10)
+    inverter = models.BooleanField()
     voltage = models.IntegerField()
     subcool = models.FloatField()
     superheat = models.FloatField()
     volume = models.FloatField()
     evap_temp_limit = models.FloatField()
-    capacity_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
-    power_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
-    current_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
-    massflow_coefficient = ArrayField(models.FloatField(), size = 10, null=True)
+    capacity_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
+    power_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
+    current_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
+    massflow_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
 
     def __str__(self):
         return f"{self.model.upper()}({self.refrigerant.upper()})"

@@ -6,7 +6,13 @@
     font-weight: bold;
 }
 
-sub_title{
-    font-size: medium;
+.subtitle{
     font-weight: bold;
+    font-size: x-large;
+    margin-bottom: 0rem;
+    text-decoration: underline;
+}
+
+hr{
+    opacity: 100;
 }

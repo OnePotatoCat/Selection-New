@@ -96,8 +96,8 @@
 
                         for(let subkey in result[key]){
                                 table1 += "<tr>";
-                                table1 += "<th class='col-sm-8'>" + subkey + "</th>";
-                                table1 += "<td class='col-sm-4'>" + result[key][subkey][0] + " " + result[key][subkey][1] + "</td>";
+                                table1 += "<th class='col-sm-7'>" + subkey + "</th>";
+                                table1 += "<td class='col-sm-5'>" + result[key][subkey][0] + " " + result[key][subkey][1] + "</td>";
                                 table1 += "</tr>";
                         }
 
@@ -249,7 +249,8 @@
 
                 <div class="row flex-xl-nowarp">
                     <div class="col-md-4">
-                        <p class="subtitle">Capacity</p>
+                        <p class="subtitle px-1">Capacity</p>
+                        <hr>
                         <table class="table">
                             <tbody id="result_table_cap">
 
@@ -258,7 +259,8 @@
                     </div>
 
                     <div class="col-md-4">
-                        <p class="subtitle">Fan</p>
+                        <p class="subtitle px-1">Fan</p>
+                        <hr>
                         <table class="table">
                             <tbody id="result_table_fan">
 
@@ -270,7 +272,8 @@
                 <!-- Second row of tables -->
                 <div class="row flex-xl-nowarp">
                     <div class="col-md-4">
-                        <p class="subtitle">Compressor</p>
+                        <p class="subtitle px-1">Compressor</p>
+                        <hr>
                         <table class="table">
                             <tbody id="result_table_comp">
 
@@ -279,7 +282,8 @@
                     </div>
 
                     <div class="col-md-4">
-                        <p class="subtitle">Air Properties</p>
+                        <p class="subtitle px-1">Air Properties</p>
+                        <hr>
                         <table class="table">
                             <tbody id="result_table_outlet">
 

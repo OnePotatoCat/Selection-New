@@ -22,8 +22,18 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         t :float, rh :float, q :float, 
         esp = 50.0, filter_type="g4"):
    
-   # Declare component
+    # Declare component
     unit = Unit_Cal(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
+
+    # Determine refrigerant type
+    if unit.compressor.refrigerant == "R407C":
+        refrigerant = FluidsList.R407C
+    elif unit.compressor.refrigerant == "R410A":
+        refrigerant = FluidsList.R410A
+
+    # Determine inverter model 
+    if unit.compressor.inverter:
+        freq = 100.0
 
     # Inlet air Properties
     t_inlet = t
@@ -80,7 +90,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
             # ---------- Refrigerant Data ---------- # 
             # Point 1a - Evaporator Outlet
-            refrigerant1a = Fluid(FluidsList.R407C).with_state(
+            refrigerant1a = Fluid(refrigerant).with_state(
                 Input.temperature(t_evap),
                 Input.quality(100)
             )
@@ -88,7 +98,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             pres_evaporating = ConvertPa_Psi(refrigerant1a.pressure) - ATM_PRESSURE
 
             # Point 1 - Evaporator Outlet
-            refrigerant1 = Fluid(FluidsList.R407C).with_state(
+            refrigerant1 = Fluid(refrigerant).with_state(
                 Input.temperature(t1),
                 Input.pressure(ConvertPsi_Pa(pres_evaporating+ATM_PRESSURE))
             )
@@ -96,35 +106,35 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             Q_sh = (h1 - h1a)*1061/3600 
 
             # Point 2a - Condenser Saturated Inlet
-            refrigerant2a= Fluid(FluidsList.R407C).with_state(
+            refrigerant2a= Fluid(refrigerant).with_state(
                 Input.temperature(t_cond),
                 Input.quality(100)
             )
             pres_2a = ConvertPa_Psi(refrigerant2a.pressure) - ATM_PRESSURE
 
             # Point 2b - Condenser Mid Point
-            refrigerant2b= Fluid(FluidsList.R407C).with_state(
+            refrigerant2b= Fluid(refrigerant).with_state(
                 Input.quality(50.4),
                 Input.pressure(ConvertPsi_Pa(pres_2a + ATM_PRESSURE))
             )
             t_cond_mid = refrigerant2b.temperature
 
             # Point 3a - Condenser Saturated Outlet
-            refrigerant3a= Fluid(FluidsList.R407C).with_state(
+            refrigerant3a= Fluid(refrigerant).with_state(
                 Input.pressure(ConvertPsi_Pa(pres_2a + ATM_PRESSURE)),
                 Input.quality(0)
             )
             t3 = refrigerant3a.temperature - subcool
 
             # Point 3 - Condenser Saturated Outlet
-            refrigerant3a= Fluid(FluidsList.R407C).with_state(
+            refrigerant3a= Fluid(refrigerant).with_state(
                 Input.pressure(ConvertPsi_Pa(pres_2a + ATM_PRESSURE)),
                 Input.temperature(t3)
             )
             h3 = refrigerant3a.enthalpy/1000
 
             # Point 4 - Evaporator Inlet
-            refrigerant1= Fluid(FluidsList.R407C).with_state(
+            refrigerant1= Fluid(refrigerant).with_state(
                 Input.enthalpy(h3*1000),
                 Input.pressure(ConvertPsi_Pa(pres_evaporating + ATM_PRESSURE))
             )
@@ -132,7 +142,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             t4 = refrigerant1.temperature
 
             # Point 4b - Evaporating Mid Point
-            refrigerant4b= Fluid(FluidsList.R407C).with_state(
+            refrigerant4b= Fluid(refrigerant).with_state(
                 Input.quality(62),
                 Input.pressure(ConvertPsi_Pa(pres_evaporating + ATM_PRESSURE))
             )
@@ -160,7 +170,10 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             
             U_h_new = 30/1000
             
-            unit.compressor.set_properties(t_evap, t_cond)
+            if unit.compressor.inverter:
+                unit.compressor.set_properties(t_evap, t_cond, freq)
+            else:
+                unit.compressor.set_properties(t_evap, t_cond)
             cap_comp = unit.compressor.get_capacity()
 
             t_startdew = t_evap + starting_dewpoint(airflow/3600/unit.evaporator.frontal_area, t_evap,t_inlet)
