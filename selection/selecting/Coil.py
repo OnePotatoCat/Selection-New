@@ -10,8 +10,10 @@ class Coil(ABC):
             self.wet_coef = coil.wet_coefficient
             self.min_airflow = coil.min_airflow
             self.max_airflow = coil.max_airflow
+            self.start_dew_coef = coil.starting_dewpoint
         else:
             coil = cond.objects.get(pk=coil_id)
+            self.airflow = coil.airflow_m3hr
         
         self.model = coil.model
         self.dry_coef = coil.dry_coefficient

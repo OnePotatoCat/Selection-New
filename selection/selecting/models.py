@@ -5,6 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 class Condenser(models.Model):
     model = models.CharField(max_length=16)
+    airflow_m3hr = models.FloatField()
     area_surface = models.FloatField()
     area_frontal = models.FloatField()
     # Dry coil coefficients
@@ -25,6 +26,9 @@ class Evaporator(models.Model):
 
     # Wet coil coefficients
     wet_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
+
+    # Starting Dewpoint
+    starting_dewpoint = ArrayField(models.FloatField(), size= 7, null=-True)
 
     def __str__(self):
         return f"{self.model.upper()}"

@@ -20,7 +20,7 @@ class Coil(ABC):
         self.wet_coef = []
         self.surface_area = 0
         self.frontal_area = 0
-        self.saturated_temp=0
+        self.saturated_temp = 0
         self.__get_coefficient()
         pass
 

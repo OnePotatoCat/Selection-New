@@ -4,14 +4,19 @@
     <script>
 
         function showComponents(unit) {
+            
             fetch(`showcomponents/${unit}`)
             .then(response => response.json())
             .then(data => {
                 // console.log(data);
-
+                console.log(data.compressor);
                 selectionUpdate(data.compressor, 'comp');
                 selectionUpdate(data.fan, 'fan');
                 selectionUpdate(data.condenser, 'cond');
+
+                let compressor = document.getElementById('comp').value;
+                console.log(data.compressor);
+                showInverterSpeed(compressor);
             });
         }
 
@@ -23,6 +28,20 @@
             Object.keys(data).forEach(function(key) {
                 selection.add(new Option(data[key], key));
             });
+        }
+        
+        function showInverterSpeed(comp){
+            fetch(`invertercompressor/${comp}`)
+            .then(response => response.json())
+            .then(data =>{
+                console.log(data);
+                if(data['inverter']==true){
+                    document.getElementById('comp_speed').style.display="";
+                }
+                else{
+                    document.getElementById('comp_speed').style.display="none";
+                }
+            })
         }
 
         // import Cookies from 'js-cookies';
@@ -81,12 +100,7 @@
                 if(result.converged){
                     let temp_table = null;
                     for(let key in result){
-                        // if(key != "converged"){
-                        //     table1 += "<tr>";
-                        //     table1 += "<th>" + key + "</th>";
-                        //     table1 += "<td>" + result[key][0] + " " + result[key][1] + "</td>";
-                        //     table1 += "</tr>";
-                        // }
+
                         console.log(key);
                         if(key == "converged")  {continue;}
                         if(key == "capacity")   {temp_table = result_table_cap;}
@@ -166,7 +180,7 @@
                             </select>
                         </div>
                     </div>
-                    
+                                        
                     <!-- Fan Selection -->
                     <div id="fan_selection" class="row">
                         <label class ="col-sm-4 col-form-label">Fan</label>
@@ -201,12 +215,21 @@
                         </div> -->
                         <div class="row">
                             <div class="col-sm-9">
+                                <!-- Compressor Speed -->
+                                <div class="form-group row" id="comp_speed">
+                                    <label class ="col-sm-5 col-form-label">Comp. Speed</label>
+                                    <div class="col-sm-4">
+                                        <input type="number" id="comp_sp" name="comp_sp" class="form-control form-control-sm text-right" placeholder="100" max="100" min="40">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label input-unit">rps</label>
+                                </div>
+
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Inlet Temperature</label>
                                     <div class="col-sm-4">
                                         <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" placeholder="24" max="40" min="15">
                                     </div>
-                                    <label class="col-sm-2 col-form-label input-unit">(&#176;C)</label>
+                                    <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
                                 </div>
 
                                 <div class="form-group row">

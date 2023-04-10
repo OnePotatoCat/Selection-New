@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.urls import reverse
 from django import forms
-from .models import Unit, Condenser
+from .models import Unit, Compressor, Condenser
 
 import json
 import Selection
@@ -249,6 +249,10 @@ def showcomponents(request, unit):
     # print(unit)
     return HttpResponse(jsonData)
 
+def invertercompressor(request, comp):
+    compressor = Compressor.objects.get(pk=int(comp))
+    return JsonResponse({"inverter": compressor.inverter})
+
 def calculatecapacity(request):
     if request.method =="POST":
         form = request.POST
@@ -261,8 +265,12 @@ def calculatecapacity(request):
         rh = float(form["rh"])
         airflow = float(form["airflow"])
         esp = float(form["esp"])
-        
-        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp)
+        if (form["comp_sp"] != ''):
+            comp_speed = float(form["comp_sp"])
+        else:
+            comp_speed = float(0)
+
+        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, comp_speed)
         print(result)
         jsonResult= json.dumps(result)
         # print(jsonResult)
