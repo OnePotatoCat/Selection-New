@@ -225,7 +225,7 @@ def newselection(request):
         "units" : units
     })
 
-def showcomponents(request, unit):
+def show_components(request, unit):
     data = {}
     unit = Unit.objects.get(pk=int(unit))
     
@@ -249,7 +249,11 @@ def showcomponents(request, unit):
     # print(unit)
     return HttpResponse(jsonData)
 
-def invertercompressor(request, comp):
+def set_default_airflow(request, unit):
+    unit = Unit.objects.get(pk=int(unit))
+    return JsonResponse({"airflow": unit.default_airflow})
+
+def inverter_compressor(request, comp):
     compressor = Compressor.objects.get(pk=int(comp))
     return JsonResponse({"inverter": compressor.inverter})
 

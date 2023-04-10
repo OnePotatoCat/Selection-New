@@ -4,18 +4,14 @@
     <script>
 
         function showComponents(unit) {
-            
-            fetch(`showcomponents/${unit}`)
+            fetch(`show_components/${unit}`)
             .then(response => response.json())
             .then(data => {
-                // console.log(data);
-                console.log(data.compressor);
                 selectionUpdate(data.compressor, 'comp');
                 selectionUpdate(data.fan, 'fan');
                 selectionUpdate(data.condenser, 'cond');
 
                 let compressor = document.getElementById('comp').value;
-                console.log(data.compressor);
                 showInverterSpeed(compressor);
             });
         }
@@ -31,11 +27,11 @@
         }
         
         function showInverterSpeed(comp){
-            fetch(`invertercompressor/${comp}`)
+            fetch(`inverter_compressor/${comp}`)
             .then(response => response.json())
             .then(data =>{
                 console.log(data);
-                if(data['inverter']==true){
+                if(data.inverter==true){
                     document.getElementById('comp_speed').style.display="";
                 }
                 else{
@@ -219,7 +215,7 @@
                                 <div class="form-group row" id="comp_speed">
                                     <label class ="col-sm-5 col-form-label">Comp. Speed</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="comp_sp" name="comp_sp" class="form-control form-control-sm text-right" placeholder="100" max="100" min="40">
+                                        <input type="number" id="comp_sp" name="comp_sp" class="form-control form-control-sm text-right" value="100" placeholder="100" max="100" min="40">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">rps</label>
                                 </div>
@@ -227,7 +223,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Inlet Temperature</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" placeholder="24" max="40" min="15">
+                                        <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" value="24" placeholder="24" max="40" min="15">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
                                 </div>
@@ -235,7 +231,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Inlet RH</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="rh" name="rh" class="form-control form-control-sm text-right" placeholder="45" max="90" min="10">
+                                        <input type="number" id="rh" name="rh" class="form-control form-control-sm text-right" value="45" placeholder="45" max="90" min="10">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">%</label>
                                 </div>
@@ -243,7 +239,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Airflow Rate</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right" placeholder="6630" max="8000" min="4000">
+                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right" value="6630" placeholder="6630" max="8000" min="4000">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                 </div>
@@ -251,7 +247,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">ESP</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="esp" name="esp" class="form-control form-control-sm text-right" placeholder="50" max="300" min="10">
+                                        <input type="number" id="esp" name="esp" class="form-control form-control-sm text-right" value="50" placeholder="50" max="300" min="10">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">Pa</label>
                                 </div>
