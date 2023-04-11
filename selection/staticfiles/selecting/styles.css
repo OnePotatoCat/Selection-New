@@ -10,9 +10,13 @@
     font-weight: bold;
     font-size: x-large;
     margin-bottom: 0rem;
-    text-decoration: underline;
 }
 
 hr{
     opacity: 100;
+    margin: 0rem;
+}
+
+small{
+    font-size: smaller;
 }

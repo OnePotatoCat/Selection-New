@@ -20,7 +20,7 @@ MAX_COUNTER = 500
 
 def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int, 
         t :float, rh :float, q :float, 
-        esp = 50.0, comp_speed = 100.0, filter_type="g4"):
+        esp = 50.0, abm_temp = 35, comp_speed = 100.0, filter_type="g4"):
    
     # Declare component
     unit = Unit_Cal(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
@@ -40,7 +40,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     rh_inlet = rh
 
     # Outdoor ambient temperature/Condenser airflow/massflow rate 
-    t_amb = 35
+    t_amb = abm_temp
     cond_airflow = unit.condenser.airflow
     # cond_massflow = DENSITY*cond_airflow/3600
     

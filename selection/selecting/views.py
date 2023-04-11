@@ -269,12 +269,16 @@ def calculatecapacity(request):
         rh = float(form["rh"])
         airflow = float(form["airflow"])
         esp = float(form["esp"])
+        amb_temp = float(form["amb_temp"])
+        filter_type = form["filter"].lower()
+
+
         if (form["comp_sp"] != ''):
             comp_speed = float(form["comp_sp"])
         else:
             comp_speed = float(0)
 
-        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, comp_speed)
+        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
         print(result)
         jsonResult= json.dumps(result)
         # print(jsonResult)

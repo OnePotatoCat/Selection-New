@@ -16,3 +16,7 @@ hr{
     opacity: 100;
     margin: 0rem;
 }
+
+small{
+    font-size: smaller;
+}
