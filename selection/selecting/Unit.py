@@ -16,6 +16,7 @@ class Unit_Cal(object):
         self.evaporator = evap(evap_id)
         self.condenser = cond(cond_id)
         self.compressor = comp(comp_id)
+        self.no_of_comp = unit.number_of_compressor
         self.fan = fn(fan_id)
         self.no_of_fan = unit.number_of_fan
         self._isp_g4_coef = unit.g4_static_coefficient

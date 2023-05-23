@@ -245,8 +245,10 @@ def show_components(request, unit):
         cond_dict[condenser.id] = condenser.model.upper()
     data["condenser"] = cond_dict
 
+    default_airflow = unit.default_airflow
+    data["default_airflow"] = default_airflow
+
     jsonData = json.dumps(data)
-    # print(unit)
     return HttpResponse(jsonData)
 
 def set_default_airflow(request, unit):

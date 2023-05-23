@@ -183,6 +183,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                 unit.compressor.set_properties(t_evap, t_cond)
 
             cap_comp = unit.compressor.get_capacity()
+            number_comp = unit.no_of_comp
 
             t_startdew = unit.evaporator.starting_dewpoint(airflow/3600/unit.evaporator.frontal_area, t_evap,t_inlet)
 
@@ -190,7 +191,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                 # Dry Coil Evaporator Capacity Calculation
                 Q_total = dry_capacity(unit.evaporator,t_inlet, t_evap, t_evap_mid, airflow)
                 Q_sen = Q_total
-
+                # print(f"T_dewStart: {t_startdew} | Q_tSen: {Q_sen}")
                 h_outlet = h_inlet - Q_sen/massflow
                 outlet_air = HumidAir().with_state(
                     InputHumidAir.altitude(0),
@@ -251,15 +252,15 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     if (U_h_new - U_h_guess)**2 < 10 ** (-5):
                         flag_U= True
                 
-            if ((cap_comp-0.05) - Q_total)**2 < 10 ** (-5):
+            if ((cap_comp*number_comp-0.05) - Q_total)**2 < 10 ** (-5):
                 flag_compressor = True
-            elif ((cap_comp-0.05) - Q_total) > 0:
+            elif ((cap_comp*number_comp-0.05) - Q_total) > 0:
                 t_evap_temp_max = t_evap + (t_evap_temp_max - t_evap)/2
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2
 
         # Condenser Capacity Calculation
-        heat_reject = unit.compressor.get_power() + cap_comp
+        heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
         condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)
 
         if (condenser_cap - (heat_reject+0.05))**2 < 10**(-3):
@@ -285,6 +286,10 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     )
     rh_outlet_net = net_outlet_air.relative_humidity
 
+    # print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
+    # print(U_h_new)
+    # print(lmed)
+    # print(f'Houtlet :{h_real_outlet}')
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net

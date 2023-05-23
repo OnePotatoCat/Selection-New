@@ -13,6 +13,10 @@
 
                 let compressor = document.getElementById('comp').value;
                 showInverterSpeed(compressor);
+
+                let airflow = document.getElementById('airflow');
+                airflow.value= data.default_airflow;
+                airflow.innerHTML= data.default_airflow;
             });
         }
 
@@ -242,7 +246,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-5 col-form-label">Airflow Rate</label>
                                     <div class="col-sm-4">
-                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right" value="6630" placeholder="6630" max="8000" min="4000">
+                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right">
                                     </div>
                                     <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                 </div>

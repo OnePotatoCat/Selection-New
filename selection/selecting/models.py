@@ -74,6 +74,7 @@ class Unit(models.Model):
     flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="flow")
     evaporator = models.ForeignKey(Evaporator, null = True, on_delete = models.CASCADE, related_name = "evaporator")
     compressor = models.ForeignKey(Compressor, null = True, on_delete = models.CASCADE, related_name = "compressor")
+    number_of_compressor = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(3)])
     condenser = models.ManyToManyField(Condenser, blank = True, related_name = "condenser")
     fan = models.ForeignKey(Fan, null = True, on_delete = models.CASCADE, related_name = "fan")
     number_of_fan = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(10)])
