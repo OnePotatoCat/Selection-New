@@ -261,7 +261,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
         # Condenser Capacity Calculation
         heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
-        condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)
+        condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)*number_comp
 
         if (condenser_cap - (heat_reject+0.05))**2 < 10**(-3):
             flag_condenser = True
@@ -286,10 +286,15 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     )
     rh_outlet_net = net_outlet_air.relative_humidity
 
-    # print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
-    # print(U_h_new)
-    # print(lmed)
-    # print(f'Houtlet :{h_real_outlet}')
+    print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
+    print(f'Uh :{U_h_new}')
+    print(f'Bypass : {bypass}')
+    print(f'LMED :{lmed}')
+    print(f't_evap_mid : {t_evap_mid}')
+    print(f'Hinlet :{h_inlet}')
+    print(f'Houtlet :{h_real_outlet}')
+    print(f'massflow :{massflow}')
+    print(f'{cond_airflow}, {condenser_cap}')
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net
