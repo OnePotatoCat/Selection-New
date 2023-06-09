@@ -1,0 +1,56 @@
+{% extends "login/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="login-page">
+        <img class="row logo_img" src = "{% static 'login/logo.png' %}" alt="logo">
+
+        <div class="form">
+            <div class="login">
+                <div class="login-header">
+                <h3>LOGIN</h3>
+                <p>Please enter your credentials to login.</p>
+                </div>
+            </div>
+
+            <form class="login-form" action="{% url 'login:login' %}" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit">
+                <p class="message">Not registered? <a href="#">Create an account</a></p>
+            </form>
+        </div>
+
+
+    </div>
+
+    <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'login:index' %} ">
+                <img src = "{% static 'login/tiny_logo.png' %}" alt="tiny_logo" >
+            </a>
+        
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="https://citecinternational.com/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://citecinternational.com/products">Product</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://citecinternational.com/support">Support</a>
+                    </li>
+                    <!-- <li class="nav-item dropup">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-bs-toggle="dropdown" aria-expanded="false">Dropup</a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdown10">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li> -->
+            </ul>
+          </div>
+        </div>
+      </nav>
+  {% endblock %}
