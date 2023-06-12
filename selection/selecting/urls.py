@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "selecting"
 urlpatterns = [
+    path("login/", include("login.urls")),
     path("", views.index, name="newselection"),
     # path("selection", views.unit_selection, name="selection"),
     # path("calculate_selection", views.calculate_selection, name="calculate_selection"),

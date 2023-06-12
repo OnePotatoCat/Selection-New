@@ -1,4 +1,4 @@
-{% extends "selecting/index.html" %}
+{% extends "selecting/layout.html" %}
 
 {% block body %}
     <script>
@@ -154,195 +154,194 @@
 
 
     </script>
+    <br>
+    <div class="container">
+        <h1>Selection</h1>
+        <div class="row flex-xl-nowarp">
+            <div class="col-md-4">
+                <!-- Unit Selection -->
+                <div class="row">
+                    <label class ="col-sm-4 col-form-label">Unit Model</label>
+                    <div class="col-sm-6">
+                        <select id="unit" name="unit" class="form-select form-select-sm">
+                            {% for unit in units %}
+                                <option data-unit="{{ unit.id }}" value ="{{ unit.id }}">{{ unit }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Compressor Selection -->
+                <div id="comp_selection" class="row">
+                    <label class ="col-sm-4 col-form-label">Compressor</label>
+                    <div class="col-sm-6">
+                        <select id="comp" name="comp" class="form-select form-select-sm">
+                            {% for comp in comps %}
+                                <option data-unit="{{ comp.id }}">{{ comp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                                    
+                <!-- Fan Selection -->
+                <div id="fan_selection" class="row">
+                    <label class ="col-sm-4 col-form-label">Fan</label>
+                    <div class="col-sm-6">
+                        <select id="fan" name="fan" class="form-select form-select-sm">
+                            {% for fan in fans %}
+                                <option data-unit="{{ fan.id }}">{{ fan }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Condenser Selection -->
+                <div id="cond_selection" class="row">
+                    <label class ="col-sm-4 col-form-label">Condenser</label>
+                    <div class="col-sm-6">
+                        <select id="cond" name="cond" class="form-select form-select-sm">
+                            {% for cond in conds %}
+                                <option data-unit="{{ cond.id }}">{{ cond }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
 
-    <div class="m-3">
-        <div class="container">
-            <h1>Selection</h1>
-            <div class="row flex-xl-nowarp">
-                <div class="col-md-4">
-                    <!-- Unit Selection -->
+            </div>
+
+            <div class="col">
+                <!-- Inlet Conditions -->
+                <form id="inputs" method = "post">{% csrf_token %}
+                    <!-- <div class="row">
+                        <label class="font-weight-bold col-form-label">Inlet Conditions</label>
+                    </div> -->
                     <div class="row">
-                        <label class ="col-sm-4 col-form-label">Unit Model</label>
-                        <div class="col-sm-6">
-                            <select id="unit" name="unit" class="form-select form-select-sm">
-                                {% for unit in units %}
-                                    <option data-unit="{{ unit.id }}" value ="{{ unit.id }}">{{ unit }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Compressor Selection -->
-                    <div id="comp_selection" class="row">
-                        <label class ="col-sm-4 col-form-label">Compressor</label>
-                        <div class="col-sm-6">
-                            <select id="comp" name="comp" class="form-select form-select-sm">
-                                {% for comp in comps %}
-                                    <option data-unit="{{ comp.id }}">{{ comp }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                                        
-                    <!-- Fan Selection -->
-                    <div id="fan_selection" class="row">
-                        <label class ="col-sm-4 col-form-label">Fan</label>
-                        <div class="col-sm-6">
-                            <select id="fan" name="fan" class="form-select form-select-sm">
-                                {% for fan in fans %}
-                                    <option data-unit="{{ fan.id }}">{{ fan }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Condenser Selection -->
-                    <div id="cond_selection" class="row">
-                        <label class ="col-sm-4 col-form-label">Condenser</label>
-                        <div class="col-sm-6">
-                            <select id="cond" name="cond" class="form-select form-select-sm">
-                                {% for cond in conds %}
-                                    <option data-unit="{{ cond.id }}">{{ cond }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="col-md-5">
-                    <!-- Inlet Conditions -->
-                    <form id="inputs" method = "post">{% csrf_token %}
-                        <!-- <div class="row">
-                            <label class="font-weight-bold col-form-label">Inlet Conditions</label>
-                        </div> -->
-                        <div class="row">
-                            <div class="col-sm-9">
-                                <!-- Compressor Speed -->
-                                <div class="form-group row" id="comp_speed">
-                                    <label class ="col-sm-5 col-form-label">Comp. Speed</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="comp_sp" name="comp_sp" class="form-control form-control-sm text-right" value="100" placeholder="100" max="100" min="40">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">rps</label>
+                        <div class="col-sm-9">
+                            <!-- Compressor Speed -->
+                            <div class="form-group row" id="comp_speed">
+                                <label class ="col-sm-5 col-form-label">Comp. Speed</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="comp_sp" name="comp_sp" class="form-control form-control-sm text-right" value="100" placeholder="100" max="100" min="40">
                                 </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">Inlet Temperature</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" value="24" placeholder="24" max="40" min="15">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">Inlet RH</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="rh" name="rh" class="form-control form-control-sm text-right" value="45" placeholder="45" max="90" min="10">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">%</label>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">Airflow Rate</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">ESP</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="esp" name="esp" class="form-control form-control-sm text-right" value="50" placeholder="50" max="300" min="10">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">Pa</label>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">Ambient Temp.</label>
-                                    <div class="col-sm-4">
-                                        <input type="number" id="amb_temp" name="amb_temp" class="form-control form-control-sm text-right" value="35" placeholder="35" max="50" min="10">
-                                    </div>
-                                    <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
-                                </div>
-
-                                <div class="form-group row">
-                                    <label class="col-sm-5 col-form-label">Filter Type</label>
-                                    <div class="col-sm-5">
-                                        <select id="filter" name="filter" class="form-select form-select-sm">
-                                            <option value="g4">G4</option>
-                                            <option value="f7">F7</option>
-                                        </select>
-                                    </div>
-                                </div>
-
+                                <label class="col-sm-2 col-form-label input-unit">rps</label>
                             </div>
-                            
-                            <button type="button" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
-                        </div>
-                    </form>
 
-                </div>
-            </div>
-            <br>
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">Inlet Temperature</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="temp" name="temp" class="form-control form-control-sm text-right" value="24" placeholder="24" max="40" min="15">
+                                </div>
+                                <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
+                            </div>
 
-            <div id="calculation">
-                <h1>Result <small id="calculating_tag" class="font-italic"></small></h1>
-                <!-- First row of tables -->
-                
-                <div id="result_table">
-                    <div class="row flex-xl-nowarp">
-                        <div class="col-md-4">
-                            <p class="subtitle px-1">Capacity</p>
-                            <hr>
-                            <table class="table">
-                                <tbody id="result_table_cap">
-    
-                                </tbody>
-                            </table>
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">Inlet RH</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="rh" name="rh" class="form-control form-control-sm text-right" value="45" placeholder="45" max="90" min="10">
+                                </div>
+                                <label class="col-sm-2 col-form-label input-unit">%</label>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">Airflow Rate</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="airflow" name="airflow" class="form-control form-control-sm text-right">
+                                </div>
+                                <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">ESP</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="esp" name="esp" class="form-control form-control-sm text-right" value="50" placeholder="50" max="300" min="10">
+                                </div>
+                                <label class="col-sm-2 col-form-label input-unit">Pa</label>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">Ambient Temp.</label>
+                                <div class="col-sm-4">
+                                    <input type="number" id="amb_temp" name="amb_temp" class="form-control form-control-sm text-right" value="35" placeholder="35" max="50" min="10">
+                                </div>
+                                <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-5 col-form-label">Filter Type</label>
+                                <div class="col-sm-5">
+                                    <select id="filter" name="filter" class="form-select form-select-sm">
+                                        <option value="g4">G4</option>
+                                        <option value="f7">F7</option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
-    
-                        <div class="col-md-4">
-                            <p class="subtitle px-1">Fan</p>
-                            <hr>
-                            <table class="table">
-                                <tbody id="result_table_fan">
-    
-                                </tbody>
-                            </table>
-                        </div>
+                        
+                        <button type="button" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
                     </div>
-    
-                    <!-- Second row of tables -->
-                    <div class="row flex-xl-nowarp">
-                        <div class="col-md-4">
-                            <p class="subtitle px-1">Compressor</p>
-                            <hr>
-                            <table class="table">
-                                <tbody id="result_table_comp">
-    
-                                </tbody>
-                            </table>
-                        </div>
-    
-                        <div class="col-md-4">
-                            <p class="subtitle px-1">Air Properties</p>
-                            <hr>
-                            <table class="table">
-                                <tbody id="result_table_outlet">
-    
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
+                </form>
 
+            </div>
         </div>
-        
+        <br>
+
+        <div id="calculation">
+            <h1>Result <small id="calculating_tag" class="font-italic"></small></h1>
+            <!-- First row of tables -->
+            
+            <div id="result_table">
+                <div class="row flex-xl-nowarp">
+                    <div class="col-md-4">
+                        <p class="subtitle px-1">Capacity</p>
+                        <hr>
+                        <table class="table">
+                            <tbody id="result_table_cap">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-4">
+                        <p class="subtitle px-1">Fan</p>
+                        <hr>
+                        <table class="table">
+                            <tbody id="result_table_fan">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Second row of tables -->
+                <div class="row flex-xl-nowarp">
+                    <div class="col-md-4">
+                        <p class="subtitle px-1">Compressor</p>
+                        <hr>
+                        <table class="table">
+                            <tbody id="result_table_comp">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-4">
+                        <p class="subtitle px-1">Air Properties</p>
+                        <hr>
+                        <table class="table">
+                            <tbody id="result_table_outlet">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
     </div>
+        
+
          
 
     {% block calculation %}

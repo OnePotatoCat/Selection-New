@@ -18,7 +18,12 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("login/", include('django.contrib.auth.urls')),
     path('login/',include("login.urls")),
     path('tasks/', include("tasks.urls")),
     path('selecting/', include("selecting.urls"))
 ]
+
+admin.site.site_header = "CITEC Product Selection"
+admin.site.site_title = "CITEC Product Selection_"
+admin.site.index_title = "Welcome to CITEC"

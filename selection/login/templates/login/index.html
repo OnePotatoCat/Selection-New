@@ -11,12 +11,26 @@
                 <h3>LOGIN</h3>
                 <p>Please enter your credentials to login.</p>
                 </div>
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-danger alert-text" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
-            <form class="login-form" action="{% url 'login:login' %}" method="post">
+            <form class="login-form" action="{% url 'login:login_user' %}" method="post">
                 {% csrf_token %}
-                {{ form }}
-                <input type="submit">
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Username</label>
+                    <input type="text" class="form-control" name="username" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
                 <p class="message">Not registered? <a href="#">Create an account</a></p>
             </form>
         </div>
@@ -26,7 +40,7 @@
 
     <nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'login:index' %} ">
+            <a class="navbar-brand" href="{% url 'login:login_user' %} ">
                 <img src = "{% static 'login/tiny_logo.png' %}" alt="tiny_logo" >
             </a>
         
@@ -41,16 +55,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="https://citecinternational.com/support">Support</a>
                     </li>
-                    <!-- <li class="nav-item dropup">
-                        <a class="nav-link dropdown-toggle" href="#" id="dropdown10" data-bs-toggle="dropdown" aria-expanded="false">Dropup</a>
-                        <ul class="dropdown-menu" aria-labelledby="dropdown10">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </li> -->
-            </ul>
-          </div>
+
+                </ul>
+            </div>
         </div>
       </nav>
   {% endblock %}
