@@ -114,11 +114,11 @@ html {
 }
 
 .fixed-bottom {
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1030;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1030;
 }
 .navbar-toggler {
   padding: .25rem .75rem;
@@ -142,11 +142,13 @@ html {
 .collapse:not(.show) {
   display: none;
 }
+
 .navbar-collapse {
   flex-basis: 100%;
   flex-grow: 1;
   align-items: center;
 }
+
 .navbar-nav {
   display: flex;
   flex-direction: column;

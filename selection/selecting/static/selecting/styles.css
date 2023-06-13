@@ -26,9 +26,10 @@ body{
 }
 
 .feather {
-    width: 16px;
-    height: 16px;
-    vertical-align: text-bottom;
+    width: 24px;
+    height: 24px;
+    vertical-align: bottom;
+    text-align: center;;
 }
 
 /*
@@ -152,4 +153,19 @@ html {
     background-image: linear-gradient(180deg,#dddddd,#39bb6f);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Series Album Card
+ */
+.card-title{
+    font-size : x-large;
+    font-weight :bolder;
+    margin-bottom: -0.25rem;
+}
+
+.card-body{
+    align-self: center;
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
 }

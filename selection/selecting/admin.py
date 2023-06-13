@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Unit, Evaporator, Condenser, Compressor, Fan, FlowOrientation
+from .models import Series, Unit, Evaporator, Condenser, Compressor, Fan, FlowOrientation
 
 # Register your models here.
 class UnitAdmin(admin.ModelAdmin):
@@ -10,6 +10,7 @@ class EvaporatorAdmin(admin.ModelAdmin):
     list_display =("id", "model")
 
 admin.site.register(Unit, UnitAdmin)
+admin.site.register(Series)
 admin.site.register(Evaporator, EvaporatorAdmin)
 admin.site.register(Condenser)
 admin.site.register(Compressor)

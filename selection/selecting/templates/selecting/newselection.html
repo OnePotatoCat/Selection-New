@@ -34,7 +34,7 @@
             fetch(`inverter_compressor/${comp}`)
             .then(response => response.json())
             .then(data =>{
-                console.log(data);
+                // console.log(data);
                 if(data.inverter==true){
                     document.getElementById('comp_speed').style.display="";
                 }
@@ -88,7 +88,7 @@
             .then(response => response.json())
             .then(result => {
                 let calculation = document.getElementById('calculation');
-                calculation.style.display = "";;
+                calculation.style.display = "";
 
                 let result_table = document.getElementById('result_table');
                 let result_table_cap = document.getElementById('result_table_cap');
@@ -154,7 +154,6 @@
 
 
     </script>
-    <br>
     <div class="container">
         <h1>Selection</h1>
         <div class="row flex-xl-nowarp">

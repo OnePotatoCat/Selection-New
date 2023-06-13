@@ -2,7 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.urls import reverse
 from django import forms
-from .models import Unit, Compressor, Condenser
+from .models import Series, Unit, Compressor, Condenser
+from django.contrib.auth import authenticate, logout
+from django.contrib import messages
 
 import json
 import Selection
@@ -102,18 +104,33 @@ class NewUnitSelectionForm(forms.Form):
             choices = [(pair[0], pair[1]) for pair in id_model_pairs])
 
 
-
+# ------------------------------------ #
+#          View Functions 
+# ------------------------------------ #
 def index(request):
-    units = Unit.objects.all()
-    return render(request, "selecting/newselection.html", {
-        "units" : units
+    # units = Unit.objects.all()
+    return render(request, "selecting/layout.html", {
+        "username" : request.session["user"]["first_name"]
     })
 
 def newselection(request):
     units = Unit.objects.all()
     return render(request, "selecting/newselection.html", {
+        "username" : request.user.get_short_name(),
         "units" : units
     })
+
+def show_product_series(request):
+    # TODO Get Series available from Database
+    series_names= Series.objects.all()
+    series_dict = {}
+    for name in series_names:
+        series_dict[name.id] = name.series_name.upper()
+    
+    # print(series_dict)
+    # jsonData = json.dumps(series_dict)
+    return JsonResponse(series_dict)
+
 
 def show_components(request, unit):
     data = {}
@@ -141,6 +158,7 @@ def show_components(request, unit):
     jsonData = json.dumps(data)
     return HttpResponse(jsonData)
 
+
 def set_default_airflow(request, unit):
     unit = Unit.objects.get(pk=int(unit))
     return JsonResponse({"airflow": unit.default_airflow})
@@ -148,6 +166,7 @@ def set_default_airflow(request, unit):
 def inverter_compressor(request, comp):
     compressor = Compressor.objects.get(pk=int(comp))
     return JsonResponse({"inverter": compressor.inverter})
+
 
 def calculatecapacity(request):
     if request.method =="POST":
@@ -172,6 +191,6 @@ def calculatecapacity(request):
 
         result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
         print(result)
-        jsonResult= json.dumps(result)
+        # jsonResult= json.dumps(result)
         # print(jsonResult)
         return JsonResponse(result)

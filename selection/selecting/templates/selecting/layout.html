@@ -13,6 +13,45 @@
 
         <title>Title</title>  
     </head>
+
+    <script>
+        function showSeriesAlbum() {
+            fetch(`show_series`)
+            .then(response => response.json())
+            .then(data => {
+                let main = document.getElementById('main');
+                const series_card_1 ='<div class="col-md-4"><button class="card mb-4 box-shadow" type="button" onclick="unitSelectionPage(';
+                const series_card_2 = ')"><img class="card-img-top" src="';
+                const series_card_3 = 'alt="Card image cap"><div class="card-body"><p class="card-title">';
+                const series_card_4 = '</p><p class="card-text"></p></div></button></div>';
+                const img_src_front = '/static/selecting/';
+                const img_src_back = '.jpg"';
+
+                content = '<br><div class="album py-5 bg-light"><div class="container"><div class="row">';
+                
+                for(let key in data){
+                    series_name = data[key];
+                    img_src = series_name.toLowerCase();
+                    series_card = series_card_1 + "'" + series_name.toLowerCase() + "'" + series_card_2 + img_src_front + img_src + img_src_back + series_card_3 + series_name + series_card_4;
+                    content += series_card;
+                }
+                main.innerHTML += content;
+            })}
+        
+        function unitSelectionPage(series){
+            
+            console.log("HELLLLLLO" + series);
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            showSeriesAlbum();
+        });
+
+    </script>
+
+
+
+
     <body class="full-bg">
         <header class="navbar navbar-dark fixed-top bg-green flex-md-nowrap p-0 shadow">
             <a class="navbar-brand col-sm-3 col-md-2 mr-0">
@@ -33,52 +72,53 @@
                     <div class="sidebar-sticky">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                            <a class="nav-link active" href="#">
-                                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> -->
-                                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M 10 0 C 4.4830748 0 0 4.4830748 0 10 C 0 15.516925 4.4830748 20 10 20 C 15.516925 20 20 15.516925 20 10 C 20 4.4830748 15.516925 0 10 0 z M 10 1 C 14.976485 1 19 5.0235149 19 10 C 19 12.349397 18.095422 14.478558 16.625 16.080078 L 15.998047 15.878906 L 15.15625 15.646484 L 14.306641 15.449219 L 13.447266 15.287109 L 13.322266 15.25 L 13.212891 15.181641 L 13.125 15.087891 L 13.0625 14.974609 L 13.033203 14.847656 L 13.035156 14.720703 L 13.070312 14.595703 L 13.136719 14.484375 L 13.347656 14.193359 L 13.529297 13.884766 L 13.833984 13.275391 L 14.103516 12.652344 L 14.339844 12.013672 L 14.541016 11.361328 L 14.705078 10.703125 L 14.833984 10.035156 L 14.925781 9.359375 L 14.982422 8.6816406 L 15 8.0019531 L 14.982422 7.5664062 L 14.923828 7.1328125 L 14.830078 6.7070312 L 14.697266 6.2910156 L 14.53125 5.8886719 L 14.330078 5.5 L 14.097656 5.1328125 L 13.830078 4.7871094 L 13.537109 4.4648438 L 13.212891 4.171875 L 12.869141 3.90625 L 12.5 3.6699219 L 12.113281 3.46875 L 11.710938 3.3027344 L 11.294922 3.1699219 L 10.867188 3.0761719 L 10.435547 3.0195312 L 10 3 L 9.5644531 3.0195312 L 9.1328125 3.0761719 L 8.7050781 3.1699219 L 8.2890625 3.3027344 L 7.8867188 3.46875 L 7.5 3.6699219 L 7.1328125 3.90625 L 6.7871094 4.171875 L 6.4628906 4.4648438 L 6.1699219 4.7871094 L 5.9042969 5.1328125 L 5.6699219 5.5 L 5.46875 5.8886719 L 5.3027344 6.2910156 L 5.1699219 6.7070312 L 5.0761719 7.1328125 L 5.0195312 7.5664062 L 5 8.0019531 L 5.0175781 8.6816406 L 5.0742188 9.359375 L 5.1660156 10.035156 L 5.2949219 10.703125 L 5.4589844 11.361328 L 5.6601562 12.013672 L 5.8984375 12.652344 L 6.1660156 13.275391 L 6.4707031 13.884766 L 6.6523438 14.193359 L 6.8632812 14.484375 L 6.9296875 14.595703 L 6.9648438 14.720703 L 6.96875 14.847656 L 6.9375 14.974609 L 6.875 15.087891 L 6.7871094 15.181641 L 6.6777344 15.25 L 6.5527344 15.287109 L 5.6953125 15.449219 L 4.84375 15.646484 L 4.0019531 15.878906 L 3.375 16.080078 C 1.9045777 14.478558 1 12.349397 1 10 C 1 5.0235149 5.0235149 1 10 1 z M 10 4 L 10.392578 4.0195312 L 10.78125 4.078125 L 11.160156 4.1738281 L 11.529297 4.3046875 L 11.886719 4.4746094 L 12.222656 4.6738281 L 12.537109 4.9082031 L 12.830078 5.171875 L 13.091797 5.4628906 L 13.326172 5.7792969 L 13.527344 6.1152344 L 13.695312 6.4707031 L 13.828125 6.8398438 L 13.923828 7.2207031 L 13.982422 7.609375 L 14 8.0019531 L 13.984375 8.6289062 L 13.931641 9.2519531 L 13.845703 9.8710938 L 13.728516 10.486328 L 13.576172 11.09375 L 13.390625 11.693359 L 13.173828 12.279297 L 12.925781 12.855469 L 12.646484 13.416016 L 12.509766 13.644531 L 12.351562 13.865234 L 12.220703 14.0625 L 12.121094 14.279297 L 12.056641 14.509766 L 12.029297 14.748047 L 12.042969 14.986328 L 12.091797 15.220703 L 12.177734 15.443359 L 12.298828 15.652344 L 12.451172 15.835938 L 12.628906 15.996094 L 12.830078 16.123047 L 13.052734 16.216797 L 13.283203 16.273438 L 14.099609 16.427734 L 14.912109 16.615234 L 15.712891 16.835938 L 15.8125 16.867188 C 14.244524 18.195439 12.219491 19 10 19 C 7.7805094 19 5.7554759 18.195439 4.1875 16.867188 L 4.2871094 16.835938 L 5.0878906 16.615234 L 5.9003906 16.427734 L 6.7167969 16.273438 L 6.9472656 16.216797 L 7.1699219 16.123047 L 7.3710938 15.996094 L 7.5507812 15.835938 L 7.7011719 15.652344 L 7.8222656 15.443359 L 7.9101562 15.220703 L 7.9570312 14.986328 L 7.9707031 14.748047 L 7.9433594 14.509766 L 7.8789062 14.279297 L 7.7792969 14.0625 L 7.6484375 13.865234 L 7.4902344 13.644531 L 7.3535156 13.416016 L 7.0742188 12.855469 L 6.8261719 12.279297 L 6.609375 11.693359 L 6.4238281 11.09375 L 6.2734375 10.486328 L 6.1542969 9.8710938 L 6.0683594 9.2519531 L 6.015625 8.6289062 L 6 8.0019531 L 6.0195312 7.609375 L 6.078125 7.2207031 L 6.171875 6.8398438 L 6.3046875 6.4707031 L 6.4726562 6.1152344 L 6.6738281 5.7792969 L 6.9082031 5.4628906 L 7.1699219 5.171875 L 7.4628906 4.9082031 L 7.7773438 4.6738281 L 8.1152344 4.4746094 L 8.4707031 4.3046875 L 8.8398438 4.1738281 L 9.21875 4.078125 L 9.6074219 4.0195312 L 10 4 z " /></svg> -->
-                                <svg width="24" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" >
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0" class="feather feather-file"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="none" stroke-width="0.76"></g>
-                                    <g id="SVGRepo_iconCarrier"> <g id="layer1">
-                                    <path d="M 10 0 C 4.4830748 0 0 4.4830748 0 10 C 0 15.516925 4.4830748 20 10 20 C 15.516925 20 20 15.516925 20 10 C 20 4.4830748 15.516925 0 10 0 z M 10 1 C 14.976485 1 19 5.0235149 19 10 C 19 12.349397 18.095422 14.478558 16.625 16.080078 L 15.998047 15.878906 L 15.15625 15.646484 L 14.306641 15.449219 L 13.447266 15.287109 L 13.322266 15.25 L 13.212891 15.181641 L 13.125 15.087891 L 13.0625 14.974609 L 13.033203 14.847656 L 13.035156 14.720703 L 13.070312 14.595703 L 13.136719 14.484375 L 13.347656 14.193359 L 13.529297 13.884766 L 13.833984 13.275391 L 14.103516 12.652344 L 14.339844 12.013672 L 14.541016 11.361328 L 14.705078 10.703125 L 14.833984 10.035156 L 14.925781 9.359375 L 14.982422 8.6816406 L 15 8.0019531 L 14.982422 7.5664062 L 14.923828 7.1328125 L 14.830078 6.7070312 L 14.697266 6.2910156 L 14.53125 5.8886719 L 14.330078 5.5 L 14.097656 5.1328125 L 13.830078 4.7871094 L 13.537109 4.4648438 L 13.212891 4.171875 L 12.869141 3.90625 L 12.5 3.6699219 L 12.113281 3.46875 L 11.710938 3.3027344 L 11.294922 3.1699219 L 10.867188 3.0761719 L 10.435547 3.0195312 L 10 3 L 9.5644531 3.0195312 L 9.1328125 3.0761719 L 8.7050781 3.1699219 L 8.2890625 3.3027344 L 7.8867188 3.46875 L 7.5 3.6699219 L 7.1328125 3.90625 L 6.7871094 4.171875 L 6.4628906 4.4648438 L 6.1699219 4.7871094 L 5.9042969 5.1328125 L 5.6699219 5.5 L 5.46875 5.8886719 L 5.3027344 6.2910156 L 5.1699219 6.7070312 L 5.0761719 7.1328125 L 5.0195312 7.5664062 L 5 8.0019531 L 5.0175781 8.6816406 L 5.0742188 9.359375 L 5.1660156 10.035156 L 5.2949219 10.703125 L 5.4589844 11.361328 L 5.6601562 12.013672 L 5.8984375 12.652344 L 6.1660156 13.275391 L 6.4707031 13.884766 L 6.6523438 14.193359 L 6.8632812 14.484375 L 6.9296875 14.595703 L 6.9648438 14.720703 L 6.96875 14.847656 L 6.9375 14.974609 L 6.875 15.087891 L 6.7871094 15.181641 L 6.6777344 15.25 L 6.5527344 15.287109 L 5.6953125 15.449219 L 4.84375 15.646484 L 4.0019531 15.878906 L 3.375 16.080078 C 1.9045777 14.478558 1 12.349397 1 10 C 1 5.0235149 5.0235149 1 10 1 z M 10 4 L 10.392578 4.0195312 L 10.78125 4.078125 L 11.160156 4.1738281 L 11.529297 4.3046875 L 11.886719 4.4746094 L 12.222656 4.6738281 L 12.537109 4.9082031 L 12.830078 5.171875 L 13.091797 5.4628906 L 13.326172 5.7792969 L 13.527344 6.1152344 L 13.695312 6.4707031 L 13.828125 6.8398438 L 13.923828 7.2207031 L 13.982422 7.609375 L 14 8.0019531 L 13.984375 8.6289062 L 13.931641 9.2519531 L 13.845703 9.8710938 L 13.728516 10.486328 L 13.576172 11.09375 L 13.390625 11.693359 L 13.173828 12.279297 L 12.925781 12.855469 L 12.646484 13.416016 L 12.509766 13.644531 L 12.351562 13.865234 L 12.220703 14.0625 L 12.121094 14.279297 L 12.056641 14.509766 L 12.029297 14.748047 L 12.042969 14.986328 L 12.091797 15.220703 L 12.177734 15.443359 L 12.298828 15.652344 L 12.451172 15.835938 L 12.628906 15.996094 L 12.830078 16.123047 L 13.052734 16.216797 L 13.283203 16.273438 L 14.099609 16.427734 L 14.912109 16.615234 L 15.712891 16.835938 L 15.8125 16.867188 C 14.244524 18.195439 12.219491 19 10 19 C 7.7805094 19 5.7554759 18.195439 4.1875 16.867188 L 4.2871094 16.835938 L 5.0878906 16.615234 L 5.9003906 16.427734 L 6.7167969 16.273438 L 6.9472656 16.216797 L 7.1699219 16.123047 L 7.3710938 15.996094 L 7.5507812 15.835938 L 7.7011719 15.652344 L 7.8222656 15.443359 L 7.9101562 15.220703 L 7.9570312 14.986328 L 7.9707031 14.748047 L 7.9433594 14.509766 L 7.8789062 14.279297 L 7.7792969 14.0625 L 7.6484375 13.865234 L 7.4902344 13.644531 L 7.3535156 13.416016 L 7.0742188 12.855469 L 6.8261719 12.279297 L 6.609375 11.693359 L 6.4238281 11.09375 L 6.2734375 10.486328 L 6.1542969 9.8710938 L 6.0683594 9.2519531 L 6.015625 8.6289062 L 6 8.0019531 L 6.0195312 7.609375 L 6.078125 7.2207031 L 6.171875 6.8398438 L 6.3046875 6.4707031 L 6.4726562 6.1152344 L 6.6738281 5.7792969 L 6.9082031 5.4628906 L 7.1699219 5.171875 L 7.4628906 4.9082031 L 7.7773438 4.6738281 L 8.1152344 4.4746094 L 8.4707031 4.3046875 L 8.8398438 4.1738281 L 9.21875 4.078125 L 9.6074219 4.0195312 L 10 4 z " 
-                                        style="fill:#222222; fill-opacity:1;  stroke-width:0.0002;">
-                                    </path></svg>
-                                Dashboard <span class="sr-only">(current)</span>
-                            </a>
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64px" height="64px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.00024" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)" class="feather feather-user" ><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" stroke-width="0.576"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M9.39646 2H14.6035C15.7056 1.99999 16.5944 1.99998 17.3138 2.05972C18.0547 2.12125 18.7049 2.25126 19.3049 2.56293C20.2181 3.03731 20.9627 3.78191 21.4371 4.69513C21.7487 5.29513 21.8788 5.94535 21.9403 6.68616C22 7.40557 22 8.29444 22 9.39649V14.6035C22 15.7056 22 16.5944 21.9403 17.3138C21.8788 18.0547 21.7487 18.7049 21.4371 19.3049C20.9627 20.2181 20.2181 20.9627 19.3049 21.4371C18.7049 21.7487 18.0547 21.8788 17.3138 21.9403C16.5944 22 15.7056 22 14.6035 22H9.39649C8.29444 22 7.40557 22 6.68616 21.9403C5.94535 21.8788 5.29513 21.7487 4.69513 21.4371C3.78191 20.9627 3.03731 20.2181 2.56293 19.3049C2.25126 18.7049 2.12125 18.0547 2.05972 17.3138C1.99998 16.5944 1.99999 15.7056 2 14.6035V9.39646C1.99999 8.29442 1.99998 7.40556 2.05972 6.68616C2.12125 5.94535 2.25126 5.29513 2.56293 4.69513C3.03731 3.78191 3.78191 3.03731 4.69513 2.56293C5.29513 2.25126 5.94535 2.12125 6.68616 2.05972C7.40556 1.99998 8.29442 1.99999 9.39646 2ZM6.85168 4.05286C6.23678 4.10393 5.88403 4.19909 5.61708 4.33776C5.06915 4.62239 4.62239 5.06915 4.33776 5.61708C4.19909 5.88403 4.10393 6.23678 4.05286 6.85168C4.0008 7.47856 4 8.28424 4 9.44V14.56C4 15.7158 4.0008 16.5214 4.05286 17.1483C4.10393 17.7632 4.19909 18.116 4.33776 18.3829C4.62239 18.9309 5.06915 19.3776 5.61708 19.6622C5.72641 19.719 5.85015 19.7685 6.00039 19.8107C6.02184 18.531 6.92753 17.5633 7.96833 16.9686C9.04997 16.3505 10.4775 16 12 16C13.5225 16 14.95 16.3505 16.0317 16.9686C17.0725 17.5633 17.9782 18.531 17.9996 19.8107C18.1499 19.7685 18.2736 19.719 18.3829 19.6622C18.9309 19.3776 19.3776 18.9309 19.6622 18.3829C19.8009 18.116 19.8961 17.7632 19.9471 17.1483C19.9992 16.5214 20 15.7158 20 14.56V9.44C20 8.28423 19.9992 7.47856 19.9471 6.85168C19.8961 6.23678 19.8009 5.88403 19.6622 5.61708C19.3776 5.06915 18.9309 4.62239 18.3829 4.33776C18.116 4.19909 17.7632 4.10393 17.1483 4.05286C16.5214 4.0008 15.7158 4 14.56 4H9.44C8.28423 4 7.47856 4.0008 6.85168 4.05286ZM16.0657 19.9929L16.0183 19.9336C16.0164 19.9356 16.0121 19.9404 16.0071 19.9482C15.9992 19.9605 15.9957 19.9707 15.9948 19.9737C15.9943 19.9755 15.9963 19.9694 15.9978 19.9507C15.9996 19.9296 16 19.9074 16 19.8571C16 19.5819 15.7957 19.1372 15.0394 18.7051C14.3114 18.2891 13.2389 18 12 18C10.7611 18 9.6886 18.2891 8.96061 18.7051C8.20432 19.1372 8 19.5819 8 19.8571C8 19.9074 8.0004 19.9296 8.00215 19.9507C8.00371 19.9694 8.00568 19.9755 8.00515 19.9737C8.00427 19.9707 8.00079 19.9605 7.9929 19.9482C7.9879 19.9404 7.9836 19.9356 7.98171 19.9336L7.93427 19.9929C8.36155 19.9998 8.8561 20 9.44 20H14.56C15.1439 20 15.6385 19.9998 16.0657 19.9929ZM12 9C10.8954 9 10 9.89543 10 11C10 12.1046 10.8954 13 12 13C13.1046 13 14 12.1046 14 11C14 9.89543 13.1046 9 12 9ZM8 11C8 8.79086 9.79086 7 12 7C14.2091 7 16 8.79086 16 11C16 13.2091 14.2091 15 12 15C9.79086 15 8 13.2091 8 11Z" fill="currentColor"></path> </g></svg>
+                                    {{ username }}
+                                </a>
                             </li>
                             <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
-                                Orders
-                            </a>
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-add-crac">
+                                        <g>
+                                            <rect fill="none" x="5.20565" y="4.44015" width="13.50001" height="18.00002" id="svg_5" rx="2" stroke="currentColor"/>
+                                            <line fill="none" stroke="currentColor" x1="0.87501" y1="2.45061" x2="4.87501" y2="2.45061" id="svg_21"/>
+                                            <line fill="none" stroke="currentColor" x1="2.87501" y1="0.625" x2="2.87501" y2="4.625" id="svg_22"/>
+                                            <line id="svg_1" y2="9.9107" x2="16.34553" y1="9.9107" x1="7.65448" stroke="currentColor" fill="none"/>
+                                            <line id="svg_4" y2="12.49126" x2="16.34552" y1="12.49126" x1="7.65447" stroke="currentColor" fill="none"/>
+                                            <line id="svg_6" y2="7.41072" x2="16.34553" y1="7.41072" x1="7.65448" stroke="currentColor" fill="none"/>
+                                        </g>
+                                    </svg>
+                                    Selection
+                                </a>
                             </li>
                             <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                                Products
-                            </a>
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                                    Cart
+                                </a>
                             </li>
+                            <!-- <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                    Customers
+                                </a>
+                            </li> -->
+                            <!-- <li class="nav-item">
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                    Reports
+                                </a>
+                            </li> -->
                             <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                Customers
-                            </a>
-                            </li>
-                            <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                                Reports
-                            </a>
-                            </li>
-                            <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                                Integrations
-                            </a>
+                                <a class="nav-link" href="#">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                                    History
+                                </a>
                             </li>
                         </ul>
                 
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <!-- <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                             <span>Saved reports</span>
                             <a class="d-flex align-items-center text-muted" href="#">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
@@ -109,12 +149,20 @@
                                 Year-end sale
                             </a>
                             </li>
-                        </ul>
+                        </ul> -->
                     </div>
                 </nav>
                 
-                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" id="main">
+
+                    <img style="display:none" src="{% static 'selecting/es.jpg' %}" alt="img_load_es">
+                    <img style="display:none" src="{% static 'selecting/ec.jpg' %}" alt="img_load_ec">
+                    <img style="display:none" src="{% static 'selecting/cnr.jpg' %}" alt="img_load_cnr">
+ 
                     {% block body %}
+                    {% endblock %}
+
+                    {% block cart %}
                     {% endblock %}
                 </main>
             </div>
