@@ -2,14 +2,17 @@
 <div class="album py-5 bg-light">
     <div class="container">
       <div class="row">
+
+
         <div class="col-md-4">
-            <button class="card mb-4 box-shadow" type="button" onclick="calculateSelection(ES)"">
-                <img class="card-img-top" src="{% static 'selecting/image/es.jpg' %}" alt="Card image cap">
-                <div class="card-body">
-                    <p class="card-title">ES</p>
-                    <p class="card-text"></p>
-                </div>
-            </button>
-        </div>      
+            <figure class="card my-4 box-shadow bg-transparent" type="button" onclick="calculateSelection(ES)">
+                <img class="card-img" src="{% static 'selecting/es.png' %}" alt="Card image cap">
+                <!-- <figcaption class="card-title bg-green">ES</figcaption> -->
+                <span class="card-footer">
+                    <span class="card-title">ES</span>
+                  </span>
+            </figure>
+        </div>
+
     </div>
 </div>

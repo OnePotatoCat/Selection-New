@@ -5,7 +5,8 @@ app_name = "selecting"
 urlpatterns = [
     path("login/", include("login.urls")),
     path("", views.index, name="index"),
-    path("", views.newselection, name="newselection"),
+    # path("/<str:series>", views.unit_selection, name="unit_selection2"),
+    path("/<str:series>", views.unit_selection, name="unit_selection"),
     # path("selection", views.unit_selection, name="selection"),
     # path("calculate_selection", views.calculate_selection, name="calculate_selection"),
     # path("newselection", views.newselection, name="newselection"),

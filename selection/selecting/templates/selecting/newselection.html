@@ -1,8 +1,5 @@
-{% extends "selecting/layout.html" %}
-
 {% block body %}
     <script>
-
         function showComponents(unit) {
             fetch(`show_components/${unit}`)
             .then(response => response.json())
@@ -151,10 +148,11 @@
             calculating_tag.style.display = "none";
             result_table.style.display = "none";
         });
-
-
     </script>
-    <div class="container">
+
+
+    <br>
+    <div class="container py-5">
         <h1>Selection</h1>
         <div class="row flex-xl-nowarp">
             <div class="col-md-4">
@@ -339,12 +337,4 @@
         </div>
 
     </div>
-        
-
-         
-
-    {% block calculation %}
-    {% endblock %}
-
-    
   {% endblock %}

@@ -108,27 +108,25 @@ class NewUnitSelectionForm(forms.Form):
 #          View Functions 
 # ------------------------------------ #
 def index(request):
-    # units = Unit.objects.all()
+    units = Unit.objects.all()
     return render(request, "selecting/layout.html", {
         "username" : request.session["user"]["first_name"]
+        # "units" :units
     })
 
-def newselection(request):
-    units = Unit.objects.all()
-    return render(request, "selecting/newselection.html", {
-        "username" : request.user.get_short_name(),
-        "units" : units
-    })
+def unit_selection(request, series):
+    units = Unit.objects.filter(series= series)
+    units_dict= {}
+    for unit in units:
+        units_dict[unit.id] = unit.model.upper()
+    return JsonResponse(units_dict)
+
 
 def show_product_series(request):
-    # TODO Get Series available from Database
     series_names= Series.objects.all()
     series_dict = {}
     for name in series_names:
         series_dict[name.id] = name.series_name.upper()
-    
-    # print(series_dict)
-    # jsonData = json.dumps(series_dict)
     return JsonResponse(series_dict)
 
 
