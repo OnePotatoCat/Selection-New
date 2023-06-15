@@ -1,159 +1,8 @@
 {% block body %}
-    <script>
-        function showComponents(unit) {
-            fetch(`show_components/${unit}`)
-            .then(response => response.json())
-            .then(data => {
-                selectionUpdate(data.compressor, 'comp');
-                selectionUpdate(data.fan, 'fan');
-                selectionUpdate(data.condenser, 'cond');
-
-                let compressor = document.getElementById('comp').value;
-                showInverterSpeed(compressor);
-
-                let airflow = document.getElementById('airflow');
-                airflow.value= data.default_airflow;
-                airflow.innerHTML= data.default_airflow;
-            });
-        }
-
-        function selectionUpdate(data, name){
-            const selection = document.getElementById(name);
-            while (selection.options.length > 0){
-                selection.remove(0);
-            }
-            Object.keys(data).forEach(function(key) {
-                selection.add(new Option(data[key], key));
-            });
-        }
-        
-        function showInverterSpeed(comp){
-            fetch(`inverter_compressor/${comp}`)
-            .then(response => response.json())
-            .then(data =>{
-                // console.log(data);
-                if(data.inverter==true){
-                    document.getElementById('comp_speed').style.display="";
-                }
-                else{
-                    document.getElementById('comp_speed').style.display="none";
-                }
-            })
-        }
-
-        // import Cookies from 'js-cookies';
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies.toString().replace(/^([\s]*)|([\s]*)$/g, '');
-                    // var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        
-        function calculateSelection(form){
-            let unit = document.getElementById('unit').value;
-            let compressor = document.getElementById('comp').value;
-            let fan = document.getElementById('fan').value;
-            let condenser = document.getElementById('cond').value;
-            let data = new FormData(form);
-            data.append('unit', unit)
-            data.append('comp', compressor)
-            data.append('fan', fan)
-            data.append('cond', condenser)
-
-            //data.append('csrfmiddlewaretoken', $('#csrf-helper input[name="csrfmiddlewaretoken"]').attr('value'));
-            let calculating_tag = document.getElementById("calculating_tag");
-            calculating_tag.style.display = "";
-            calculating_tag.innerHTML = "  calculating...";
-            let headers = new Headers();
-            const csrftoken = getCookie('csrftoken')
-            headers.append('X-CSRFToken', csrftoken);
-            fetch(`calculatecapacity`, {
-                method: "POST",
-                body: data,
-                headers: {headers},
-            })
-            .then(response => response.json())
-            .then(result => {
-                let calculation = document.getElementById('calculation');
-                calculation.style.display = "";
-
-                let result_table = document.getElementById('result_table');
-                let result_table_cap = document.getElementById('result_table_cap');
-                let result_table_fan = document.getElementById('result_table_fan');
-                let result_table_comp = document.getElementById('result_table_comp');
-                let result_table_outlet = document.getElementById('result_table_outlet');
-                let table1 = "";
-                let table2 = "";
-
-                if(result.converged){
-                    result_table.style.display = "";
-                    let temp_table = null;
-                    for(let key in result){
-
-                        // console.log(key);
-                        if(key == "converged")  {continue;}
-                        if(key == "capacity")   {temp_table = result_table_cap;}
-                        if(key == "fan")        {temp_table = result_table_fan;}
-                        if(key == "compressor") {temp_table = result_table_comp;}
-                        if(key == "air")        {temp_table = result_table_outlet;}
-
-                        for(let subkey in result[key]){
-                            table1 += "<tr>";
-                            table1 += "<th class='col-sm-7'>" + subkey + "</th>";
-                            table1 += "<td class='col-sm-5'>" + result[key][subkey][0] + " " + result[key][subkey][1] + "</td>";
-                            table1 += "</tr>";
-                        }
-
-                        if(temp_table != null){
-                            temp_table.innerHTML = table1;
-                        }
-                        table1 = "";
-                    }
-                    calculating_tag.innerHTML = "";
-                }
-                else{
-                    console.log("Hello");
-                    calculating_tag.innerHTML = "  Fail to converge";
-                    result_table.style.display = "none";
-                }
-            });
-        }
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add button functionality
-            let selection = document.getElementById('unit');
-            selection.onchange = function() {
-                const unit = this.options[this.selectedIndex].dataset.unit
-                history.pushState({unit: unit}, "", `newselection`);
-                showComponents(this.options[this.selectedIndex].dataset.unit);
-            }
-            showComponents(selection.options[selection.selectedIndex].dataset.unit);
-
-            // Hide the Calculation onload
-            let calculation = document.getElementById('calculation');
-            let calculating_tag = document.getElementById("calculating_tag");
-            let result_table = document.getElementById('result_table');
-            calculation.style.display = "none";
-            calculating_tag.style.display = "none";
-            result_table.style.display = "none";
-        });
-    </script>
-
-
+    
     <br>
-    <div class="container py-5">
-        <h1>Selection</h1>
+    <h1>Unit Selection</h1>
+    <div class="container py-3">
         <div class="row flex-xl-nowarp">
             <div class="col-md-4">
                 <!-- Unit Selection -->
@@ -285,9 +134,9 @@
 
         <div id="calculation">
             <h1>Result <small id="calculating_tag" class="font-italic"></small></h1>
-            <!-- First row of tables -->
             
             <div id="result_table">
+                <!-- First row of tables -->
                 <div class="row flex-xl-nowarp">
                     <div class="col-md-4">
                         <p class="subtitle px-1">Capacity</p>

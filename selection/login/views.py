@@ -24,10 +24,11 @@ def login_user(request):
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
+        print(user.get_full_name())
         user_dict = {
             'username': username,
-            'full_name': request.user.get_full_name(),
-            'first_name': request.user.get_short_name(),
+            'full_name': user.get_full_name(),
+            'first_name': user.get_short_name(),
         }
         request.session["user"] = user_dict
 
@@ -44,3 +45,10 @@ def login_user(request):
         return render(request, 'login/index.html',{
             "form" : LoginForm()
         })
+    
+
+def logout_user(request):
+    logout(request)
+    request.session = [] 
+    return redirect('login:login_user')
+

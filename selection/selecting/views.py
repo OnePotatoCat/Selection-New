@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.urls import reverse
+from django.template import loader
 from django import forms
 from .models import Series, Unit, Compressor, Condenser
 from django.contrib.auth import authenticate, logout
@@ -110,24 +111,45 @@ class NewUnitSelectionForm(forms.Form):
 def index(request):
     units = Unit.objects.all()
     return render(request, "selecting/layout.html", {
-        "username" : request.session["user"]["first_name"]
+        "username" :request.user.username,
+        # "admin" : request.user.is_staff,
+        # "username" : request.session["user"]["first_name"]
         # "units" :units
     })
 
-def unit_selection(request, series):
-    units = Unit.objects.filter(series= series)
+
+def show_series(request):
+    series_names= Series.objects.all()
+    content={"series" :series_names}
+
+    series_dict = {}
+    for name in series_names:
+        series_dict[name.id] = name.series_name.upper()    
+
+    template = loader.get_template("selecting/series_album.html")
+    selection_html = template.render(content, request)
+    return HttpResponse(selection_html)
+
+
+
+# def show_series(request):
+#     series_names= Series.objects.all()
+#     series_dict = {}
+#     for name in series_names:
+#         series_dict[name.id] = name.series_name.upper()
+#     return JsonResponse(series_dict)
+
+
+def show_unit_selection(request, series):
+    units = Unit.objects.filter(series = int(series))
+    content = {"units" :units}
     units_dict= {}
     for unit in units:
         units_dict[unit.id] = unit.model.upper()
-    return JsonResponse(units_dict)
 
-
-def show_product_series(request):
-    series_names= Series.objects.all()
-    series_dict = {}
-    for name in series_names:
-        series_dict[name.id] = name.series_name.upper()
-    return JsonResponse(series_dict)
+    template = loader.get_template("selecting/newselection.html")
+    selection_html = template.render(content, request)
+    return HttpResponse(selection_html)
 
 
 def show_components(request, unit):
@@ -154,12 +176,13 @@ def show_components(request, unit):
     data["default_airflow"] = default_airflow
 
     jsonData = json.dumps(data)
-    return HttpResponse(jsonData)
+    return JsonResponse(data)
 
 
 def set_default_airflow(request, unit):
     unit = Unit.objects.get(pk=int(unit))
     return JsonResponse({"airflow": unit.default_airflow})
+
 
 def inverter_compressor(request, comp):
     compressor = Compressor.objects.get(pk=int(comp))
@@ -180,7 +203,6 @@ def calculatecapacity(request):
         esp = float(form["esp"])
         amb_temp = float(form["amb_temp"])
         filter_type = form["filter"].lower()
-
 
         if (form["comp_sp"] != ''):
             comp_speed = float(form["comp_sp"])

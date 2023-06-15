@@ -18,11 +18,15 @@ hr{
 }
 
 small{
-    font-size: 25px;
+    font-size: 18px;
 }
 
 body{
     font-size: .875rem;
+}
+
+.admin-text{
+    font-size: 25px;
 }
 
 .feather {
@@ -42,10 +46,9 @@ body{
     bottom: 0;
     left: 0;
     z-index: 100; /* Behind the navbar */
-    padding: 48px 0 0; /* Height of navbar */
+    padding: 70px 0 0; /* Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    min-width: 120px;
-    max-width: 220px;
+    min-width: 150px;
   }
 
 .sidebar-sticky {
@@ -90,7 +93,7 @@ body{
   }
 
 /*
- * Content
+ * Main
  */
 
 .ml-sm-auto, .mx-sm-auto{
@@ -99,14 +102,12 @@ body{
 }
 
  [role="main"] {
-    padding-top: 133px; /* Space for fixed navbar */
-    width: auto;
-    position: relative;
+    padding-top: 15px; /* Space for fixed navbar */
 }
   
 @media (min-width: 550px) {
     [role="main"] {
-        padding-top: 48px; /* Space for fixed navbar */
+        padding-top: 1px; /* Space for fixed navbar */
     }
 }
 
@@ -120,7 +121,7 @@ body{
 
 .navbar-brand-text{
     padding-left: .5rem;
-    font-size: larger;
+    font-size: xx-large;
     font-weight: 750;
     vertical-align: middle;
 }
@@ -130,7 +131,20 @@ body{
     padding-top: .75rem;
     padding-bottom: .75rem;
     font-size: 1rem;
+    min-width: 150px;
     background-color: rgba(0, 78, 25, 0.295);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+
+.navbar-brand-title {
+    padding-left: .75rem;
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    font-size: larger;
+    font-weight: 750;
+    vertical-align: middle;
+    min-width: 150px;
+    background-color: rgba(255, 255, 255, 0);
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
 }
 
@@ -232,4 +246,12 @@ figure > * {
 
 figure:hover img {
     transform: scale(1.0);
+}
+
+/* 
+* Calculation
+*/
+
+.container{
+    margin-left:1rem;
 }
