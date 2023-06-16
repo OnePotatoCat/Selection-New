@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
 from django.urls import reverse
 from django.template import loader
+from django.template.loader import render_to_string
 from django import forms
-from .models import Series, Unit, Compressor, Condenser
+from .models import Series, Unit, Compressor, Condenser, Calculation
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
 
@@ -112,7 +113,7 @@ def index(request):
     units = Unit.objects.all()
     return render(request, "selecting/layout.html", {
         "username" :request.user.username,
-        # "admin" : request.user.is_staff,
+        "admin" : request.user.is_staff,
         # "username" : request.session["user"]["first_name"]
         # "units" :units
     })
@@ -128,8 +129,8 @@ def show_series(request):
 
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(content, request)
+    print(selection_html)
     return HttpResponse(selection_html)
-
 
 
 # def show_series(request):
@@ -142,7 +143,10 @@ def show_series(request):
 
 def show_unit_selection(request, series):
     units = Unit.objects.filter(series = int(series))
-    content = {"units" :units}
+    content = {
+        "units" :units, 
+        "admin": request.user.is_staff,
+        }
     units_dict= {}
     for unit in units:
         units_dict[unit.id] = unit.model.upper()
@@ -210,7 +214,11 @@ def calculatecapacity(request):
             comp_speed = float(0)
 
         result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
+        
+        new_calculation = Calculation(
+            
+        )
+        
+        
         print(result)
-        # jsonResult= json.dumps(result)
-        # print(jsonResult)
         return JsonResponse(result)

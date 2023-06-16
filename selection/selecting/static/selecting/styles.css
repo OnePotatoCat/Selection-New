@@ -37,6 +37,7 @@ body{
     text-align: center;;
 }
 
+
 /*
  * Sidebar
  */
@@ -252,7 +253,37 @@ figure:hover img {
 /* 
 * Calculation
 */
+.indent{
+    /* margin-right: -1rem; */
+    width: 12px;
+}
+
 
 .container{
     margin-left:1rem;
+}
+
+.label-text{
+    font-family: "Figtree", sans-serif;
+    font-weight:900;
+}
+
+.submain-text{
+    font-weight:800;
+}
+
+.spacer{
+    width: 5%;
+}
+
+.result-sheet{
+    width: 80%;
+}
+
+.result-spacer{
+    width: 4%;
+}
+
+.button-add{
+    width: 10%;
 }

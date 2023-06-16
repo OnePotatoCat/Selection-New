@@ -92,3 +92,31 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.model.upper()}"
+
+
+class Calculation(models.Model):
+    add_to_cart = models.BooleanField()
+    model = models.ForeignKey(Unit, on_delete=models.RESTRICT, related_name="unit")
+    cond = models.ForeignKey(Condenser, on_delete=models.RESTRICT, related_name="cond")
+    inlet_temp = models.FloatField()
+    inlet_rh = models.FloatField()
+    airflow = models.PositiveIntegerField()
+    esp = models.PositiveIntegerField()
+    amb_temp = models.FloatField()
+    filter = models.CharField(max_length=3)
+    comp = models.ForeignKey(Compressor, on_delete=models.RESTRICT, related_name="comp")
+    comp_spd = models.PositiveIntegerField()
+    total_cap = models.FloatField()
+    sen_cap = models.FloatField()
+    fan_power = models.FloatField()
+    fan_rpm = models.PositiveIntegerField()
+    tsp = models.IntegerField()
+    t_evap = models.FloatField()
+    t_cond = models.FloatField()
+    off_temp = models.FloatField()
+    off_rh = models.FloatField()
+    outlet_temp= models.FloatField()
+    outlet_rh = models.FloatField()
+
+    def __str__(self):
+        return f"{self.model.upper()}"

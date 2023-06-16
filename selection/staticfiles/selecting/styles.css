@@ -18,7 +18,7 @@ hr{
 }
 
 small{
-    font-size: 18px;
+    font-size: 25px;
 }
 
 body{
@@ -26,7 +26,8 @@ body{
 }
 
 .admin-text{
-    font-size: 25px;
+    font-size: 15px;
+    vertical-align: middle;
 }
 
 .feather {
@@ -35,6 +36,7 @@ body{
     vertical-align: bottom;
     text-align: center;;
 }
+
 
 /*
  * Sidebar
@@ -251,7 +253,37 @@ figure:hover img {
 /* 
 * Calculation
 */
+.indent{
+    /* margin-right: -1rem; */
+    width: 12px;
+}
+
 
 .container{
     margin-left:1rem;
+}
+
+.label-text{
+    font-family: "Figtree", sans-serif;
+    font-weight:900;
+}
+
+.submain-text{
+    font-weight:800;
+}
+
+.spacer{
+    width: 20px;
+}
+
+.result-sheet{
+    width: 75%;
+}
+
+.result-spacer{
+    width: 5%;
+}
+
+.button-add{
+    width: 20%;
 }
