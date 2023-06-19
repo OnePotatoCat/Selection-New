@@ -18,7 +18,7 @@ hr{
 }
 
 small{
-    font-size: 25px;
+    font-size: 20px;
 }
 
 body{
@@ -250,11 +250,35 @@ figure:hover img {
     transform: scale(1.0);
 }
 
+
+/* 
+* Unit Selection
+*/
+.model-sheet{
+    width: 43%;
+}
+
+.form-sheet{
+    width:53%;
+}
+
+.input-sheet{
+    width:81.132075%;
+}
+
+.form-spacer-sheet{
+    width:6.8966%;
+}
+
+.button-sheet{
+    --bs-btn-padding-y: 0rem;
+    width:30%;
+}
+
 /* 
 * Calculation
 */
 .indent{
-    /* margin-right: -1rem; */
     width: 12px;
 }
 
@@ -272,18 +296,18 @@ figure:hover img {
     font-weight:800;
 }
 
-.spacer{
-    width: 5%;
-}
-
-.result-sheet{
+.sheet{
     width: 80%;
 }
 
-.result-spacer{
+.spacer{
     width: 4%;
 }
 
+.result-sheet{
+    width: 90%;
+}
+
 .button-add{
-    width: 10%;
+    width: 20%;
 }

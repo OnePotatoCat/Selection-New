@@ -65,6 +65,7 @@
             .then(response => response.json())
             .then(data => {
                 selectionUpdate(data.compressor, 'comp');
+                selectionUpdate(data.flow, 'flow');
                 selectionUpdate(data.fan, 'fan');
                 selectionUpdate(data.condenser, 'cond');
 
@@ -130,10 +131,16 @@
             data.append('fan', fan)
             data.append('cond', condenser)
 
-            //data.append('csrfmiddlewaretoken', $('#csrf-helper input[name="csrfmiddlewaretoken"]').attr('value'));
             let calculating_tag = document.getElementById("calculating_tag");
             calculating_tag.style.display = "";
-            calculating_tag.innerHTML = "  calculating...";
+            var dots = ""; 
+            var loading_cal = setInterval(function(){
+                dots += ".";
+                if (dots.length>3)
+                    dots = "";
+                    calculating_tag.innerHTML = "  calculating" + dots;
+            }, 250);
+            
             let headers = new Headers();
             const csrftoken = getCookie('csrftoken')
             headers.append('X-CSRFToken', csrftoken);
@@ -179,6 +186,8 @@
                         }
                         table1 = "";
                     }
+                    clearInterval(loading_cal);
+                    calculating_tag.style.display = "";
                     calculating_tag.innerHTML = "";
                 }
                 else{
@@ -210,26 +219,6 @@
             calculating_tag.style.display = "none";
             result_table.style.display = "none";
         }
-
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     // Add button functionality
-        //     let selection = document.getElementById('unit');
-        //     selection.onchange = function() {
-        //         const unit = this.options[this.selectedIndex].dataset.unit
-        //         history.pushState({unit: unit}, "", `newselection`);
-        //         showComponents(this.options[this.selectedIndex].dataset.unit);
-        //     }
-        //     showComponents(selection.options[selection.selectedIndex].dataset.unit);
-
-        //     // Hide the Calculation onload
-        //     let calculation = document.getElementById('calculation');
-        //     let calculating_tag = document.getElementById("calculating_tag");
-        //     let result_table = document.getElementById('result_table');
-        //     calculation.style.display = "none";
-        //     calculating_tag.style.display = "none";
-        //     result_table.style.display = "none";
-        // });
-
     </script>
 
 

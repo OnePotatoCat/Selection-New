@@ -4,9 +4,12 @@
     <h1 class="fs-1 submain-text">Unit Selection</h1>
     <div class="container py-3 label-text">
         <div class="row flex-xl-nowarp">
-            <div class="col-md-4 border border-dark rounded">
-                <div class="m-3 mb-4 ps-3">
-                    <div class="row fs-5 mt-2 border-bottom border-dark">Model Selection </div>
+            <div class="model-sheet border border-dark rounded">
+                <div class="m-1 mb-4 ps-3">
+                    <div class="row border-bottom border-dark">
+                        <div class="col fs-4 mt-2">Model Selection </div>
+                    </div>
+                    
                     <!-- Unit Selection -->
                     <div class="row">
                         <div class="col-sm-1 indent"></div>
@@ -23,6 +26,25 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Unit Selection -->
+                    <div class="row">
+                        <div class="col-sm-1 indent"></div>
+                        <div class="col-sm-11 border-bottom border-dark">
+                            <div class="row">
+                                <label class ="col-sm-5 col-form-label">Flow Orientation</label>
+                                <div class="col-sm-7">
+                                    <select id="flow" name="flow" class="h-100 form-select form-select-sm">
+                                        {% for flow in flows %}
+                                            <option data-unit="{{ flow.id }}">{{ flow }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     
                     <!-- Compressor Selection -->
                     {% if admin %}
@@ -86,20 +108,22 @@
             </div>
             <div class="spacer"></div>
 
-            <div class="col-md-7">
+            <div class="form-sheet">
                 <form id="inputs" method = "post">{% csrf_token %}
                     <div class="row">
-                        <div class="col-sm-9 border border-dark rounded">
-                            <div class="m-3 mb-4 ps-3">
-                                <div class="row fs-5 mt-2 border-bottom border-dark">Inlet Condition</div>
-                                
-                                
+                        <div class="input-sheet border border-dark rounded">
+                            <div class="m-1 mb-4 ps-3">
+                                <div class="row border-bottom border-dark">
+                                    <div class="col fs-4 mt-2 mr-auto">Inlet Condition</div>
+                                    <button type="button" class="btn btn-secondary border border-dark mb-2 button-sheet" onclick="calculateSelection(this.form)">Calc.</button>
+                                </div>
+                                                                
                                 <!-- Compressor Speed -->
                                 <div class="form-group row" id="comp_speed">
                                     <div class="col-sm-1 indent"></div>
                                     <div class="col-sm-11 border-bottom border-dark">
                                         <div class="row">
-                                            <label class ="col-sm-6 col-form-label">Comp. Speed</label>
+                                            <label class ="col-sm-5 col-form-label">Comp. Speed</label>
                                             <div class="col-sm-4">
                                                 <input type="number" id="comp_sp" name="comp_sp" class="h-100 form-control form-control-sm text-right" value="100" placeholder="100" max="100" min="40">
                                             </div>
@@ -191,8 +215,8 @@
                             </div>
                         </div>
                         
-                        <div class="spacer"></div>
-                        <button type="button" class="btn btn-primary col-sm-2" onclick="calculateSelection(this.form)">Calc.</button>
+                        <div class="form-spacer-sheet"></div>
+                        
                     </div>
                 </form>
             </div>
@@ -202,10 +226,14 @@
         <div id="calculation">
             <div class="row flex-xl-nowarp">
                 <div class="result-sheet border border-dark rounded bg-light">
-                    <div class="m-2 ps-2">
-                        <h1>Result <small id="calculating_tag" class="font-italic"></small></h1>
+                    <div class="m-3 ps-2">
+                        <div class="row">
+                            <h1 class="col mr-auto">Result <small id="calculating_tag" class="font-italic"></small></h1>
+                            <button type="button" id="cart_button" class="m-2 btn btn-secondary border border-secondary button-add">Add to Cart</button>
+                        </div>
+                        
     
-                        <div id="result_table" class="m-4">
+                        <div id="result_table" class="m-3">
                             <!-- First row of tables -->
                             <div class="row flex-xl-nowarp">
                                 <div class="col-md-6">
@@ -256,12 +284,8 @@
                     
                 </div>
 
-                <div class="result-space"></div>
-
-                <button type="button" class="btn btn-primary button-add" >Add to Cart</button>
+                <div class="spacer"></div>
             </div>
-
-            
         </div>
     </div>
   {% endblock %}

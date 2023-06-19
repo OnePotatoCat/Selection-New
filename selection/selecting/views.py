@@ -129,16 +129,7 @@ def show_series(request):
 
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(content, request)
-    print(selection_html)
     return HttpResponse(selection_html)
-
-
-# def show_series(request):
-#     series_names= Series.objects.all()
-#     series_dict = {}
-#     for name in series_names:
-#         series_dict[name.id] = name.series_name.upper()
-#     return JsonResponse(series_dict)
 
 
 def show_unit_selection(request, series):
@@ -160,6 +151,12 @@ def show_components(request, unit):
     data = {}
     unit = Unit.objects.get(pk=int(unit))
     
+    flows = unit.flow_direction.all()
+    flow_dict = {}
+    for flow in flows:
+        flow_dict[flow.id] = flow.flow_orientaion.upper()
+    data["flow"] = flow_dict
+
     comp = unit.compressor
     comp_dict = {}
     comp_dict[comp.id] = comp.model.upper()
@@ -218,7 +215,6 @@ def calculatecapacity(request):
         new_calculation = Calculation(
             
         )
-        
         
         print(result)
         return JsonResponse(result)
