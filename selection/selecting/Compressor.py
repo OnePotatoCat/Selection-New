@@ -5,6 +5,7 @@ class Compressor_Cal(object):
     def __init__(self, comp_id :int) -> None:
         compressor = comp.objects.get(pk = comp_id)
         self.model = compressor.model
+        self.hp = compressor.hp
         self.refrigerant = compressor.refrigerant
         self.evap_temp_limit = compressor.evap_temp_limit
         self.cap_coef = compressor.capacity_coefficient

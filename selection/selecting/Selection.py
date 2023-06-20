@@ -50,7 +50,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
     # Calculating Total Static Pressure and Fan Motor performance
     total_static_pressure = unit.get_tsp(airflow)
-    unit.fan.set_properties(airflow, total_static_pressure)
+    unit.fan.set_properties(airflow/unit.no_of_fan, total_static_pressure)
     fan_power = unit.fan.get_power()
     fan_rpm = unit.fan.get_rpm()
     fan_current = unit.fan.get_current()
@@ -311,16 +311,19 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     }
 
     fan_dict = {
-        "Fan": (unit.fan.model.upper(), ""),
+        # "Fan": (unit.fan.model.upper(), ""),
+        "Fan": (unit.fan.size, ""),
+        "Airflow": (round(airflow, 2), "m3/hr"),
         "Fan Power": (round(fan_power, 2), "kW"),
         "Fan RPM": (round(fan_rpm,0), "rpm"),
         "Total Static Pressure": (round(unit.tsp, 0), "Pa")
     }
 
     comp_dict = {
-        "Compressor": (unit.compressor.model.upper(), ""),
+        # "Compressor": (unit.compressor.model.upper(), ""),
+        "Compressor": (str(unit.compressor.hp) + "HP", ""),
         "Comp. Power": (round(unit.compressor.get_power(), 1), "kW"),
-        "Comp. Current": (round(unit.compressor.get_current(), 1), "A"),
+        # "Comp. Current": (round(unit.compressor.get_current(), 1), "A"),
         "Evaporating Temp.": (round(t_evap, 1), "°C"),
         "Condensing Temp.": (round(t_cond, 1), "°C")
     }
@@ -403,7 +406,6 @@ def ConvertPsi_Pa(pressure_psi):
 
 def ConvertPa_Psi(pressure_pa):
     return pressure_pa/6894.75728
-
 
 if __name__ == "__main__":
     main(24, 46.1, 5550)

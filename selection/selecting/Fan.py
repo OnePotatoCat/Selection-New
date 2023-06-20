@@ -4,6 +4,7 @@ class Fan_Cal(object):
     def __init__(self, fan_id :int):
         fan = fn.objects.get(pk = fan_id)
         self.model = fan.model
+        self.size = fan.size
         
         self._rpm_coef = fan.rpm_coefficient
         self._pow_coef = fan.power_coefficient

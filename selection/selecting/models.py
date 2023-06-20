@@ -1,6 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import ArrayField
+import datetime
 
 # Create your models here.
 class Condenser(models.Model):
@@ -36,6 +38,7 @@ class Evaporator(models.Model):
 
 class Compressor(models.Model):
     model = models.CharField(max_length=16)
+    hp = models.PositiveIntegerField(validators=[MaxValueValidator(100)])
     refrigerant = models.CharField(max_length=10)
     inverter = models.BooleanField()
     voltage = models.IntegerField()
@@ -54,6 +57,7 @@ class Compressor(models.Model):
 
 class Fan(models.Model):
     model = models.CharField(max_length=32)
+    size = models.PositiveIntegerField(validators=[MaxValueValidator(1000)])
     rpm_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
     power_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
     current_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
@@ -96,7 +100,9 @@ class Unit(models.Model):
 
 class Calculation(models.Model):
     add_to_cart = models.BooleanField()
+    date_time = models.DateTimeField(default=datetime.datetime.now())
     model = models.ForeignKey(Unit, on_delete=models.RESTRICT, related_name="unit")
+    flow_orientaion = models.ForeignKey(FlowOrientation, on_delete=models.RESTRICT)
     cond = models.ForeignKey(Condenser, on_delete=models.RESTRICT, related_name="cond")
     inlet_temp = models.FloatField()
     inlet_rh = models.FloatField()
@@ -119,4 +125,12 @@ class Calculation(models.Model):
     outlet_rh = models.FloatField()
 
     def __str__(self):
-        return f"{self.model.upper()}"
+        return f"{self.model}  {self.date_time}  {self.sen_cap}"
+    
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    calculation = models.ForeignKey(Calculation, on_delete=models.RESTRICT)
+
+    def __str__(self):
+        return f"{self.user}  {self.calculation}"

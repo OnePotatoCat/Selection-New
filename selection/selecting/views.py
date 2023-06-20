@@ -4,12 +4,14 @@ from django.urls import reverse
 from django.template import loader
 from django.template.loader import render_to_string
 from django import forms
-from .models import Series, Unit, Compressor, Condenser, Calculation
+from .models import Series, Unit, Compressor, Condenser, FlowOrientation, Calculation, Cart
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
 
 import json
 import Selection
+import datetime
 from . import Selection as sel
 from .Compressor import Compressor_Cal
 from .Evaporator import Evaporator_Cal
@@ -195,6 +197,7 @@ def calculatecapacity(request):
         form = request.POST
         unit_id = int(form["unit"])
         evap_id = Unit.objects.get(pk=int(unit_id)).evaporator.id
+        flow_id = int(form["flow"])
         comp_id = int(form["comp"])
         fan_id = int(form["fan"])
         cond_id = int(form["cond"])
@@ -211,10 +214,54 @@ def calculatecapacity(request):
             comp_speed = float(0)
 
         result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
-        
-        new_calculation = Calculation(
-            
-        )
-        
+        result["calculation id"] = ""
+
+        if result["converged"]:
+            new_calculation = Calculation(
+                add_to_cart = False,
+                date_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+                model = Unit.objects.get(pk=int(unit_id)),
+                flow_orientaion = FlowOrientation.objects.get(pk=int(flow_id)),
+                cond = Condenser.objects.get(pk=int(cond_id)),
+                inlet_temp = inlet_temp,
+                inlet_rh = rh,
+                airflow = airflow,
+                esp = esp,
+                amb_temp = amb_temp,
+                filter = filter_type,
+                comp = Compressor.objects.get(pk=int(comp_id)),
+                comp_spd = comp_speed,
+                total_cap = result["capacity"]["Total Capacity"][0],
+                sen_cap = result["capacity"]["Total Sensible Cap."][0],
+                fan_power = result["fan"]["Fan Power"][0],
+                fan_rpm = result["fan"]["Fan RPM"][0],
+                tsp = result["fan"]["Total Static Pressure"][0],
+                t_evap = result["compressor"]["Evaporating Temp."][0],
+                t_cond = result["compressor"]["Condensing Temp."][0],
+                off_temp = result["air"]["Off Coil Temperature"][0],
+                off_rh = result["air"]["Off Coil RH"][0],
+                outlet_temp = result["air"]["Outlet Temperature"][0], 
+                outlet_rh = result["air"]["Outlet RH"][0],
+            )
+
+            new_calculation.save()
+            result["calculation id"] = new_calculation.id
+
         print(result)
         return JsonResponse(result)
+    
+
+def add_calculation_to_cart(request, cal_id):
+    calculation_data = Calculation.objects.get(pk=int(cal_id))
+    calculation_data.add_to_cart = True
+    cart = Cart(
+        user = User.objects.get(pk=int(request.user.id)),
+        calculation = Calculation.objects.get(pk=int(cal_id))
+    )
+    cart.save()
+    return JsonResponse({"success": calculation_data.add_to_cart })
+
+
+def show_cart(request):
+    return HttpResponse(selection_html)
+        

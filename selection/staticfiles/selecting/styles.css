@@ -18,7 +18,7 @@ hr{
 }
 
 small{
-    font-size: 25px;
+    font-size: 20px;
 }
 
 body{
@@ -255,15 +255,15 @@ figure:hover img {
 * Unit Selection
 */
 .model-sheet{
-    width: 38%;
+    width: 43%;
 }
 
 .form-sheet{
-    width:58%;
+    width:53%;
 }
 
 .input-sheet{
-    width:65.5172%;
+    width:81.132075%;
 }
 
 .form-spacer-sheet{
@@ -305,7 +305,7 @@ figure:hover img {
 }
 
 .result-sheet{
-    width: 80%;
+    width: 90%;
 }
 
 .button-add{

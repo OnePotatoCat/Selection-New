@@ -10,5 +10,9 @@ urlpatterns = [
     path("show_components/<int:unit>", views.show_components, name="show_components"),
     path("calculatecapacity", views.calculatecapacity, name="calculatecapacity"),
     path("inverter_compressor/<int:comp>", views.inverter_compressor, name="inverter_compressor"),
-    path("set_default_airflow/<int:unit", views.set_default_airflow, name="set_default_airflow"),
+    path("set_default_airflow/<int:unit>", views.set_default_airflow, name="set_default_airflow"),
+    path("add_calculation_to_cart/<int:cal_id>", views.add_calculation_to_cart, name="add_calculation_to_cart"),
+
+    # Cart Session
+    path("cart/", views.show_cart, name="show_cart"),
 ]

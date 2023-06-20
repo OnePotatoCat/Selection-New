@@ -122,14 +122,16 @@
         
         function calculateSelection(form){
             let unit = document.getElementById('unit').value;
+            let flow = document.getElementById('flow').value;
             let compressor = document.getElementById('comp').value;
             let fan = document.getElementById('fan').value;
             let condenser = document.getElementById('cond').value;
             let data = new FormData(form);
-            data.append('unit', unit)
-            data.append('comp', compressor)
-            data.append('fan', fan)
-            data.append('cond', condenser)
+            data.append('unit', unit);
+            data.append('flow', flow);
+            data.append('comp', compressor);
+            data.append('fan', fan);
+            data.append('cond', condenser);
 
             let calculating_tag = document.getElementById("calculating_tag");
             calculating_tag.style.display = "";
@@ -161,19 +163,23 @@
                 let result_table_outlet = document.getElementById('result_table_outlet');
                 let table1 = "";
                 let table2 = "";
+                let cart_button = document.getElementById('cart_button');
 
                 if(result.converged){
+                    cart_button.disabled = false;
+                    cart_button.value = result["calculation id"];
                     result_table.style.display = "";
                     let temp_table = null;
                     for(let key in result){
 
                         // console.log(key);
-                        if(key == "converged")  {continue;}
-                        if(key == "capacity")   {temp_table = result_table_cap;}
-                        if(key == "fan")        {temp_table = result_table_fan;}
-                        if(key == "compressor") {temp_table = result_table_comp;}
-                        if(key == "air")        {temp_table = result_table_outlet;}
-
+                        if(key == "converged")       {continue;}
+                        if(key == "capacity")        {temp_table = result_table_cap;}
+                        if(key == "fan")             {temp_table = result_table_fan;}
+                        if(key == "compressor")      {temp_table = result_table_comp;}
+                        if(key == "air")             {temp_table = result_table_outlet;}
+                        if(key == "calculation id")  {continue;}
+                        
                         for(let subkey in result[key]){
                             table1 += "<tr>";
                             table1 += "<th class='col-sm-7'>" + subkey + "</th>";
@@ -191,15 +197,29 @@
                     calculating_tag.innerHTML = "";
                 }
                 else{
-                    console.log("Hello");
+                    cart_button.disabled = true;
+                    clearInterval(loading_cal);
                     calculating_tag.innerHTML = "  Fail to converge";
                     result_table.style.display = "none";
                 }
             });
         }
 
+
+        function addCalculationToCart(cal_id){
+            fetch(`add_calculation_to_cart/${cal_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success = true){
+                    document.getElementById("result_table").style.display = "none";
+                    cart_button = document.getElementById('cart_button');
+                    cart_button.disabled = true;
+                }
+            });
+        }
+
+
         function loadSelectionSheet(){
-            console.log("LoadSelectionSheet")
             let selection = document.getElementById('unit');
             selection.addEventListener(
                 'change',
