@@ -13,7 +13,7 @@ class CalculationAdmin(admin.ModelAdmin):
     list_display = ("id", "model", "date_time", )
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "calculation")
+    list_display = ("id", "user", "calculation")
 
 
 admin.site.register(Unit, UnitAdmin)

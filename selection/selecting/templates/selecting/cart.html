@@ -1,0 +1,76 @@
+{% block body %}
+    <script>
+        function generateReports(){
+            checkBoxes = document.querySelectorAll('input[type="checkbox"]');
+            checkedId = [];
+
+            checkBoxes.ForEach(function(checkBox){
+                if (checkBox) {
+                    checkedId.push(checkBox.data);    
+                }
+            })
+            console.log(checkedId);
+        }
+
+
+    </script>
+
+    <br>
+    <h1 class="fs-1 submain-text">Cart</h1>
+    <div class="container-fluid py-3 cart-table-text">
+        <div class="row">
+            <div class="spacer"></div>
+            <button type="button" class="col btn btn-secondary" onclick="generateReports()" method = "post">Generate Report</button>
+
+            <div class="spacer"></div>
+            <button type="button" class="col btn btn-secondary">Delete</button>
+            <div class="spacer-end"></div>
+
+        </div>
+
+        <div class="row flex-xl-nowarp mt-4">
+            <div class="spacer"></div>
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col"></th>
+                        <!-- <th scope="col"></th> -->
+                        <th scope="col">Model</th>
+                        <th scope="col">Total Cap.</th>
+                        <th scope="col">Total Sen. Cap.</th>
+                        <th scope="col">Net Cap.</th>
+                        <th scope="col">Net Sen. Cap.</th>
+                        <th scope="col">Airflow</th>
+                        <th scope="col">Inlet Temp.</th>
+                        <th scope="col">Inlet RH</th>
+                        <th scope="col">Outlet Temp.</th>
+                        <th scope="col">Outlet RH</th>
+                        <th scope="col">Filter</th>
+                        <th scope="col">Date|Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for key, item in cart.items %}
+                        <tr>
+                            <td><input type="checkbox" data="{{ key }}"/></td>
+                            <!-- <th scope="row">{{ key }}</th> -->
+                            <td>{{ item.model }}</td>
+                            <td>{{ item.total_cap }}</td>
+                            <td>{{ item.sen_cap }}</td>
+                            <td>{{ item.net_total_cap }}</td>
+                            <td>{{ item.net_sen_cap }}</td>
+                            <td>{{ item.airflow }}</td>
+                            <td>{{ item.inlet_temp }}</td>
+                            <td>{{ item.inlet_rh }}</td>
+                            <td>{{ item.outlet_temp}}</td>
+                            <td>{{ item.outlet_rh }}</td>
+                            <td>{{ item.filter }}</td>
+                            <td>{{ item.datetime }}</td>
+                        </tr>
+                    {% endfor %}
+            </table>
+        </div>
+        <br>
+    </div>
+  {% endblock %}

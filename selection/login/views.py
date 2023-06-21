@@ -24,16 +24,15 @@ def login_user(request):
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-        print(user.get_full_name())
-        user_dict = {
-            'username': username,
-            'full_name': user.get_full_name(),
-            'first_name': user.get_short_name(),
-        }
-        request.session["user"] = user_dict
 
         if user is not None:
             login(request, user)
+            user_dict = {
+                'username': username,
+                'full_name': user.get_full_name(),
+                'first_name': user.get_short_name(),
+            }
+            request.session["user"] = user_dict
             return redirect('selecting:index')            
             
         else:

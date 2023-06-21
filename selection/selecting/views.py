@@ -112,26 +112,25 @@ class NewUnitSelectionForm(forms.Form):
 #          View Functions 
 # ------------------------------------ #
 def index(request):
-    units = Unit.objects.all()
     return render(request, "selecting/layout.html", {
         "username" :request.user.username,
         "admin" : request.user.is_staff,
-        # "username" : request.session["user"]["first_name"]
-        # "units" :units
     })
 
 
-def show_series(request):
-    series_names= Series.objects.all()
-    content={"series" :series_names}
-
-    series_dict = {}
-    for name in series_names:
-        series_dict[name.id] = name.series_name.upper()    
+def show_series(request, ):
+    if request.method =='GET':
+        return HttpResponseRedirect("/selecting")
+    
+    # if request.method == 'POST':
+    seriess= Series.objects.all()
+    content={"series" :seriess}
 
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(content, request)
     return HttpResponse(selection_html)
+
+        
 
 
 def show_unit_selection(request, series):
@@ -259,9 +258,41 @@ def add_calculation_to_cart(request, cal_id):
         calculation = Calculation.objects.get(pk=int(cal_id))
     )
     cart.save()
-    return JsonResponse({"success": calculation_data.add_to_cart })
+    
+    return JsonResponse({"success": calculation_data.add_to_cart,
+                         "message": "Added to cart successfully" })
 
 
 def show_cart(request):
-    return HttpResponse(selection_html)
+    user_cart = Cart.objects.filter(user = request.user.id)
+    date_time_format = "%Y %b %d %H:%M"
+    cart_dict = {}
+    for item in user_cart:
+        net_total_cap = round(item.calculation.total_cap - item.calculation.fan_power, 1)
+        net_sen_cap = round(item.calculation.sen_cap - item.calculation.fan_power, 1)
+
+        cart_dict[str(item.id)] = {
+            "model"         : f"{item.calculation.model} - {item.calculation.cond}",
+            "total_cap"     : f"{round(item.calculation.total_cap,1)} kW",
+            "sen_cap"       : f"{round(item.calculation.sen_cap,1)} kW",
+            "net_total_cap" : f"{net_total_cap} kW",
+            "net_sen_cap"   : f"{net_sen_cap} kW",
+            "airflow"       : f"{item.calculation.airflow} m3/hr",
+            "inlet_temp"    : f"{item.calculation.inlet_temp} °C", 
+            "inlet_rh"      : f"{item.calculation.inlet_rh} %",
+            "outlet_temp"   : f"{item.calculation.outlet_temp} °C", 
+            "outlet_rh"     : f"{item.calculation.outlet_rh} %",
+            "filter"        : f"{item.calculation.filter.upper()}",
+            "datetime"          : f"{item.calculation.date_time.strftime(date_time_format)}"
+        }
+
+    content = {
+        "cart": cart_dict, 
+        "admin": request.user.is_staff,
+        }
+    
+    template = loader.get_template("selecting/cart.html")
+    cart_html = template.render(content, request)
+    return HttpResponse(cart_html)
+
         

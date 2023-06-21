@@ -20,10 +20,17 @@
         }
 
         function showSeriesAlbum() {
-            fetch(`show_series`)
+            let headers = new Headers();
+            const csrftoken = getCookie('csrftoken');
+            headers.append('X-CSRFToken', csrftoken);
+
+            fetch(`series`,{
+                method: "POST",
+                headers: headers,
+            })
             .then(function(response) {
                 if (response.ok) {
-                    return response.text();  // Extract the response data as text
+                    return response.text();  
                 }
                 throw new Error('Network response was not OK');
             })
@@ -35,7 +42,29 @@
                 console.log('Error:', error.message);
             });
         }
-        
+
+        function showCart() {
+            let headers = new Headers();
+            const csrftoken = getCookie('csrftoken');
+            headers.append('X-CSRFToken', csrftoken);
+            
+            fetch(`cart`)
+            .then(function(response) {
+                if (response.ok) {
+                    return response.text();  
+                }
+                throw new Error('Network response was not OK');
+            })
+            .then(function(data) {
+                document.getElementById('main').innerHTML = data;
+                history.pushState({}, "", `cart`);
+            })
+            .catch(function(error) {
+                console.log('Error:', error.message);
+            });
+        }
+
+
         function unitSelectionPage(series){
             fetch(`show_unit_selection/${series}`)
             .then(function(response) {
@@ -46,12 +75,12 @@
             })
             .then(function(data) {
                 document.getElementById('main').innerHTML = data;
-                history.pushState({}, "", `series${series}`);
+                // history.pushState({}, "", `series/${series}/`);
                 loadSelectionSheet();
             })
-            // .catch(function(error) {
-            //     console.log('Error:', error.message);
-            // });
+            .catch(function(error) {
+                console.log('Error:', error.message);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function(){
@@ -109,8 +138,6 @@
                 var cookies = document.cookie.split(';');
                 for (var i = 0; i < cookies.length; i++) {
                     var cookie = cookies.toString().replace(/^([\s]*)|([\s]*)$/g, '');
-                    // var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
@@ -126,6 +153,9 @@
             let compressor = document.getElementById('comp').value;
             let fan = document.getElementById('fan').value;
             let condenser = document.getElementById('cond').value;
+            let alert_message = document.getElementById("calculation_message");
+            alert_message.style.display = "none";
+
             let data = new FormData(form);
             data.append('unit', unit);
             data.append('flow', flow);
@@ -144,7 +174,7 @@
             }, 250);
             
             let headers = new Headers();
-            const csrftoken = getCookie('csrftoken')
+            const csrftoken = getCookie('csrftoken');
             headers.append('X-CSRFToken', csrftoken);
             fetch(`calculatecapacity`, {
                 method: "POST",
@@ -211,6 +241,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success = true){
+                    alert_message = document.getElementById("calculation_message");
+                    alert_message.style.display = "";
+                    alert_message.innerHTML = "Added to cart successfully";
                     document.getElementById("result_table").style.display = "none";
                     cart_button = document.getElementById('cart_button');
                     cart_button.disabled = true;
@@ -275,7 +308,8 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link"  type="button"  onclick="showSeriesAlbum()">
+                                <a class="nav-link"  type="button"  onclick="showSeriesAlbum()" method = "post">
+                                    {% csrf_token %}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-add-crac">
                                         <g>
                                             <rect fill="none" x="5.20565" y="4.44015" width="13.50001" height="18.00002" id="svg_5" rx="2" stroke="currentColor"/>
@@ -291,7 +325,8 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link" type="button" onclick="showCart()" method = "post">
+                                    {% csrf_token %}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-cart"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                                     Cart
                                 </a>
