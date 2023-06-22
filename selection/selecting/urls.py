@@ -15,4 +15,6 @@ urlpatterns = [
 
     # Cart Session
     path("cart", views.show_cart, name="show_cart"),
+    path("generate_reports/<str:cal_ids>", views.generate_reports, name="generate_reports"),
+    path("delete_cart_item/<str:cal_ids>", views.delete_cart_items, name="delete_cart_items"),
 ]

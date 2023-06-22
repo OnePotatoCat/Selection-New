@@ -4,6 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import ArrayField
 import datetime
 
+date_time_format = "%Y %b %d %H:%M"
+
 # Create your models here.
 class Condenser(models.Model):
     model = models.CharField(max_length=16)
@@ -135,3 +137,11 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.user}  {self.calculation}"
+    
+class History(models.Model):
+    user = models.ForeignKey(User, on_delete=models.RESTRICT)
+    calculation = models.ForeignKey(Calculation, on_delete=models.RESTRICT)
+    generated_date_time = models.DateTimeField(default=datetime.datetime.now())
+
+    def __str__(self):
+        return f"{self.user}  {self.calculation}  {self.generated_date_time}.strftime(date_time_format)"

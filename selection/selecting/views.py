@@ -1,15 +1,19 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse
+from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse, FileResponse
 from django.urls import reverse
 from django.template import loader
 from django.template.loader import render_to_string
 from django import forms
-from .models import Series, Unit, Compressor, Condenser, FlowOrientation, Calculation, Cart
+from .models import Series, Unit, Compressor, Condenser, FlowOrientation, Calculation, Cart, History
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
 
 import json
+import os
+import shutil
+import zipfile
+from reportlab.pdfgen import canvas
 import Selection
 import datetime
 from . import Selection as sel
@@ -107,7 +111,7 @@ class NewUnitSelectionForm(forms.Form):
         self.fields['selections'] = forms.ChoiceField(
             choices = [(pair[0], pair[1]) for pair in id_model_pairs])
 
-
+date_time_format = "%Y %b %d %H:%M"
 # ------------------------------------ #
 #          View Functions 
 # ------------------------------------ #
@@ -265,8 +269,8 @@ def add_calculation_to_cart(request, cal_id):
 
 def show_cart(request):
     user_cart = Cart.objects.filter(user = request.user.id)
-    date_time_format = "%Y %b %d %H:%M"
     cart_dict = {}
+
     for item in user_cart:
         net_total_cap = round(item.calculation.total_cap - item.calculation.fan_power, 1)
         net_sen_cap = round(item.calculation.sen_cap - item.calculation.fan_power, 1)
@@ -283,7 +287,7 @@ def show_cart(request):
             "outlet_temp"   : f"{item.calculation.outlet_temp} °C", 
             "outlet_rh"     : f"{item.calculation.outlet_rh} %",
             "filter"        : f"{item.calculation.filter.upper()}",
-            "datetime"          : f"{item.calculation.date_time.strftime(date_time_format)}"
+            "datetime"      : f"{item.calculation.date_time.strftime(date_time_format)}"
         }
 
     content = {
@@ -295,4 +299,54 @@ def show_cart(request):
     cart_html = template.render(content, request)
     return HttpResponse(cart_html)
 
-        
+def generate_reports(request, cal_ids):
+    pdfs_directory = os.path.join("selecting/reports/pdf", str(request.user.id))
+    os.makedirs(pdfs_directory, exist_ok=True)
+    for filename in os.listdir(pdfs_directory):
+        file_path = os.path.join(pdfs_directory, filename)
+        os.remove(file_path)
+
+    zip_directory = os.path.join("selecting/reports/zip", str(request.user.id))
+    os.makedirs(zip_directory, exist_ok=True)
+    for filename in os.listdir(zip_directory):
+        file_path = os.path.join(zip_directory, filename)
+        os.remove(file_path)
+    
+    ids = cal_ids.split(",")
+    for id in ids:
+        cart = Cart.objects.get(pk=int(id))
+        filename = f'{cart.id}-{cart.calculation.model}.pdf'
+        file_path = os.path.join(pdfs_directory, filename)
+        generate_pdf(file_path, cart)
+        history = History(
+            user = User.objects.get(pk=int(cart.user.id)),
+            calculation = Calculation.objects.get(pk=int(cart.calculation.id)),
+            generated_date_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+        ) 
+        history.save()
+        cart.delete()
+
+    zip_file_path = os.path.join(zip_directory, "generated_pdfs.zip")
+    with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+        for filename in os.listdir(pdfs_directory):
+            file_path = os.path.join(pdfs_directory, filename)
+            zip_file.write(file_path, arcname = filename)
+    
+    response = FileResponse(open(zip_file_path, 'rb'), content_type='application/zip', as_attachment=True)
+    response['Content-Disposition'] = 'attachment; filename = "generated_pdfs.zip'
+    response['Content-Length'] = os.path.getsize(zip_file_path)
+    return response
+
+
+def generate_pdf(file_path, cart):
+    c = canvas.Canvas(file_path)
+    c.drawString(100, 750, f"PDF for Item {cart.id} : {cart.calculation.model}-{cart.calculation.cond}")
+    c.save()
+    
+
+def delete_cart_items(request, cal_ids):
+    ids = cal_ids.split(",")
+    for id in ids:
+        cart = Cart.objects.get(pk=int(id))
+        cart.delete()
+    return show_cart(request)
