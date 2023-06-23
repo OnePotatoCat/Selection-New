@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse, FileResponse
+from django.contrib.staticfiles import finders
+from django.templatetags.static import static
 from django.urls import reverse
 from django.template import loader
 from django.template.loader import render_to_string
@@ -13,7 +15,17 @@ import json
 import os
 import shutil
 import zipfile
+from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.graphics import renderPDF
+from reportlab.lib.utils import ImageReader
+from reportlab.lib import colors
+from reportlab.graphics import renderSVG
+from svglib.svglib import svg2rlg
+from PIL import Image
+
 import Selection
 import datetime
 from . import Selection as sel
@@ -112,6 +124,8 @@ class NewUnitSelectionForm(forms.Form):
             choices = [(pair[0], pair[1]) for pair in id_model_pairs])
 
 date_time_format = "%Y %b %d %H:%M"
+date_time_ymd = '%Y-%m-%d %H:%M'
+date_format = "%Y %b %d"
 # ------------------------------------ #
 #          View Functions 
 # ------------------------------------ #
@@ -222,7 +236,7 @@ def calculatecapacity(request):
         if result["converged"]:
             new_calculation = Calculation(
                 add_to_cart = False,
-                date_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+                date_time = datetime.datetime.now().strftime(date_time_ymd),
                 model = Unit.objects.get(pk=int(unit_id)),
                 flow_orientaion = FlowOrientation.objects.get(pk=int(flow_id)),
                 cond = Condenser.objects.get(pk=int(cond_id)),
@@ -315,15 +329,15 @@ def generate_reports(request, cal_ids):
     ids = cal_ids.split(",")
     for id in ids:
         cart = Cart.objects.get(pk=int(id))
-        filename = f'{cart.id}-{cart.calculation.model}.pdf'
+        filename = f'{cart.id}_{cart.calculation.model}-{cart.calculation.cond}.pdf'
         file_path = os.path.join(pdfs_directory, filename)
-        generate_pdf(file_path, cart)
         history = History(
             user = User.objects.get(pk=int(cart.user.id)),
             calculation = Calculation.objects.get(pk=int(cart.calculation.id)),
-            generated_date_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+            generated_date_time = datetime.datetime.now().strftime(date_time_ymd),
         ) 
         history.save()
+        generate_pdf(file_path, history)
         cart.delete()
 
     zip_file_path = os.path.join(zip_directory, "generated_pdfs.zip")
@@ -338,10 +352,225 @@ def generate_reports(request, cal_ids):
     return response
 
 
-def generate_pdf(file_path, cart):
-    c = canvas.Canvas(file_path)
-    c.drawString(100, 750, f"PDF for Item {cart.id} : {cart.calculation.model}-{cart.calculation.cond}")
-    c.save()
+def generate_pdf(file_path, history):
+    pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
+    pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
+    hist = History.objects.get(pk=int(history.id))
+
+    pdf = canvas.Canvas(file_path, pagesize=A4)
+    width, height = A4
+    padding = 20
+
+    title = 'Product Selection Sheet'
+    date_time = history.generated_date_time
+
+    bar_height = 45
+    logo_path = finders.find('selecting/logo_report.png')
+    logo = Image.open(logo_path)
+    logo_width, logo_height = logo.size
+    logo_scaling = (bar_height-5)/logo_height
+    pdf.setFillColorRGB(0,0,0)
+    pdf.rect(0, height-bar_height, width, bar_height, fill=True, stroke=False)
+    pdf.drawImage(logo_path, 5, height-logo_height*logo_scaling, logo_width*logo_scaling, logo_height*logo_scaling)
+
+    # TODO: insert logo here
+    pdf.setFont('VeraBd', 9)
+    pdf.setFillColorRGB(1,1,1) 
+    pdf.drawString(width-165, height-bar_height+25, "User ID")
+    pdf.drawString(width-120, height-bar_height+25, f": {history.user.id}")
+    pdf.drawString(width-165, height-bar_height+15, "Cal. ID")
+    pdf.drawString(width-120, height-bar_height+15, f": {history.id}")
+    pdf.drawString(width-165, height-bar_height+5, "Date")
+    pdf.drawString(width-120, height-bar_height+5, f": {date_time}")
+
+    starting_spacer = 25
+    subtitle_spacer = 40
+    line_spacer = 5
+    row_spacer = 15
+
+    # Subtitle - Product Information
+    pdf.setFont('VeraBd', 18)
+    pdf.setFillColorRGB(0,0,0) 
+    current_height = height-bar_height-starting_spacer  
+    pdf.drawString(padding, current_height, "Product Information")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding, current_height) 
+    # Series Name
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Series")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.series}")
+    # Model Name
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Model")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model}")
+    # Flow configuration
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Flow Configuration")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.flow_direction}")
+    # Unit Dimension
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Unit Dimension LxDxH")
+    pdf.drawString(width/2, current_height, "TO ADD")
+    # Power Supply
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Power Supply")
+    pdf.drawString(width/2, current_height, "TO ADD")
+
+    # Subtitle - Fan Information
+    pdf.setFont('VeraBd', 18)
+    current_height -= subtitle_spacer
+    pdf.drawString(padding, current_height, "Fan Information")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding*2, current_height) 
+    # Fan Type
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Fan Type")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.fan.size}")
+    # No. of Fan
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "No. of Fan")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.model.number_of_fan}")
+    # No. of Fan
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "No. of Fan")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.model.number_of_fan}")
+    # Fan Speed
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Fan Speed")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_rpm}RPM")
+    # Filter Type
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Filter Type")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.filter.upper()}")
+    # Airflow Rate
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Airflow Rate")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.airflow}m3/hr")
+    # ESP
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "External Static Pressure")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.esp}Pa")
+    # TSP
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Total Static Pressure")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.tsp}Pa")
+    # Motor Heat
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Motor Heat")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_power}kW")
+
+    # Subtitle - Entering Air Properties
+    pdf.setFont('VeraBd', 18)
+    current_height -= subtitle_spacer
+    pdf.drawString(padding, current_height, "Entering Air Properties")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding*2, current_height) 
+    # Dry Bulb Temperature
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Dry Bulb Temperature")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_temp}°C")
+    # RH
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Relative Humidity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_rh}%")
+
+    # Subtitle - Entering Air Properties
+    pdf.setFont('VeraBd', 18)
+    current_height -= subtitle_spacer
+    pdf.drawString(padding, current_height, "Outlet Air Properties")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding*2, current_height) 
+    # Dry Bulb Temperature
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Dry Bulb Temperature")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_temp}°C")
+    # RH
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Relative Humidity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_rh}%")
+
+    # Subtitle - Refrigeration System/Circuit
+    pdf.setFont('VeraBd', 18)
+    current_height -= subtitle_spacer
+    pdf.drawString(padding, current_height, "Refrigeration System/Circuit")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding*2, current_height) 
+    # Refrigerant
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Refrigerant")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.comp.refrigerant}")
+    # Ambient Temperature
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Ambient Temperature")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.amb_temp}°C")
+    # Condenser Model
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Condenser Model")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.cond}")
+    # Heat Rejection
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Heat Rejection")
+    pdf.drawString(width/2, current_height, "TO ADD kW")
+    # Compressor
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Compressor Size")
+    pdf.drawString(width/2, current_height, "TO ADD")
+    # Evaporating Temperature
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Evaporating Temperature")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.t_evap}°C")
+    # Condensing Temperature
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Condensing Temperature")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.t_cond}°C")
+    # Compressor Power Input
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Compressor Power Input")
+    pdf.drawString(width/2, current_height, "TO DO")
+
+    # Subtitle - Unit Capacity
+    pdf.setFont('VeraBd', 18)
+    current_height -= subtitle_spacer
+    pdf.drawString(padding, current_height, "Unit Capacity")
+    current_height -= line_spacer
+    pdf.line(padding, current_height, width-padding*2, current_height) 
+    # Gross Total Capacity
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Gross Total Capacity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.total_cap}kW")
+    # Gross Sensible Capacity
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Gross Sensible Capacity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap}kW")
+    # Gross SHR
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Gross SHR")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap/hist.calculation.sen_cap}")
+    # Net Total Capacity
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Net Total Capacity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.total_cap - hist.calculation.fan_power}kW")
+    # Gross Sensible Capacity
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Net Sensible Capacity")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap- hist.calculation.fan_power}kW")
+    # Gross SHR
+    pdf.setFont('VeraBd', 11)
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Net SHR")
+    pdf.drawString(width/2, current_height, f"{(hist.calculation.total_cap - hist.calculation.fan_power)/(hist.calculation.sen_cap- hist.calculation.fan_power)}kW")
+
+    pdf.save()
     
 
 def delete_cart_items(request, cal_ids):
@@ -350,3 +579,4 @@ def delete_cart_items(request, cal_ids):
         cart = Cart.objects.get(pk=int(id))
         cart.delete()
     return show_cart(request)
+

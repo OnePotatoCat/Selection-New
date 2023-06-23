@@ -1,5 +1,6 @@
-function generateReports(){
-    cal_ids = getCheckbox(selectAll=false)
+function generateReports(selectAll){
+    cal_ids = getCheckbox(selectAll=selectAll)
+    if (cal_ids == null){return}
 
     fetch(`generate_reports/${cal_ids}`)
     .then(function(response) {
@@ -19,6 +20,10 @@ function generateReports(){
         link.click();
         URL.revokeObjectURL(zipURL);
         document.body.removeChild(link);
+
+        // TODO: Update History and Cart Page
+
+        
       })
     .catch(function(error) {
         console.log('Error:', error.message);
@@ -26,12 +31,14 @@ function generateReports(){
 
 }
 
-function deleteCartItemsd(selectAll){
+function deleteCartItems(selectAll){
     cal_ids = getCheckbox(selectAll=selectAll)
+    if (cal_ids == null){return}
+
     fetch(`delete_cart_item/${cal_ids}`)
     .then(function(response) {
         if (response.ok) {
-            return response.blob();
+            return response.text();
         }
         throw new Error('Network response was not OK');
     })
@@ -48,9 +55,7 @@ function deleteCartItemsd(selectAll){
 
 function getCheckbox(selectedAll){
     let checkBoxes = document.querySelectorAll('input[type="checkbox"]');
-    if (checkBoxes.length == 0){
-        return null;
-    }
+    if (checkBoxes.length == 0){return null;}
 
     var Ids =[];
     checkBoxes.forEach(function(checkBox){
@@ -59,10 +64,10 @@ function getCheckbox(selectedAll){
         }
         else{
             if (checkBox.checked) {
-                checkedIds.push(checkBox.dataset.calc);   
+                Ids.push(checkBox.dataset.calc);   
             }
         }
     })
 
-    return Ids.join(',');
+    return Ids.length === 0 ? null : Ids.join(',');
 }
