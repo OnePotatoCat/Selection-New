@@ -294,7 +294,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     # print(f'Hinlet :{h_inlet}')
     # print(f'Houtlet :{h_real_outlet}')
     # print(f'massflow :{massflow}')
-    # print(f'{cond_airflow}, {condenser_cap}')
+    print(f'{cond_airflow}, {condenser_cap}')
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net

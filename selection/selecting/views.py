@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.template import loader
 from django.template.loader import render_to_string
 from django import forms
-from .models import Series, Unit, Compressor, Condenser, FlowOrientation, Calculation, Cart, History
+from .models import Series, Unit, Compressor, Condenser, FlowOrientation, MotorType, Calculation, Cart, History
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
@@ -149,8 +149,6 @@ def show_series(request, ):
     return HttpResponse(selection_html)
 
         
-
-
 def show_unit_selection(request, series):
     units = Unit.objects.filter(series = int(series))
     content = {
@@ -189,7 +187,7 @@ def show_components(request, unit):
     condensers = unit.condenser.all()
     cond_dict = {}
     for condenser in condensers:
-        cond_dict[condenser.id] = condenser.model.upper()
+        cond_dict[condenser.id] = condenser.get_model_name()
     data["condenser"] = cond_dict
 
     default_airflow = unit.default_airflow
@@ -250,6 +248,7 @@ def calculatecapacity(request):
                 comp_spd = comp_speed,
                 total_cap = result["capacity"]["Total Capacity"][0],
                 sen_cap = result["capacity"]["Total Sensible Cap."][0],
+                heat_rejection = round(result["capacity"]["Total Capacity"][0]/Unit.objects.get(pk=int(unit_id)).number_of_compressor + result["compressor"]["Comp. Power"][0], 2),
                 fan_power = result["fan"]["Fan Power"][0],
                 fan_rpm = result["fan"]["Fan RPM"][0],
                 tsp = result["fan"]["Total Static Pressure"][0],
@@ -331,12 +330,7 @@ def generate_reports(request, cal_ids):
         cart = Cart.objects.get(pk=int(id))
         filename = f'{cart.id}_{cart.calculation.model}-{cart.calculation.cond}.pdf'
         file_path = os.path.join(pdfs_directory, filename)
-        history = History(
-            user = User.objects.get(pk=int(cart.user.id)),
-            calculation = Calculation.objects.get(pk=int(cart.calculation.id)),
-            generated_date_time = datetime.datetime.now().strftime(date_time_ymd),
-        ) 
-        history.save()
+        history = add_to_history(cart, "Gen")
         generate_pdf(file_path, history)
         cart.delete()
 
@@ -350,6 +344,26 @@ def generate_reports(request, cal_ids):
     response['Content-Disposition'] = 'attachment; filename = "generated_pdfs.zip'
     response['Content-Length'] = os.path.getsize(zip_file_path)
     return response
+
+
+def delete_cart_items(request, cal_ids):
+    ids = cal_ids.split(",")
+    for id in ids:
+        cart = Cart.objects.get(pk=int(id))
+        history = add_to_history(cart, "Del")
+        cart.delete()
+    return show_cart(request)
+
+
+def add_to_history(cart, status):
+    history = History(
+            user = User.objects.get(pk=int(cart.user.id)),
+            calculation = Calculation.objects.get(pk=int(cart.calculation.id)),
+            generated_date_time = datetime.datetime.now().strftime(date_time_ymd),
+            status = status
+        )
+    history.save()
+    return history
 
 
 def generate_pdf(file_path, history):
@@ -407,15 +421,20 @@ def generate_pdf(file_path, history):
     # Flow configuration
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Flow Configuration")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.model.flow_direction}")
+    # print(f"{hist.calculation.flow_orientaion}")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.flow_orientaion}")   
+    # Refrigerant
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "Refrigerant")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.comp.refrigerant}")
     # Unit Dimension
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Unit Dimension LxDxH")
-    pdf.drawString(width/2, current_height, "TO ADD")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.length} x {hist.calculation.model.depth} x {hist.calculation.model.height} mm3")
     # Power Supply
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Power Supply")
-    pdf.drawString(width/2, current_height, "TO ADD")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.power_supply}")
 
     # Subtitle - Fan Information
     pdf.setFont('VeraBd', 18)
@@ -427,11 +446,7 @@ def generate_pdf(file_path, history):
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Fan Type")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.model.fan.size}")
-    # No. of Fan
-    current_height -= row_spacer
-    pdf.drawString(padding*2, current_height, "No. of Fan")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.model.number_of_fan}")
+    pdf.drawString(width/2, current_height, f"{MotorType.objects.get(pk=hist.calculation.model.fan.type).type} {hist.calculation.model.fan.size} D")
     # No. of Fan
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "No. of Fan")
@@ -439,7 +454,7 @@ def generate_pdf(file_path, history):
     # Fan Speed
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Fan Speed")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_rpm}RPM")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_rpm} RPM")
     # Filter Type
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Filter Type")
@@ -447,19 +462,19 @@ def generate_pdf(file_path, history):
     # Airflow Rate
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Airflow Rate")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.airflow}m3/hr")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.airflow} m3/hr")
     # ESP
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "External Static Pressure")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.esp}Pa")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.esp} Pa")
     # TSP
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Total Static Pressure")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.tsp}Pa")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.tsp} Pa")
     # Motor Heat
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Motor Heat")
-    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_power}kW")
+    pdf.drawString(width/2, current_height,  f"{hist.calculation.fan_power} kW")
 
     # Subtitle - Entering Air Properties
     pdf.setFont('VeraBd', 18)
@@ -471,11 +486,11 @@ def generate_pdf(file_path, history):
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Dry Bulb Temperature")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_temp}°C")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_temp} °C")
     # RH
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Relative Humidity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_rh}%")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.inlet_rh} %")
 
     # Subtitle - Entering Air Properties
     pdf.setFont('VeraBd', 18)
@@ -487,11 +502,11 @@ def generate_pdf(file_path, history):
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Dry Bulb Temperature")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_temp}°C")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_temp} °C")
     # RH
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Relative Humidity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_rh}%")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.outlet_rh} %")
 
     # Subtitle - Refrigeration System/Circuit
     pdf.setFont('VeraBd', 18)
@@ -499,39 +514,40 @@ def generate_pdf(file_path, history):
     pdf.drawString(padding, current_height, "Refrigeration System/Circuit")
     current_height -= line_spacer
     pdf.line(padding, current_height, width-padding*2, current_height) 
-    # Refrigerant
+    
     pdf.setFont('VeraBd', 11)
-    current_height -= row_spacer
-    pdf.drawString(padding*2, current_height, "Refrigerant")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.comp.refrigerant}")
     # Ambient Temperature
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Ambient Temperature")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.amb_temp}°C")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.amb_temp} °C")
+    # No of Circuit
+    current_height -= row_spacer
+    pdf.drawString(padding*2, current_height, "No. of Circuit")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.number_of_compressor}")
     # Condenser Model
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Condenser Model")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.cond}")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.cond.get_model_name()}")
     # Heat Rejection
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Heat Rejection")
-    pdf.drawString(width/2, current_height, "TO ADD kW")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.heat_rejection} kW")
     # Compressor
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Compressor Size")
-    pdf.drawString(width/2, current_height, "TO ADD")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.model.compressor.hp}HP")
     # Evaporating Temperature
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Evaporating Temperature")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.t_evap}°C")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.t_evap} °C")
     # Condensing Temperature
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Condensing Temperature")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.t_cond}°C")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.t_cond} °C")
     # Compressor Power Input
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Compressor Power Input")
-    pdf.drawString(width/2, current_height, "TO DO")
+    pdf.drawString(width/2, current_height, f"{round(hist.calculation.heat_rejection - hist.calculation.total_cap/hist.calculation.model.number_of_compressor, 2)} kW")
 
     # Subtitle - Unit Capacity
     pdf.setFont('VeraBd', 18)
@@ -543,40 +559,33 @@ def generate_pdf(file_path, history):
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Gross Total Capacity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.total_cap}kW")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.total_cap} kW")
     # Gross Sensible Capacity
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Gross Sensible Capacity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap}kW")
+    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap} kW")
     # Gross SHR
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Gross SHR")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap/hist.calculation.sen_cap}")
+    pdf.drawString(width/2, current_height, f"{round(hist.calculation.sen_cap/hist.calculation.total_cap, 2)}")
     # Net Total Capacity
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Net Total Capacity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.total_cap - hist.calculation.fan_power}kW")
+    pdf.drawString(width/2, current_height, f"{round(hist.calculation.total_cap - hist.calculation.fan_power, 2)} kW")
     # Gross Sensible Capacity
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Net Sensible Capacity")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.sen_cap- hist.calculation.fan_power}kW")
+    pdf.drawString(width/2, current_height, f"{round(hist.calculation.sen_cap- hist.calculation.fan_power, 2)} kW")
     # Gross SHR
     pdf.setFont('VeraBd', 11)
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Net SHR")
-    pdf.drawString(width/2, current_height, f"{(hist.calculation.total_cap - hist.calculation.fan_power)/(hist.calculation.sen_cap- hist.calculation.fan_power)}kW")
+    pdf.drawString(width/2, current_height, f"{round((hist.calculation.sen_cap - hist.calculation.fan_power)/(hist.calculation.total_cap- hist.calculation.fan_power), 2)}")
 
     pdf.save()
     
-
-def delete_cart_items(request, cal_ids):
-    ids = cal_ids.split(",")
-    for id in ids:
-        cart = Cart.objects.get(pk=int(id))
-        cart.delete()
-    return show_cart(request)
 

@@ -14,7 +14,12 @@ class Condenser(models.Model):
     area_frontal = models.FloatField()
     # Dry coil coefficients
     dry_coefficient = ArrayField(models.FloatField(), size = 3, null=True)
- 
+    
+    def get_model_name(self):
+        model_name = self.model.split("-")
+        return model_name[0].upper()
+    
+
     def __str__(self):
         return f"{self.model.upper()}"
 
@@ -57,8 +62,20 @@ class Compressor(models.Model):
         return f"{self.model.upper()}({self.refrigerant.upper()})"
 
 
+class MotorType(models.Model):
+    type = models.CharField(max_length=2, blank=True)
+
+    def get_dynamic_choices(self):
+        choices = [(motor_type.id, motor_type.type) for motor_type in MotorType.objects.all()]
+        return choices
+
+    def __str__(self):
+        return f"{self.type.upper()}"
+
+
 class Fan(models.Model):
     model = models.CharField(max_length=32)
+    type = models.PositiveIntegerField(validators=[MaxValueValidator(10)], choices=MotorType().get_dynamic_choices())
     size = models.PositiveIntegerField(validators=[MaxValueValidator(1000)])
     rpm_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
     power_coefficient = ArrayField(models.FloatField(), size = 9, null=True)
@@ -86,6 +103,10 @@ class Series(models.Model):
 class Unit(models.Model):
     series = models.ForeignKey(Series, null = True, on_delete = models.RESTRICT, related_name = "series")
     model = models.CharField(max_length = 16, blank = True)
+    length = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])
+    depth = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])
+    height = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])
+    power_supply = models.CharField(max_length = 13, default="400V-3ph-50Hz")
     flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="flow")
     evaporator = models.ForeignKey(Evaporator, null = True, on_delete = models.RESTRICT, related_name = "evaporator")
     compressor = models.ForeignKey(Compressor, null = True, on_delete = models.RESTRICT, related_name = "compressor")
@@ -117,6 +138,7 @@ class Calculation(models.Model):
     comp_spd = models.PositiveIntegerField()
     total_cap = models.FloatField()
     sen_cap = models.FloatField()
+    heat_rejection = models.FloatField()
     fan_power = models.FloatField()
     fan_rpm = models.PositiveIntegerField()
     tsp = models.IntegerField()
@@ -139,9 +161,14 @@ class Cart(models.Model):
         return f"{self.user}  {self.calculation}"
     
 class History(models.Model):
+    STATUS_CHOICES = [
+        ("Del", "Deleted"),
+        ("Gen", "Generated")
+    ]
     user = models.ForeignKey(User, on_delete=models.RESTRICT)
     calculation = models.ForeignKey(Calculation, on_delete=models.RESTRICT)
     generated_date_time = models.DateTimeField(default=datetime.datetime.now())
+    status = models.CharField(max_length = 10, choices = STATUS_CHOICES)
 
     def __str__(self):
-        return f"{self.user}  {self.calculation}  {self.generated_date_time}.strftime(date_time_format)"
+        return f"{self.user} {self.status} {self.calculation}  {self.generated_date_time.strftime(date_time_format)}"
