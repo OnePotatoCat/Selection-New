@@ -13,8 +13,11 @@ urlpatterns = [
     path("set_default_airflow/<int:unit>", views.set_default_airflow, name="set_default_airflow"),
     path("add_calculation_to_cart/<int:cal_id>", views.add_calculation_to_cart, name="add_calculation_to_cart"),
 
-    # Cart Session
+    # Cart Section
     path("cart", views.show_cart, name="show_cart"),
     path("generate_reports/<str:cal_ids>", views.generate_reports, name="generate_reports"),
     path("delete_cart_item/<str:cal_ids>", views.delete_cart_items, name="delete_cart_items"),
+
+    # History Section
+    path("history", views.show_history, name="show_history"),
 ]

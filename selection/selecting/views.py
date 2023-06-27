@@ -1,28 +1,28 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, JsonResponse, Http404, HttpResponse, FileResponse
-from django.contrib.staticfiles import finders
-from django.templatetags.static import static
 from django.urls import reverse
-from django.template import loader
-from django.template.loader import render_to_string
-from django import forms
-from .models import Series, Unit, Compressor, Condenser, FlowOrientation, MotorType, Calculation, Cart, History
+from django.contrib.staticfiles import finders
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
 
+from django.core.paginator import Paginator
+
+from django.templatetags.static import static
+from django.template import loader
+from django.template.loader import render_to_string
+from django import forms
+from .models import Series, Unit, Compressor, Condenser, FlowOrientation, MotorType, Calculation, Cart, History
+
+
 import json
 import os
-import shutil
 import zipfile
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-from reportlab.graphics import renderPDF
-from reportlab.lib.utils import ImageReader
-from reportlab.lib import colors
-from reportlab.graphics import renderSVG
+
 from svglib.svglib import svg2rlg
 from PIL import Image
 
@@ -130,10 +130,11 @@ date_format = "%Y %b %d"
 #          View Functions 
 # ------------------------------------ #
 def index(request):
-    return render(request, "selecting/layout.html", {
+    context = {
         "username" :request.user.username,
         "admin" : request.user.is_staff,
-    })
+    }
+    return render(request, "selecting/layout.html", context)
 
 
 def show_series(request, ):
@@ -142,16 +143,15 @@ def show_series(request, ):
     
     # if request.method == 'POST':
     seriess= Series.objects.all()
-    content={"series" :seriess}
-
+    context={"series" :seriess}
     template = loader.get_template("selecting/series_album.html")
-    selection_html = template.render(content, request)
+    selection_html = template.render(context, request)
     return HttpResponse(selection_html)
 
         
 def show_unit_selection(request, series):
     units = Unit.objects.filter(series = int(series))
-    content = {
+    context = {
         "units" :units, 
         "admin": request.user.is_staff,
         }
@@ -160,7 +160,7 @@ def show_unit_selection(request, series):
         units_dict[unit.id] = unit.model.upper()
 
     template = loader.get_template("selecting/newselection.html")
-    selection_html = template.render(content, request)
+    selection_html = template.render(context, request)
     return HttpResponse(selection_html)
 
 
@@ -303,13 +303,13 @@ def show_cart(request):
             "datetime"      : f"{item.calculation.date_time.strftime(date_time_format)}"
         }
 
-    content = {
+    context = {
         "cart": cart_dict, 
         "admin": request.user.is_staff,
         }
     
     template = loader.get_template("selecting/cart.html")
-    cart_html = template.render(content, request)
+    cart_html = template.render(context, request)
     return HttpResponse(cart_html)
 
 def generate_reports(request, cal_ids):
@@ -366,6 +366,26 @@ def add_to_history(cart, status):
     return history
 
 
+def show_history(request):
+    history_list = History.objects.filter(user = request.user.id).order_by('generated_date_time').reverse()
+    paginator = Paginator(history_list, 10)
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except:
+        page_number = 1
+        page_obj = paginator.get_page(page_number)
+    context = {'page_obj': page_obj,
+               'page_list': list(paginator.get_elided_page_range(number = page_number, on_each_side=2, on_ends=2))}
+
+    template = loader.get_template("selecting/history.html")
+    historyt_html = template.render(context, request)
+    return HttpResponse(historyt_html)
+    # print(context)
+    # print(list(paginator.get_elided_page_range(number = page_number, on_each_side=2, on_ends=2)))
+    # print(page_obj.object_list[0].calculation.model)
+    
+
 def generate_pdf(file_path, history):
     pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
     pdfmetrics.registerFont(TTFont('VeraBd', 'VeraBd.ttf'))
@@ -387,7 +407,6 @@ def generate_pdf(file_path, history):
     pdf.rect(0, height-bar_height, width, bar_height, fill=True, stroke=False)
     pdf.drawImage(logo_path, 5, height-logo_height*logo_scaling, logo_width*logo_scaling, logo_height*logo_scaling)
 
-    # TODO: insert logo here
     pdf.setFont('VeraBd', 9)
     pdf.setFillColorRGB(1,1,1) 
     pdf.drawString(width-165, height-bar_height+25, "User ID")

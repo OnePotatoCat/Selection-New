@@ -170,5 +170,9 @@ class History(models.Model):
     generated_date_time = models.DateTimeField(default=datetime.datetime.now())
     status = models.CharField(max_length = 10, choices = STATUS_CHOICES)
 
+    def get_condenser(self):
+        condenser = self.calculation.cond.model.split("-")
+        return condenser[0].upper()
+
     def __str__(self):
-        return f"{self.user} {self.status} {self.calculation}  {self.generated_date_time.strftime(date_time_format)}"
+        return f"{self.user} {self.get_status_display()} {self.calculation}  {self.generated_date_time.strftime(date_time_format)}"
