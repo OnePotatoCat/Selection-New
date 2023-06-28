@@ -330,6 +330,9 @@ figure:hover img {
 .step-links{
     display: flex;
     justify-content: right;
+}
+
+a{
     text-decoration: none;
 }
 

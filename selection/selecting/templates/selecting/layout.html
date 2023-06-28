@@ -47,48 +47,6 @@
             });
         }
 
-        function showCart() {
-            let headers = new Headers();
-            const csrftoken = getCookie('csrftoken');
-            headers.append('X-CSRFToken', csrftoken);
-            
-            fetch(`cart`)
-            .then(function(response) {
-                if (response.ok) {
-                    return response.text();  
-                }
-                throw new Error('Network response was not OK');
-            })
-            .then(function(data) {
-                document.getElementById('main').innerHTML = data;
-                history.pushState({}, "", `cart`);
-            })
-            .catch(function(error) {
-                console.log('Error:', error.message);
-            });
-        }
-
-        // function showHistory(pageNumber) {
-        //     let headers = new Headers();
-        //     const csrftoken = getCookie('csrftoken');
-        //     headers.append('X-CSRFToken', csrftoken);
-            
-        //     fetch(`history?page=${pageNumber}`)
-        //     .then(function(response) {
-        //         if (response.ok) {
-        //             return response.text();  
-        //         }
-        //         throw new Error('Network response was not OK');
-        //     })
-        //     .then(function(data) {
-        //         document.getElementById('main').innerHTML = data;
-        //         history.pushState({}, "", `history`);
-        //     })
-        //     .catch(function(error) {
-        //         console.log('Error:', error.message);
-        //     });
-        // }
-
 
         function unitSelectionPage(series){
             fetch(`show_unit_selection/${series}`)

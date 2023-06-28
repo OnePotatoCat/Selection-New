@@ -1,3 +1,28 @@
+function showCart() {
+    let headers = new Headers();
+    const csrftoken = getCookie('csrftoken');
+    headers.append('X-CSRFToken', csrftoken);
+    
+    fetch(`cart`,{
+        method: "POST",
+        headers: headers,
+    })
+    .then(function(response) {
+        if (response.ok) {
+            return response.text();  
+        }
+        throw new Error('Network response was not OK');
+    })
+    .then(function(data) {
+        document.getElementById('main').innerHTML = data;
+        history.pushState({}, "", `cart`);
+    })
+    .catch(function(error) {
+        console.log('Error:', error.message);
+    });
+}
+
+
 function generateReports(selectAll){
     cal_ids = getCheckbox(selectAll=selectAll)
     if (cal_ids == null){return}

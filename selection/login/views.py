@@ -19,6 +19,9 @@ def index(request):
 
 
 def login_user(request):
+    if request.user.is_authenticated:
+        return redirect('selecting:index')    
+
     if request.method == 'POST':
         # request.session["username"] = request.POST["username"]
         username = request.POST["username"]

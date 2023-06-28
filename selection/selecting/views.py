@@ -14,10 +14,10 @@ from django.template.loader import render_to_string
 from django import forms
 from .models import Series, Unit, Compressor, Condenser, FlowOrientation, MotorType, Calculation, Cart, History
 
-
 import json
 import os
 import zipfile
+import re
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
@@ -130,6 +130,9 @@ date_format = "%Y %b %d"
 #          View Functions 
 # ------------------------------------ #
 def index(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect("/login")
+    
     context = {
         "username" :request.user.username,
         "admin" : request.user.is_staff,
@@ -281,6 +284,9 @@ def add_calculation_to_cart(request, cal_id):
 
 
 def show_cart(request):
+    if request.method =='GET':
+        return HttpResponseRedirect("/selecting")
+
     user_cart = Cart.objects.filter(user = request.user.id)
     cart_dict = {}
 
@@ -367,6 +373,9 @@ def add_to_history(cart, status):
 
 
 def show_history(request):
+    if request.method =='GET':
+        return HttpResponseRedirect("/selecting")
+
     history_list = History.objects.filter(user = request.user.id).order_by('generated_date_time').reverse()
     paginator = Paginator(history_list, 10)
     page_number = request.GET.get('page')
@@ -381,9 +390,7 @@ def show_history(request):
     template = loader.get_template("selecting/history.html")
     historyt_html = template.render(context, request)
     return HttpResponse(historyt_html)
-    # print(context)
-    # print(list(paginator.get_elided_page_range(number = page_number, on_each_side=2, on_ends=2)))
-    # print(page_obj.object_list[0].calculation.model)
+
     
 
 def generate_pdf(file_path, history):
@@ -397,6 +404,10 @@ def generate_pdf(file_path, history):
 
     title = 'Product Selection Sheet'
     date_time = history.generated_date_time
+
+    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+)")
+    prefix, cap, suffix = temp_model.match(hist.calculation.model.model).groups()
+    full_model = f"{prefix}{hist.calculation.flow_orientaion.discharge_orientation}{cap}{suffix}"
 
     bar_height = 45
     logo_path = finders.find('selecting/logo_report.png')
@@ -436,7 +447,7 @@ def generate_pdf(file_path, history):
     # Model Name
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Model")
-    pdf.drawString(width/2, current_height, f"{hist.calculation.model}")
+    pdf.drawString(width/2, current_height, f"{full_model}")
     # Flow configuration
     current_height -= row_spacer
     pdf.drawString(padding*2, current_height, "Flow Configuration")

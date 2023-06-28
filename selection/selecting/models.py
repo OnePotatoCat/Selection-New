@@ -86,7 +86,8 @@ class Fan(models.Model):
 
 
 class FlowOrientation(models.Model):
-    flow_orientaion = models.CharField(max_length = 16)
+    flow_orientaion = models.CharField(max_length = 40)
+    discharge_orientation = models.CharField(max_length=1, default="U")
 
     def __str__(self):
         return f"{self.flow_orientaion.upper()}"

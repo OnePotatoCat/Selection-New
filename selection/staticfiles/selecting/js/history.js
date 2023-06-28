@@ -1,5 +1,12 @@
-function showHistory(pageNumber) {   
-    fetch(`history?page=${pageNumber}`)
+function showHistory(pageNumber) {
+    let headers = new Headers();
+    const csrftoken = getCookie('csrftoken');
+    headers.append('X-CSRFToken', csrftoken);
+    
+    fetch(`history?page=${pageNumber}`,{
+        method: "POST",
+        headers: headers,
+    })
     .then(function(response) {
         if (response.ok) {
             return response.text();  
