@@ -385,7 +385,7 @@ def show_history(request):
         page_number = 1
         page_obj = paginator.get_page(page_number)
     context = {'page_obj': page_obj,
-               'page_list': list(paginator.get_elided_page_range(number = page_number, on_each_side=2, on_ends=2))}
+               'page_list': list(paginator.get_elided_page_range(number = page_number, on_each_side=1, on_ends=2))}
 
     template = loader.get_template("selecting/history.html")
     historyt_html = template.render(context, request)

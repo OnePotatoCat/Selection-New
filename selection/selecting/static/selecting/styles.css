@@ -327,9 +327,35 @@ figure:hover img {
 /* 
 * History
 */
+.status-col{
+    width: 15%
+}
+
 .step-links{
     display: flex;
-    justify-content: right;
+    justify-content: left;
+}
+
+.active-page-link{
+    text-decoration-color: black;
+    border-bottom: 3px solid rgb(0, 0, 0);
+    position: relative;
+    display: block;
+    padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
+    font-size: var(--bs-pagination-font-size);
+    color: var(--bs-pagination-color);
+    text-decoration: none;
+    background-color: var(--bs-pagination-bg);
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.page-link:hover, .active-page-link:hover{
+    background-color: rgba(190, 190, 190, 0.185);
+    text-shadow: black;
+}
+
+.page-nolink:hover{
+    cursor: default;
 }
 
 a{
