@@ -6,6 +6,9 @@ class UnitAdmin(admin.ModelAdmin):
     list_display = ("id", "model")
     filter_horizontal = ("flow_direction", "condenser",)
 
+class SeriesAdmin(admin.ModelAdmin):
+    list_display = ("id", "series_name")
+
 class EvaporatorAdmin(admin.ModelAdmin):
     list_display =("id", "model",)
 
@@ -20,7 +23,7 @@ class HistoryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Unit, UnitAdmin)
-admin.site.register(Series)
+admin.site.register(Series, SeriesAdmin)
 admin.site.register(Cart,CartAdmin)
 admin.site.register(History, HistoryAdmin)
 admin.site.register(Calculation, CalculationAdmin)

@@ -9,12 +9,12 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
         <script src="https://kit.fontawesome.com/2ec15280f1.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap">
         <link href="{% static 'selecting/styles.css' %}" rel="stylesheet">
 
-        <title>Title</title>  
+        <title>Product Selection</title>  
     </head>
 
-    <!-- Cart -->
     <script src="{% static 'selecting/js/cart.js' %}"></script>
     <script src="{% static 'selecting/js/history.js' %}"></script>
 
@@ -48,7 +48,8 @@
         }
 
 
-        function unitSelectionPage(series){
+        function unitSelectionPage(element){
+            var series = element.getAttribute('data-series');
             fetch(`show_unit_selection/${series}`)
             .then(function(response) {
                 if (response.ok) {
@@ -65,10 +66,6 @@
                 console.log('Error:', error.message);
             });
         }
-
-        document.addEventListener('DOMContentLoaded', function(){
-            // showSeriesAlbum();
-        });
 
 
         // <!-- for selection sheet-->
@@ -213,7 +210,7 @@
                     cart_button.disabled = true;
                     clearInterval(loading_cal);
                     calculating_tag.innerHTML = "  Fail to converge";
-                    result_table.style.display = "none";
+                    result_table.style.display = "";
                 }
             });
         }
@@ -241,7 +238,6 @@
                 'change',
                 function(){
                     const unit = this.options[this.selectedIndex].dataset.unit;
-                    // history.pushState({unit: unit}, "", `newselection`);
                     showComponents(this.options[this.selectedIndex].dataset.unit);
                 }
             ) 
@@ -253,7 +249,7 @@
             let result_table = document.getElementById('result_table');
             calculation.style.display = "none";
             calculating_tag.style.display = "none";
-            result_table.style.display = "none";
+            result_table.style.display = "";
         }
 
     </script>
@@ -327,7 +323,7 @@
                     </div>
                 </nav>
                 
-                <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-4" id="main">                 
+                <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-4 pt-3" id="main">                 
 
                 </main>
             </div>

@@ -140,7 +140,7 @@ def index(request):
     return render(request, "selecting/layout.html", context)
 
 
-def show_series(request, ):
+def show_series(request):
     if request.method =='GET':
         return HttpResponseRedirect("/selecting")
     
@@ -153,6 +153,11 @@ def show_series(request, ):
 
         
 def show_unit_selection(request, series):
+    series_name = Series.objects.get(pk=int(series)).series_name
+    if series_name == "CIDC":
+        # template = loader.get_template("selecting/cidc.html")
+        return render(request, "selecting/cidc.html")
+
     units = Unit.objects.filter(series = int(series))
     context = {
         "units" :units, 
@@ -163,7 +168,7 @@ def show_unit_selection(request, series):
         units_dict[unit.id] = unit.model.upper()
 
     template = loader.get_template("selecting/newselection.html")
-    selection_html = template.render(context, request)
+    selection_html = template.render(request=request)
     return HttpResponse(selection_html)
 
 

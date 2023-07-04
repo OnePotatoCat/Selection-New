@@ -27,7 +27,14 @@ function generateReports(selectAll){
     cal_ids = getCheckbox(selectAll=selectAll)
     if (cal_ids == null){return}
 
-    fetch(`generate_reports/${cal_ids}`)
+    let headers = new Headers();
+    const csrftoken = getCookie('csrftoken');
+    headers.append('X-CSRFToken', csrftoken);
+
+    fetch(`generate_reports/${cal_ids}`,{
+        method: "POST",
+        headers: headers,
+    })
     .then(function(response) {
         if (response.ok) {
             return response.blob();
@@ -45,22 +52,26 @@ function generateReports(selectAll){
         link.click();
         URL.revokeObjectURL(zipURL);
         document.body.removeChild(link);
-
-        // TODO: Update History and Cart Page
-
         
+        showCart()
       })
     .catch(function(error) {
         console.log('Error:', error.message);
     });
-
 }
 
 function deleteCartItems(selectAll){
     cal_ids = getCheckbox(selectAll=selectAll)
     if (cal_ids == null){return}
 
-    fetch(`delete_cart_item/${cal_ids}`)
+    let headers = new Headers();
+    const csrftoken = getCookie('csrftoken');
+    headers.append('X-CSRFToken', csrftoken);
+
+    fetch(`delete_cart_item/${cal_ids}`,{
+        method: "POST",
+        headers: headers,
+    })
     .then(function(response) {
         if (response.ok) {
             return response.text();

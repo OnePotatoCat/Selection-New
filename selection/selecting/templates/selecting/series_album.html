@@ -1,13 +1,12 @@
 {% block body %}
-    <br>
-    <h1>Series Selection</h1>
+    <h1 class="fs-1 submain-text">Series Selection</h1>
     <div class="album py-3 bg-transparent">
         <div class="container">
             <div class="row">
 
                 {% for s in series %}
                     <div class="col-md-4 px-4">
-                        <figure class="card my-4 box-shadow bg-transparent" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage('2')">
+                        <figure class="card my-4 box-shadow bg-transparent" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage(this)">
                             <img class="card-img" src="{{ s.image.url }}"  alt="{{ s.series_name }}">
                             <span class="card-footer">
                                 <span class="card-title">{{ s.series_name }}</span>

@@ -176,7 +176,7 @@ html {
 
 .full-bg{
     background-color: #ffffff;
-    background-image: linear-gradient(180deg,#dddddd,#39bb6f);
+    /* background-image: linear-gradient(180deg,#dddddd,#39bb6f); */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -364,4 +364,24 @@ a{
 
 a:hover{
     cursor: pointer;
+}
+
+/* 
+* CIDC/ CIRC
+*/
+.subcontainer{
+    max-width: 1320px;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.download-img{
+    margin-top: 0.5rem;
+    width: 100%
+}
+
+.download-button{
+    text-align: center;
+    color: white;
+    background-color: teal;
 }
