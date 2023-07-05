@@ -1,52 +1,49 @@
 {% load static %}
 {% block body %}
-    <h1 class="fs-1 submain-text">CIDC</h1>
+
+    <h1 class="fs-1 submain-text">CITEC Intelligent Data Center</h1>
     <div class="subcontainer">
         <div class="row">
             <div class="col-12">
-                <img class="card-img" src="{% static 'selecting/image/header-cidc.png' %}" alt="CIDC">
-                
-                <row class="row mx-1">
+                <img class="header-img" src="{% static 'selecting/image/header-cidc.png' %}" alt="CIDC">
+                <div class="mb-4 ps-3 test3">
+                    All-In-One Intelligent Data Center Solution – comes with usable rack space, critical power management & distribution, EMS system and other key accessories, served by CITEC’s cooling system under one enclosure unit.
+                </div>
+                <row class="row mx-2 test">
                     <div class="ms-2 col-10">
                         <div class="mb-5">
-                            <h2 class="mb-1">Product Features</h2>
-                            <ul class="pl-4">
-                                <li>All-in-One Data Center configuration</li>
-                                <li>Fast deployment with “plug and play” concept</li>
-                                <li>Swift installation with modular construction concept and pre-assembled modules</li>
-                                <li>Customizable and suitable for low to medium dense application</li>
-                                <li>Cost-effective solution with high scalability for future expansion</li>
-                                <li>High flexibility suitable for non-data center or IT environment</li>
-                                <li>High efficiency cooling operation within containment system eliminates hot and cold air mixing</li>
-                                <li>Compatible with common racks in the market</li>
+                            <h2 class="reveal mb-1 test2">Product Features</h2>
+                            <ul class="pl-4 test3">
+                                <li class="reveal">All-in-One Data Center configuration</li>
+                                <li class="reveal">Fast deployment with “plug and play” concept</li>
+                                <li class="reveal">Swift installation with modular construction concept and pre-assembled modules</li>
+                                <li class="reveal">Customizable and suitable for low to medium dense application</li>
+                                <li class="reveal">Cost-effective solution with high scalability for future expansion</li>
+                                <li class="reveal">High flexibility suitable for non-data center or IT environment</li>
+                                <li class="reveal">High efficiency cooling operation within containment system eliminates hot and cold air mixing</li>
+                                <li class="reveal">Compatible with common racks in the market</li>
                             </ul>
                         </div>
 
                         <div class="mb-5">
-                            <h2 class="mb-1">Target Application</h2>
-                            <div class="row mx-3">
-                                <img class="col mx-2 card-img" src="{% static 'selecting/image/edge_application.jpg' %}" alt="edge application">
-                                <img class="col mx-2 card-img" src="{% static 'selecting/image/mls_enterprise.jpg' %}" alt="medium-large mls_enterprise">
-                                <img class="col mx-2 card-img" src="{% static 'selecting/image/colocation.jpg' %}" alt="colocation">
+                            <h2 class="reveal mb-1 test2">Target Application</h2>
+                            <div class="row mx-3 mb-5">
+                                <img class="reveal col-4" src="{% static 'selecting/image/edge_application.jpg' %}" alt="edge application">
+                                <img class="reveal col-4" src="{% static 'selecting/image/mls_enterprise.jpg' %}" alt="medium-large mls_enterprise">
+                                <img class="reveal col-4" src="{% static 'selecting/image/colocation.jpg' %}" alt="colocation">
                             </div>
-
                         </div>
-
-
-
                     </div>
 
 
 
                     <div class="col">
                         <img class="download-img" src="{% static 'selecting/image/integrated-catalogue.png' %}" alt="CIDC">
-                        <div class="download-button px-1 py-3 rounded-bottom">
+                        <div class="download-button px-1 py-3 rounded-bottom" type="button" onclick="downloadPdf('2020-cidc.pdf')">
                             <a>Download Catalogue</a>
                         </div>
                     </div>
                 </row>
-
-
             </div>
         </div>
     </div>

@@ -1,0 +1,52 @@
+{% load static %}
+{% block body %}
+
+<h1 class="fs-1 submain-text">CITEC Intelligent Rack Cooling</h1>
+<div class="subcontainer">
+    <div class="row">
+        <div class="col-12">
+            <img class="header-img" src="{% static 'selecting/image/header-cidc.png' %}" alt="CIRC">
+            <div class="mb-4 ps-3 test3">
+                CITEC CIRC series is a pre-assembled self-contained solution integrated with key Data Center components within a compact rack unit including precision cooling, power management, and environment monitoring system, designed for Edge applications
+            </div>
+            <row class="row mx-2 test">
+                <div class="ms-2 col-10">
+                    <div class="mb-5">
+                        <h2 class="reveal mb-1 test2">Product Features</h2>
+                        <ul class="pl-4 test3">
+                            <li class="reveal">All-in-one pre-configured and standalone Data Center solution</li>
+                            <li class="reveal">Swift deployment with Plug & Play concept</li>
+                            <li class="reveal">Built in user friendly large 10” colour touch panel display</li>
+                            <li class="reveal">Option for integrated cooling or split cooling condenser</li>
+                            <li class="reveal">Option for built in UPS and battery</li>
+                            <li class="reveal">Eliminate the need of raised floor or IT room environment</li>
+                            <li class="reveal">High security feature with individual locking system</li>
+                            <li class="reveal">Low total cost of ownership</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-5">
+                        <h2 class="reveal mb-1 test2">Target Application</h2>
+                        <div class="row mx-1 mb-5">
+                            <img class="reveal col-6 col-md-3" src="{% static 'selecting/image/sme.jpg' %}" alt="edge application">
+                            <img class="reveal col-6 col-md-3" src="{% static 'selecting/image/bankinsurance.jpg' %}" alt="medium-large mls_enterprise">
+                            <img class="reveal col-6 col-md-3" src="{% static 'selecting/image/manufacturingretail.jpg' %}" alt="colocation">
+                            <img class="reveal col-6 col-md-3" src="{% static 'selecting/image/exchangeoffices.jpg' %}" alt="edge application">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col">
+                    <img class="download-img" src="{% static 'selecting/image/integrated-catalogue.png' %}" alt="CIDC">
+                    <div class="download-button px-1 py-3 rounded-bottom" type="button" onclick="downloadPdf('2020-cidc.pdf')">
+                        <a>Download Catalogue</a>
+                    </div>
+                </div>
+            </row>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

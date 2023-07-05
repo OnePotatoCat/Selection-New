@@ -1,5 +1,5 @@
 {% block body %}
-    <h1 class="fs-1 submain-text">Cart</h1>
+    <h1 class="fs-1 submain-text-full">Cart</h1>
     <div class="container-fluid py-3 cart-table-text">
         <div class="row">
             <div class="spacer"></div>
@@ -18,28 +18,26 @@
             <table class="table table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col"></th>
-                        <!-- <th scope="col"></th> -->
-                        <th scope="col">Model</th>
-                        <th scope="col">Grs. Total Cap.</th>
-                        <th scope="col">Grs. Sen. Cap.</th>
-                        <th scope="col">Net Cap.</th>
-                        <th scope="col">Net Sen. Cap.</th>
-                        <th scope="col">Airflow</th>
-                        <th scope="col">Inlet Temp.</th>
-                        <th scope="col">Inlet RH</th>
-                        <th scope="col">Outlet Temp.</th>
-                        <th scope="col">Outlet RH</th>
-                        <th scope="col">Filter</th>
-                        <th scope="col">Date|Time</th>
+                        <th class="col"></th>
+                        <th class="col-2">Model</th>
+                        <th class="col">Grs. Total Cap.</th>
+                        <th class="col">Grs. Sen. Cap.</th>
+                        <th class="col">Net Cap.</th>
+                        <th class="col">Net Sen. Cap.</th>
+                        <th class="col">Airflow</th>
+                        <th class="col">Inlet Temp.</th>
+                        <th class="col">Inlet RH</th>
+                        <th class="col">Outlet Temp.</th>
+                        <th class="col">Outlet RH</th>
+                        <th class="col">Filter</th>
+                        <th class="col-2">Date|Time</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for key, item in cart.items %}
-                        <tr>
+                        <tr class="table-row">
                             <td><input type="checkbox" data-calc="{{ key }}"/></td>
-                            <!-- <th scope="row">{{ key }}</th> -->
                             <td>{{ item.model }}</td>
                             <td>{{ item.total_cap }}</td>
                             <td>{{ item.sen_cap }}</td>

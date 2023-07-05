@@ -1,32 +1,26 @@
 {% block body %}
-    <h1 class="fs-1 submain-text">History</h1>
+    <h1 class="fs-1 submain-text-full">History</h1>
     <div class="container-fluid py-3 cart-table-text">
 
         <div class="row flex-xl-nowarp mt-0">
             <table class="table table-hover" >
                 <thead class="thead-dark">
                     <tr>
-                        <th scope="col"></th>
-                        <!-- <th scope="col"></th> -->
-                        <th scope="col status-col">Status</th>
-                        <th scope="col">Model</th>
-                        <th scope="col">Condenser</th>
-                        <th scope="col">Grs. Total Cap.</th>
-                        <th scope="col">Grs. Sen. Cap.</th>
-
-                        <th scope="col-2">Airflow</th>
-                        <th scope="col">Inlet Temp.</th>
-                        <th scope="col">Inlet RH</th>
-
-                        <th scope="col-3">Date|Time</th>
+                        <th class="col-1">Status</th>
+                        <th class="col-1">Model</th>
+                        <th class="col-1">Condenser</th>
+                        <th class="col-1">Grs. Total Cap.</th>
+                        <th class="col-1">Grs. Sen. Cap.</th>
+                        <th class="col-1">Airflow</th>
+                        <th class="col-1">Inlet Temp.</th>
+                        <th class="col-1">Inlet RH</th>
+                        <th class="col-2">Date|Time</th>
                     </tr>
                 </thead>
 
                 <tbody id="history-table">
                     {% for item in page_obj.object_list %}
                         <tr>
-                            <td></td>
-                            <!-- <th scope="row">{{ key }}</th> -->
                             <td>{{ item.get_status_display }}</td>
                             <td>{{ item.calculation.model }}</td>
                             <td>{{ item.get_condenser }}</td>

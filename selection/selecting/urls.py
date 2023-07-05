@@ -13,6 +13,9 @@ urlpatterns = [
     path("set_default_airflow/<int:unit>", views.set_default_airflow, name="set_default_airflow"),
     path("add_calculation_to_cart/<int:cal_id>", views.add_calculation_to_cart, name="add_calculation_to_cart"),
 
+    # CIDC/CIRC
+    path("download_pdf/<str:pdf>", views.download_pdf, name="download_pdf"),
+
     # Cart Section
     path("cart", views.show_cart, name="show_cart"),
     path("generate_reports/<str:cal_ids>", views.generate_reports, name="generate_reports"),
