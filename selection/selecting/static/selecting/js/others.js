@@ -11,7 +11,7 @@ function reveal(){
             revealDelay++;
             setTimeout(function (index){
                 reveals[index].classList.add("active");
-            }, 200*revealDelay, i);
+            }, 125*revealDelay, i);
         }
     }
 }

@@ -62,6 +62,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         InputHumidAir.relative_humidity(rh_inlet)
     )
     dp_inlet = inlet_air.dew_temperature
+    wb_inlet = inlet_air.wet_bulb_temperature
     h_inlet = inlet_air.enthalpy/1000
     w_inlet = inlet_air.humidity
     cp_inlet = inlet_air.specific_heat/1000
@@ -285,6 +286,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         InputHumidAir.temperature(t_outlet_net)
     )
     rh_outlet_net = net_outlet_air.relative_humidity
+    wb_outlet_net = net_outlet_air.wet_bulb_temperature
 
     # print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
     # print(f'Uh :{U_h_new}')
@@ -294,7 +296,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     # print(f'Hinlet :{h_inlet}')
     # print(f'Houtlet :{h_real_outlet}')
     # print(f'massflow :{massflow}')
-    print(f'{cond_airflow}, {condenser_cap}')
+    # print(f'{cond_airflow}, {condenser_cap}')
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net

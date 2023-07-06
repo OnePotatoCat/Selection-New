@@ -30,6 +30,7 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
+            print(f"{username} -- logined")
             user_dict = {
                 'username': username,
                 'full_name': user.get_full_name(),

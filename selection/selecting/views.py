@@ -5,9 +5,7 @@ from django.contrib.staticfiles import finders
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, logout
 from django.contrib import messages
-
 from django.core.paginator import Paginator
-
 from django.templatetags.static import static
 from django.template import loader
 from django.template.loader import render_to_string
@@ -18,6 +16,7 @@ import json
 import os
 import zipfile
 import re
+from pyfluids import HumidAir, InputHumidAir
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
@@ -175,7 +174,6 @@ def show_unit_selection(request, series):
     for unit in units:
         units_dict[unit.id] = unit.model.upper()
 
-    print(units_dict)
     template = loader.get_template("selecting/newselection.html")
     selection_html = template.render(context, request)
     return HttpResponse(selection_html)
@@ -279,18 +277,14 @@ def calculatecapacity(request):
 
             new_calculation.save()
             result["calculation id"] = new_calculation.id
-
-        print(result)
         return JsonResponse(result)
     
 
 def download_pdf(request, pdf):
     pdf = os.path.join("selecting/static/selecting/pdf", str(pdf))
-
     response = FileResponse(open(pdf, 'rb'), content_type='application/pdf', as_attachment=True)
     response['Content-Disposition'] = 'attachment; filename = "catalogue_pdfs.pdf'
     response['Content-Length'] = os.path.getsize(pdf)
-    print(pdf)
     return response
 
 def add_calculation_to_cart(request, cal_id):
@@ -487,7 +481,7 @@ def generate_pdf(file_path, history):
     # Refrigerant
     draw_row_entry("Refrigerant", f"{hist.calculation.comp.refrigerant}")
     # Unit Dimension
-    draw_row_entry("Unit Dimension LxDxH", f"{hist.calculation.model.length} x {hist.calculation.model.depth} x {hist.calculation.model.height} mm3")
+    draw_row_entry("Unit Dimension LxDxH", f"{hist.calculation.model.length} x {hist.calculation.model.depth} x {hist.calculation.model.height} mm\u00b3")
     # Power Supply
     draw_row_entry("Power Supply", f"{hist.calculation.model.power_supply}")
 
@@ -502,7 +496,7 @@ def generate_pdf(file_path, history):
     # Filter Type
     draw_row_entry("Filter Type", f"{hist.calculation.filter.upper()}")
     # Airflow Rate
-    draw_row_entry("Airflow Rate", f"{hist.calculation.airflow} m3/hr")
+    draw_row_entry("Airflow Rate", f"{hist.calculation.airflow} m\u00b3/hr")
     # ESP
     draw_row_entry("External Static Pressure", f"{hist.calculation.esp} Pa")
     # TSP
@@ -513,16 +507,38 @@ def generate_pdf(file_path, history):
     # Subtitle - Entering Air Properties
     draw_subtitle("Entering Air Properties")
     # Dry Bulb Temperature
-    draw_row_entry("Dry Bulb Temperature", f"{hist.calculation.inlet_temp} °C")
+    db_inlet = hist.calculation.inlet_temp
+    draw_row_entry("Dry Bulb Temperature", f"{db_inlet} °C")
     # RH
-    draw_row_entry("Relative Humidity", f"{hist.calculation.inlet_rh} %")
+    rh_inlet = hist.calculation.inlet_rh
+    draw_row_entry("Relative Humidity", f"{rh_inlet} %")
+    # WB
+    inlet_air = HumidAir().with_state(
+        InputHumidAir.altitude(0),
+        InputHumidAir.temperature(db_inlet),
+        InputHumidAir.relative_humidity(rh_inlet)
+    )
+    wb_inlet = round(inlet_air.wet_bulb_temperature,1)
+    draw_row_entry("Wet Bulb Temperature", f"{wb_inlet} °C")
+
 
     # Subtitle - Entering Air Properties
     draw_subtitle("Outlet Air Properties")
     # Dry Bulb Temperature
-    draw_row_entry("Dry Bulb Temperature", f"{hist.calculation.outlet_temp} °C")
+    db_outlet = hist.calculation.outlet_temp
+    draw_row_entry("Dry Bulb Temperature", f"{db_outlet} °C")
     # RH
-    draw_row_entry("Relative Humidity", f"{hist.calculation.outlet_rh} %")
+    rh_outlet = hist.calculation.outlet_rh
+    draw_row_entry("Relative Humidity", f"{rh_outlet} %")
+    # WB
+    outlet_air = HumidAir().with_state(
+        InputHumidAir.altitude(0),
+        InputHumidAir.temperature(db_outlet),
+        InputHumidAir.relative_humidity(rh_outlet)
+    )
+    wb_outlet = round(outlet_air.wet_bulb_temperature,1)
+    draw_row_entry("Wet Bulb Temperature", f"{wb_outlet} °C")
+
 
     # Subtitle - Refrigeration System/Circuit
     draw_subtitle("Refrigeration System/Circuit")

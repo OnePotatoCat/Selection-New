@@ -397,11 +397,21 @@ a:hover{
     margin-right: 1rem;
 }
 
+.image-container {
+    display: flex;
+    align-items: flex-start;
+    height: 100%;
+}
+
 .header-img{
-    margin-top: 0.5rem;
-    margin-bottom: 0.25rem;
     width : 100%;
     transform: scale(1);
+}
+
+.header-img, .side-header-img{
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
 }
 
 .app3{
