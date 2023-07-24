@@ -78,14 +78,38 @@ WSGI_APPLICATION = 'selection.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'model_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin'
+if 'selection-4.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ['selection-4'],
+            'USER': os.environ['leon'],
+            'PASSWORD': os.environ['2301123leon'],
+            'HOST': os.environ['selection-4.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com'],
+            'PORT': os.environ['5434'],
+        }
     }
-}
+else:
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': 'model_db',
+    #         'USER': 'admin',
+    #         'PASSWORD': 'admin'
+    #     }
+    # }
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'postgres',
+            'USER': 'leon',
+            'PASSWORD': '2301123leon',
+            'HOST': 'selection-4.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com',
+            'PORT': '5434',
+        }
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

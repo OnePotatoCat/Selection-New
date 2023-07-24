@@ -25,7 +25,7 @@ from reportlab.pdfbase import pdfmetrics
 from svglib.svglib import svg2rlg
 from PIL import Image
 
-import Selection
+# import Selection
 import datetime
 from . import Selection as sel
 from .Compressor import Compressor_Cal
