@@ -9,14 +9,14 @@ from .Compressor import Compressor_Cal
 from .Condenser import Condenser_Cal
 from .Evaporator import Evaporator_Cal
 
-
 ATM_PRESSURE = 14.7
 T_EVAP_MAX = 15
 T_EVAP_MIN = 1
 T_COND_MAX = 60
 T_COND_MIN = 30
+T_COND_LIMIT =52.1
 DENSITY = 1.176103
-MAX_COUNTER = 500
+MAX_COUNTER = 1000
 
 def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int, 
         t :float, rh :float, q :float, 
@@ -67,7 +67,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     w_inlet = inlet_air.humidity
     cp_inlet = inlet_air.specific_heat/1000
 
-    # Design suction superheat and subcool 
+    # Design suction superheat and subcool http://192.168.0.30:8000/selecting/series#
     sh_suction = 6
     subcool = 5
 
@@ -80,6 +80,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     flag_dew = False
     flag_condenser = False
     flag_compressor = False
+    flag_rh = True
     counter = 0
 
     while(not flag_condenser) and (check_diverge_counter(counter)):
@@ -192,7 +193,6 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                 # Dry Coil Evaporator Capacity Calculation
                 Q_total = dry_capacity(unit.evaporator,t_inlet, t_evap, t_evap_mid, airflow)
                 Q_sen = Q_total
-                # print(f"T_dewStart: {t_startdew} | Q_tSen: {Q_sen}")
                 h_outlet = h_inlet - Q_sen/massflow
                 outlet_air = HumidAir().with_state(
                     InputHumidAir.altitude(0),
@@ -230,6 +230,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     try:
                         rh_outlet = outlet_air.relative_humidity
                     except ValueError:
+                        flag_rh = False
                         rh_outlet = 100
                     
 
@@ -242,7 +243,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     h_sensible= sensible_air.enthalpy/1000
 
                     lmed = (h_inlet - h_outlet)/math.log((h_inlet - h_saturated_te)/(h_outlet - h_saturated_te))
-                    U_h_new = unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
+                    U_h_new = 1.05*unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
 
                     # Capacity Calculation
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
@@ -260,20 +261,26 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2
 
+            # print(f'te = {t_evap} Q_total = {Q_total} Comp = {cap_comp*number_comp} | Uh ={U_h_new} lmed={lmed} | te_max = {t_evap_temp_max} te_min = {t_evap_temp_min}| tc = {t_cond}')
+            if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
+                print('break')
+                break
+
+
         # Condenser Capacity Calculation
         heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
         condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)*number_comp
 
-        if (condenser_cap - (heat_reject+0.05))**2 < 10**(-3):
+        if ((condenser_cap - (heat_reject+0.05))**2 < 10**(-5) and flag_compressor):
             flag_condenser = True
         elif (condenser_cap - (heat_reject+0.05)) > 0:
             t_evap_temp_max = t_evap_temp_max +2
             t_evap_temp_min = t_evap_temp_min -2
-            t_cond_temp_max = t_cond 
+            t_cond_temp_max = t_cond + 2
         else:
             t_evap_temp_max = t_evap_temp_max +2
             t_evap_temp_min = t_evap_temp_min -2
-            t_cond_temp_min= t_cond 
+            t_cond_temp_min= t_cond - 2
 
         if t_evap_temp_max > T_EVAP_MAX: t_evap_temp_max = T_EVAP_MAX
         if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_max = T_EVAP_MIN
@@ -285,8 +292,18 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         InputHumidAir.humidity(w_outlet),
         InputHumidAir.temperature(t_outlet_net)
     )
-    rh_outlet_net = net_outlet_air.relative_humidity
-    wb_outlet_net = net_outlet_air.wet_bulb_temperature
+    try:
+        rh_outlet_net = net_outlet_air.relative_humidity
+        wb_outlet_net = net_outlet_air.wet_bulb_temperature
+    except:
+        rh_outlet_net = 100
+        wb_outlet_net = net_outlet_air.wet_bulb_temperature
+        flag_rh = False
+
+    # print("Issue")
+    # print(w_outlet)
+    # print(wb_outlet_net)
+    # print(t_outlet_net)
 
     # print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
     # print(f'Uh :{U_h_new}')
@@ -296,7 +313,15 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     # print(f'Hinlet :{h_inlet}')
     # print(f'Houtlet :{h_real_outlet}')
     # print(f'massflow :{massflow}')
+    # print(f'{counter}')
     # print(f'{cond_airflow}, {condenser_cap}')
+    # print(f'unit = {Q_total} | compressor = {cap_comp*number_comp}')
+    # print(f'diff = {cap_comp*number_comp - Q_total}')
+    # print(f'condenser = {condenser_cap} | heat_reject = {heat_reject}')
+    # print(f'te = {t_evap} | tc = {t_cond}')
+    # print(f'te_max = {t_evap_temp_max} | te_min = {t_evap_temp_min}')
+    # print(f'tc_max = {t_cond_temp_max} | tc_min = {t_cond_temp_min}')
+
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net
@@ -308,8 +333,8 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     cap_dict = {
         "Total Capacity": (round(Q_total, 2), "kW"),
         "Total Sensible Cap.": (round(Q_sen, 2), "kW"),
-        "Net Capacity": (round(Q_total - fan_power, 2), "kW"),
-        "Net Sensible Cap.": (round(Q_sen - fan_power, 2), "kW")
+        "Net Capacity": (round(Q_total - fan_power*unit.no_of_fan, 2), "kW"),
+        "Net Sensible Cap.": (round(Q_sen - fan_power*unit.no_of_fan, 2), "kW")
     }
 
     fan_dict = {
@@ -338,7 +363,8 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     }
 
     performance_dict = {
-        "converged": check_diverge_counter(counter),
+        "converged": check_diverge_counter(counter) and flag_rh,
+        "high_tc": t_cond>T_COND_LIMIT,
         "capacity": cap_dict,
         "fan": fan_dict,
         "compressor": comp_dict,
@@ -352,6 +378,7 @@ def check_diverge_counter(counter: int) -> bool:
     if counter < MAX_COUNTER:
         return True 
     return False
+
 
 def dry_capacity(coil :Coil,t_drybulb :float, t_sat :float, t_sat_mid :float, airflow :float):
     delta_t = abs(t_drybulb - t_sat)

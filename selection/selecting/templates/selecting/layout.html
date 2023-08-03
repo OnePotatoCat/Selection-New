@@ -24,6 +24,7 @@
             console.log(event.state);
         }
 
+        // Load in available series album html template 
         function showSeriesAlbum() {
             let headers = new Headers();
             const csrftoken = getCookie('csrftoken');
@@ -41,37 +42,80 @@
             })
             .then(function(data) {
                 document.getElementById('main').innerHTML = data;
-                history.pushState({}, "", `series`);
                 reveal();
+                history.pushState({}, "", `series`);
             })
             .catch(function(error) {
                 console.log('Error:', error.message);
             });
         }
 
-
+        // Load in unit selection html template 
         function unitSelectionPage(element){
             var series = element.getAttribute('data-series');
             fetch(`show_unit_selection/${series}`)
             .then(function(response) {
                 if (response.ok) {
-                    return response.text();  // Extract the response data as text
+                    return response.text();
                 }
                 throw new Error('Network response was not OK');
             })
             .then(function(data) {
                 document.getElementById('main').innerHTML = data;
-                // history.pushState({}, "", `series/${series}/`);
-                reveal();
                 loadSelectionSheet();
+
+                let airflow = document.getElementById('airflow');
+                airflow.addEventListener('blur', function(){
+                    inputLimitSetting(airflow);
+                });
+
+                let inlet_temp = document.getElementById('temp');
+                inlet_temp.addEventListener('blur', function(){
+                    inputLimitSetting(inlet_temp);
+                });
+
+                let inlet_rh = document.getElementById('rh');
+                inlet_rh.addEventListener('blur', function(){
+                    inputLimitSetting(inlet_rh);
+                });
+
+                let esp = document.getElementById('esp');
+                esp.addEventListener('blur', function(){
+                    inputLimitSetting(esp);
+                });
+
+                let amb_temp = document.getElementById('amb_temp');
+                amb_temp.addEventListener('blur', function(){
+                    inputLimitSetting(amb_temp);
+                });
             })
             .catch(function(error) {
                 console.log('Error:', error.message);
             });
         }
+        
+        // Enforcing input limit (max and min) for provided input element
+        // Parameters:
+        //   - element: The DOM input element to enforce input limits on.
+        function inputLimitSetting(element){
+            let minValue = parseFloat(element.min);
+            let maxValue = parseFloat(element.max);
+            let currentValue = parseFloat(element.value);
+
+            if (currentValue < minValue) {
+                currentValue = minValue;
+            }
+            if (currentValue > maxValue) {
+                currentValue = maxValue;
+            }
+            element.value = currentValue;
+        }
 
 
-        // <!-- for selection sheet-->
+        // Set components/properties of selected model. 
+        // Components such as : compressor model, flow orientation, compressor [Admin], fan [Admin], condenser, airflow rate: default, max and mix
+        // Parameters:
+        //   -unit: unit's id(according to database)
         function showComponents(unit) {
             fetch(`show_components/${unit}`)
             .then(response => response.json())
@@ -86,11 +130,16 @@
 
                 let airflow = document.getElementById('airflow');
                 airflow.value= data.default_airflow;
+                airflow.max=data.max_airflow;
+                airflow.min=data.min_airflow;
                 airflow.innerHTML= data.default_airflow;
             });
         }
 
-        
+        // Populate option's selection with component dictionary based on Id name.
+        // Parameters:
+        //   -data: dictionary of the component with id as key and name as value
+        //   -name: id of the DOM option element
         function selectionUpdate(data, name){
             const selection = document.getElementById(name);
             while (selection.options.length > 0){
@@ -101,6 +150,9 @@
             });
         }
         
+        // Determine to show or hide the compressor speed element based compressor type.
+        // Parameters:
+        //   -comp: id of the compressor
         function showInverterSpeed(comp){
             fetch(`inverter_compressor/${comp}`)
             .then(response => response.json())
@@ -147,9 +199,11 @@
             data.append('fan', fan);
             data.append('cond', condenser);
 
-            let calculating_tag = document.getElementById("calculating_tag");
+            var calculating_tag = document.getElementById("calculating_tag");
+            calculating_tag.style.color = "black";
             calculating_tag.style.display = "";
             var dots = ""; 
+            clearInterval(loading_cal);
             var loading_cal = setInterval(function(){
                 dots += ".";
                 if (dots.length>3)
@@ -160,7 +214,7 @@
             let headers = new Headers();
             const csrftoken = getCookie('csrftoken');
             headers.append('X-CSRFToken', csrftoken);
-            fetch(`calculatecapacity`, {
+            fetch(`calculate_capacity`, {
                 method: "POST",
                 body: data,
                 headers: {headers},
@@ -180,14 +234,12 @@
                 let cart_button = document.getElementById('cart_button');
 
                 if(result.converged){
-                    cart_button.disabled = false;
-                    cart_button.value = result["calculation id"];
                     result_table.style.display = "";
                     let temp_table = null;
-                    for(let key in result){
 
-                        // console.log(key);
+                    for(let key in result){
                         if(key == "converged")       {continue;}
+                        if(key == "high_tc")         {continue;}
                         if(key == "capacity")        {temp_table = result_table_cap;}
                         if(key == "fan")             {temp_table = result_table_fan;}
                         if(key == "compressor")      {temp_table = result_table_comp;}
@@ -207,13 +259,25 @@
                         table1 = "";
                     }
                     clearInterval(loading_cal);
+                    
+                    cart_button.disabled = result['high_tc'];
+                    cart_button.value = result["calculation id"];
                     calculating_tag.style.display = "";
-                    calculating_tag.innerHTML = "";
+
+                    if(result['high_tc']){
+                        calculating_tag.innerHTML = "Condensing Temperature Too High";
+                        calculating_tag.style.color = "red";
+                    }
+                    else{
+                        calculating_tag.innerHTML = "";
+                    }
+                    
                 }
                 else{
                     cart_button.disabled = true;
                     clearInterval(loading_cal);
-                    calculating_tag.innerHTML = "  Fail to converge";
+                    calculating_tag.style.color = "red";
+                    calculating_tag.innerHTML = "Fail to converge";
                     result_table.style.display = "";
                 }
             });

@@ -1,5 +1,5 @@
 {% block body %}
-    <h1 class="fs-1 submain-text">Unit Selection | {{ series }}</h1>
+<h1 class="fs-1 submain-text">Unit Selection | {{ series }}</h1>
     <div class="container subcontainer py-3 label-text">
         <div class="row flex-xl-nowarp">
             <div class="model-sheet border border-dark rounded">
@@ -137,7 +137,7 @@
                                         <div class="row">
                                             <label class="col-sm-5 col-form-label">Inlet Temperature</label>
                                             <div class="col-sm-4">
-                                                <input type="number" id="temp" name="temp" class="h-100 form-control form-control-sm text-right" value="24" placeholder="24" max="40" min="15">
+                                                <input type="number" id="temp" name="temp" class="h-100 form-control form-control-sm text-right" value="24" placeholder="24" max="35" min="15">
                                             </div>
                                             <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
                                         </div>
@@ -150,7 +150,7 @@
                                         <div class="row">
                                             <label class="col-sm-5 col-form-label">Inlet RH</label>
                                             <div class="col-sm-4">
-                                                <input type="number" id="rh" name="rh" class="h-100 form-control form-control-sm text-right" value="45" placeholder="45" max="90" min="10">
+                                                <input type="number" id="rh" name="rh" class="h-100 form-control form-control-sm text-right" value="45" placeholder="45" max="65" min="10">
                                             </div>
                                             <label class="col-sm-2 col-form-label input-unit">%</label>
                                 
@@ -164,7 +164,7 @@
                                         <div class="row">
                                             <label class="col-sm-5 col-form-label">Airflow Rate</label>
                                             <div class="col-sm-4">
-                                                <input type="number" id="airflow" name="airflow" class="h-100 form-control form-control-sm text-right">
+                                                <input type="number" id="airflow" name="airflow" max="" min="" class="h-100 form-control form-control-sm text-right">
                                             </div>
                                             <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
                                         </div>
@@ -190,7 +190,7 @@
                                         <div class="row">
                                             <label class="col-sm-5 col-form-label">Ambient Temp.</label>
                                             <div class="col-sm-4">
-                                                <input type="number" id="amb_temp" name="amb_temp" class="h-100 form-control form-control-sm text-right" value="35" placeholder="35" max="50" min="10">
+                                                <input type="number" id="amb_temp" name="amb_temp" class="h-100 form-control form-control-sm text-right" value="35" placeholder="35" max="40" min="10">
                                             </div>
                                             <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
                                         </div>

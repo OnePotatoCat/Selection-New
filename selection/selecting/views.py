@@ -205,8 +205,9 @@ def show_components(request, unit):
         cond_dict[condenser.id] = condenser.get_model_name()
     data["condenser"] = cond_dict
 
-    default_airflow = unit.default_airflow
-    data["default_airflow"] = default_airflow
+    data["default_airflow"] = unit.default_airflow
+    data["max_airflow"] = unit.evaporator.max_airflow
+    data["min_airflow"] = unit.evaporator.min_airflow
 
     jsonData = json.dumps(data)
     return JsonResponse(data)
@@ -222,7 +223,7 @@ def inverter_compressor(request, comp):
     return JsonResponse({"inverter": compressor.inverter})
 
 
-def calculatecapacity(request):
+def calculate_capacity(request):
     if request.method =="POST":
         form = request.POST
         unit_id = int(form["unit"])
