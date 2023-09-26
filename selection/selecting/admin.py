@@ -7,7 +7,7 @@ class UnitAdmin(admin.ModelAdmin):
     filter_horizontal = ("flow_direction", "condenser",)
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ("id", "series_name")
+    list_display = ("arrange_id", "series_name")
 
 class EvaporatorAdmin(admin.ModelAdmin):
     list_display =("id", "model",)

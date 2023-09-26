@@ -4,7 +4,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.postgres.fields import ArrayField
 import datetime
 
-date_time_format = "%Y %b %d %H:%M"
+date_time_format = "%Y %b %d %H:%M"    
 
 # Create your models here.
 class Condenser(models.Model):
@@ -94,6 +94,7 @@ class FlowOrientation(models.Model):
 
 
 class Series(models.Model):
+    arrange_id = models.PositiveIntegerField(unique=True)
     series_name = models.CharField(max_length=10, blank = False)
     image = models.ImageField(upload_to='images/', null = True)
 

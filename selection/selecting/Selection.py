@@ -67,7 +67,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     w_inlet = inlet_air.humidity
     cp_inlet = inlet_air.specific_heat/1000
 
-    # Design suction superheat and subcool http://192.168.0.30:8000/selecting/series#
+    # Design suction superheat and subcool
     sh_suction = 6
     subcool = 5
 

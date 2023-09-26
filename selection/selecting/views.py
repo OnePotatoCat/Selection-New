@@ -21,6 +21,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from openpyxl import load_workbook
 
 from svglib.svglib import svg2rlg
 from PIL import Image
@@ -145,8 +146,11 @@ def show_series(request):
         return HttpResponseRedirect("/selecting")
     
     # if request.method == 'POST':
-    seriess= Series.objects.all()
-    context={"series" :seriess}
+    seriess = Series.objects.all()
+    print(seriess)
+    # sorted_series = dict(sorted(seriess.item(), key=lambda item: item[1]["arrange_id"]))
+    # print(sorted_series)
+    context ={"series" :seriess}
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(context, request)
     return HttpResponse(selection_html)
@@ -353,10 +357,11 @@ def generate_reports(request, cal_ids):
     ids = cal_ids.split(",")
     for id in ids:
         cart = Cart.objects.get(pk=int(id))
-        filename = f'{cart.id}_{cart.calculation.model}-{cart.calculation.cond}.pdf'
+        filename = f'{cart.id}_{cart.calculation.model}-{cart.calculation.cond}'
         file_path = os.path.join(pdfs_directory, filename)
         history = add_to_history(cart, "Gen")
-        generate_pdf(file_path, history)
+        generate_pdf(f'{file_path}.pdf', history)
+        generate_excel(f'{file_path}.xlsx', history)
         cart.delete()
 
     zip_file_path = os.path.join(zip_directory, "generated_pdfs.zip")
@@ -410,7 +415,6 @@ def show_history(request):
     historyt_html = template.render(context, request)
     return HttpResponse(historyt_html)
 
-    
 
 def generate_pdf(file_path, history):
     pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
@@ -523,7 +527,7 @@ def generate_pdf(file_path, history):
     draw_row_entry("Wet Bulb Temperature", f"{wb_inlet} °C")
 
 
-    # Subtitle - Entering Air Properties
+    # Subtitle - Outlet Air Properties
     draw_subtitle("Outlet Air Properties")
     # Dry Bulb Temperature
     db_outlet = hist.calculation.outlet_temp
@@ -576,3 +580,118 @@ def generate_pdf(file_path, history):
     draw_row_entry("Net SHR", f"{round((hist.calculation.sen_cap - hist.calculation.fan_power)/(hist.calculation.total_cap- hist.calculation.fan_power), 2)}")
 
     pdf.save()
+
+
+def generate_excel(file_path, history):
+    hist = History.objects.get(pk=int(history.id))
+    date_time = history.generated_date_time
+    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+)")
+    prefix, cap, suffix = temp_model.match(hist.calculation.model.model).groups()
+    full_model = f"{prefix}{hist.calculation.flow_orientaion.discharge_orientation}{cap}{suffix}"
+
+    template_file = "selecting/reports/report_template.xlsx"
+    xls = load_workbook(filename=template_file)
+    sheet = xls.active
+
+    # IDs
+    sheet.cell(row=2, column=7).value = f"{history.user.id}"
+    sheet.cell(row=3, column=7).value = f"{history.id}"
+    sheet.cell(row=4, column=7).value = f"{date_time}"
+
+    # Subtitle - Product Information
+    # Series Name
+    sheet.cell(row=7, column=4).value = f"{hist.calculation.model.series}"
+    # Model Name
+    sheet.cell(row=8, column=4).value = f"{full_model}"
+    # Flow configuration
+    sheet.cell(row=9, column=4).value = f"{hist.calculation.flow_orientaion}"
+    # Refrigerant
+    sheet.cell(row=10, column=4).value =  f"{hist.calculation.comp.refrigerant}"
+    # Unit Dimension
+    sheet.cell(row=11, column=4).value = f"{hist.calculation.model.length} x {hist.calculation.model.depth} x {hist.calculation.model.height} mm\u00b3"
+    # Power Supply
+    sheet.cell(row=12, column=4).value = f"{hist.calculation.model.power_supply}"
+
+    # Subtitle - Fan Information
+    # Fan Type
+    sheet.cell(row=15, column=4).value = f"{MotorType.objects.get(pk=hist.calculation.model.fan.type).type} {hist.calculation.model.fan.size} D"
+    # No. of Fan
+    sheet.cell(row=16, column=4).value = f"{hist.calculation.model.number_of_fan}"
+    # Fan Speed
+    sheet.cell(row=17, column=4).value = f"{hist.calculation.fan_rpm} RPM"
+    # Filter Type
+    sheet.cell(row=18, column=4).value = f"{hist.calculation.filter.upper()}"
+    # Airflow Rate
+    sheet.cell(row=19, column=4).value = f"{hist.calculation.airflow} m\u00b3/hr"
+    # ESP
+    sheet.cell(row=20, column=4).value = f"{hist.calculation.esp} Pa"
+    # TSP
+    sheet.cell(row=21, column=4).value = f"{hist.calculation.tsp} Pa"
+    # Motor Heat
+    sheet.cell(row=22, column=4).value = f"{hist.calculation.fan_power} kW"
+
+    # Subtitle - Entering Air Properties
+    # Dry Bulb Temperature
+    db_inlet = hist.calculation.inlet_temp
+    sheet.cell(row=25, column=4).value = f"{db_inlet} °C"
+    # RH
+    rh_inlet = hist.calculation.inlet_rh
+    sheet.cell(row=26, column=4).value = f"{rh_inlet} %"
+    # WB
+    inlet_air = HumidAir().with_state(
+        InputHumidAir.altitude(0),
+        InputHumidAir.temperature(db_inlet),
+        InputHumidAir.relative_humidity(rh_inlet)
+    )
+    wb_inlet = round(inlet_air.wet_bulb_temperature,1)
+    sheet.cell(row=27, column=4).value = f"{wb_inlet} °C"
+
+    # Subtitle - Outlet Air Properties
+    # Dry Bulb Temperature
+    db_outlet = hist.calculation.outlet_temp
+    sheet.cell(row=30, column=4).value = f"{db_outlet} °C"
+    # RH
+    rh_outlet = hist.calculation.outlet_rh
+    sheet.cell(row=31, column=4).value = f"{rh_outlet} %"
+    # WB
+    outlet_air = HumidAir().with_state(
+        InputHumidAir.altitude(0),
+        InputHumidAir.temperature(db_outlet),
+        InputHumidAir.relative_humidity(rh_outlet)
+    )
+    wb_outlet = round(outlet_air.wet_bulb_temperature,1)
+    sheet.cell(row=32, column=4).value = f"{wb_outlet} °C"
+
+    # Subtitle - Refrigeration System/Circuit
+    # Ambient Temperature
+    sheet.cell(row=35, column=4).value = f"{hist.calculation.amb_temp} °C"
+    # No of Circuit
+    sheet.cell(row=36, column=4).value = f"{hist.calculation.model.number_of_compressor}"
+    # Condenser Model
+    sheet.cell(row=37, column=4).value = f"{hist.calculation.cond.get_model_name()}"
+    # Heat Rejection
+    sheet.cell(row=38, column=4).value = f"{hist.calculation.heat_rejection} kW"
+    # Compressor
+    sheet.cell(row=39, column=4).value = f"{hist.calculation.model.compressor.hp}HP"
+    # Evaporating Temperature
+    sheet.cell(row=40, column=4).value = f"{hist.calculation.t_evap} °C"
+    # Condensing Temperature
+    sheet.cell(row=41, column=4).value = f"{hist.calculation.t_cond} °C"
+    # Compressor Power Input
+    sheet.cell(row=41, column=4).value = f"{round(hist.calculation.heat_rejection - hist.calculation.total_cap/hist.calculation.model.number_of_compressor, 2)} kW"
+
+    # Subtitle - Unit Capacity
+    # Gross Total Capacity
+    sheet.cell(row=45, column=4).value = f"{hist.calculation.total_cap} kW"
+    # Gross Sensible Capacity
+    sheet.cell(row=46, column=4).value = f"{hist.calculation.sen_cap} kW"
+    # Gross SHR
+    sheet.cell(row=47, column=4).value = f"{round(hist.calculation.sen_cap/hist.calculation.total_cap, 2)}"
+    # Net Total Capacity
+    sheet.cell(row=48, column=4).value = f"{round(hist.calculation.total_cap - hist.calculation.fan_power, 2)} kW"
+    # Gross Sensible Capacity
+    sheet.cell(row=49, column=4).value = f"{round(hist.calculation.sen_cap- hist.calculation.fan_power, 2)} kW"
+    # Gross SHR
+    sheet.cell(row=50, column=4).value = f"{round((hist.calculation.sen_cap - hist.calculation.fan_power)/(hist.calculation.total_cap- hist.calculation.fan_power), 2)}"
+
+    xls.save(file_path) 
