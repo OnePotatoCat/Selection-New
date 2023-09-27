@@ -4,6 +4,7 @@ class Fan_Cal(object):
     def __init__(self, fan_id :int):
         fan = fn.objects.get(pk = fan_id)
         self.model = fan.model
+        self.type = fan.type
         self.size = fan.size
         
         self._rpm_coef = fan.rpm_coefficient
@@ -20,9 +21,14 @@ class Fan_Cal(object):
         return self._current
 
     def set_properties(self, q :float, p :float) -> float:
-        self.__set_rpm(q, p)
-        self.__set_power(q, p)
-        self.__set_current(q, p)
+        if self.type != "AC":
+            self.__set_rpm(q, p)
+            self.__set_power(q, p)
+            self.__set_current(q, p)
+        else:
+            self._rpm = 100
+            self._power = 100
+            self._current = 100
 
     def __set_rpm(self, q, p):
         # Output = rpm (rpm)

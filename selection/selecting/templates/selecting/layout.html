@@ -133,7 +133,22 @@
                 airflow.max=data.max_airflow;
                 airflow.min=data.min_airflow;
                 airflow.innerHTML= data.default_airflow;
+                
+                console.log(data.fan_motor_type);
+                if (data.fan_motor_type === 1){
+                    airflow.disabled = true;
+                    console.log("Hello");
+                    let esp = document.getElementById('esp');
+                    esp.addEventListener('input', function(event){
+                        // TODO: dynamic changing airflow rate
+                        airflow.value = 1000;
+                    })
+                }
             });
+        }
+
+        function getAcFanSpeed(tsp){
+            // TODO: dynamic changing airflow rate
         }
 
         // Populate option's selection with component dictionary based on Id name.

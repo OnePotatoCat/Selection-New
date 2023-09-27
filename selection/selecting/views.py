@@ -146,10 +146,7 @@ def show_series(request):
         return HttpResponseRedirect("/selecting")
     
     # if request.method == 'POST':
-    seriess = Series.objects.all()
-    print(seriess)
-    # sorted_series = dict(sorted(seriess.item(), key=lambda item: item[1]["arrange_id"]))
-    # print(sorted_series)
+    seriess = Series.objects.all().order_by('arrange_id')
     context ={"series" :seriess}
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(context, request)
@@ -212,6 +209,7 @@ def show_components(request, unit):
     data["default_airflow"] = unit.default_airflow
     data["max_airflow"] = unit.evaporator.max_airflow
     data["min_airflow"] = unit.evaporator.min_airflow
+    data["fan_motor_type"] = unit.fan.type
 
     jsonData = json.dumps(data)
     return JsonResponse(data)
@@ -341,6 +339,11 @@ def show_cart(request):
     return HttpResponse(cart_html)
 
 
+# Generate reports in pdf/excel and compressed to zip file for downloading
+#   pdf/excel files are generated in    "/repots/pdf/*account id*"
+#   zip files are generated in "/repots/zip/*account id*""
+#   files are removed in the respective directories before generating new ones
+#   then zip file is generated for download
 def generate_reports(request, cal_ids):
     pdfs_directory = os.path.join("selecting/reports/pdf", str(request.user.id))
     os.makedirs(pdfs_directory, exist_ok=True)
@@ -447,9 +450,11 @@ def generate_pdf(file_path, history):
 
     title = 'Product Selection Sheet'
     date_time = history.generated_date_time
-    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+)")
+    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+[0-9])")
     prefix, cap, suffix = temp_model.match(hist.calculation.model.model).groups()
+    print(suffix)
     full_model = f"{prefix}{hist.calculation.flow_orientaion.discharge_orientation}{cap}{suffix}"
+    print(full_model)
 
     # Logo and top bar
     bar_height = 45
@@ -585,7 +590,7 @@ def generate_pdf(file_path, history):
 def generate_excel(file_path, history):
     hist = History.objects.get(pk=int(history.id))
     date_time = history.generated_date_time
-    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+)")
+    temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+[0-9])")
     prefix, cap, suffix = temp_model.match(hist.calculation.model.model).groups()
     full_model = f"{prefix}{hist.calculation.flow_orientaion.discharge_orientation}{cap}{suffix}"
 
