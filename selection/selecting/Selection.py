@@ -50,10 +50,18 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
     # Calculating Total Static Pressure and Fan Motor performance
     total_static_pressure = unit.get_tsp(airflow)
-    unit.fan.set_properties(airflow/unit.no_of_fan, total_static_pressure)
-    fan_power = unit.fan.get_power()
-    fan_rpm = unit.fan.get_rpm()
-    fan_current = unit.fan.get_current()
+    print(unit.fan.type)
+    # checking for AC fan= 1
+    if unit.fan.type == 1:
+        unit.fan.get_ac_staticpressure(airflow)
+        fan_power = unit.fan.get_power()
+        fan_rpm = unit.fan.get_rpm()
+        fan_current = unit.fan.get_current()
+    else:
+        unit.fan.set_properties(airflow/unit.no_of_fan, total_static_pressure)
+        fan_power = unit.fan.get_power()
+        fan_rpm = unit.fan.get_rpm()
+        fan_current = unit.fan.get_current()
 
     # Calculate inlet air properties
     inlet_air = HumidAir().with_state(
@@ -261,9 +269,9 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2
 
-            # print(f'te = {t_evap} Q_total = {Q_total} Comp = {cap_comp*number_comp} | Uh ={U_h_new} lmed={lmed} | te_max = {t_evap_temp_max} te_min = {t_evap_temp_min}| tc = {t_cond}')
+            print(f'te = {t_evap} Q_total = {Q_total} Comp = {cap_comp*number_comp} | Uh ={U_h_new} lmed=|lmed| | te_max = {t_evap_temp_max} te_min = {t_evap_temp_min}| tc = {t_cond}')
             if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
-                print('break')
+                print('break ??')
                 break
 
 
@@ -283,7 +291,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             t_cond_temp_min= t_cond - 2
 
         if t_evap_temp_max > T_EVAP_MAX: t_evap_temp_max = T_EVAP_MAX
-        if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_max = T_EVAP_MIN
+        if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_min = T_EVAP_MIN
 
 
     t_outlet_net = t_outlet + unit.fan.get_power()/(massflow*1.006)

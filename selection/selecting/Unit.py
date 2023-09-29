@@ -31,7 +31,7 @@ class Unit_Cal(object):
         self.sensible_capacity = 0
 
 
-    def __get_isp(self, airflow :float) -> float:
+    def get_isp(self, airflow :float) -> float:
         if self.filter_type == "g4":
             c = self._isp_g4_coef
             self._isp = c[0] + c[1]*airflow + c[2]*airflow**2
@@ -46,7 +46,7 @@ class Unit_Cal(object):
 
     def get_tsp(self, airflow:float) -> float:
         self.airflow = airflow
-        self.tsp = self.esp + self.__get_isp(airflow)
+        self.tsp = self.esp + self.get_isp(airflow)
         return self.tsp
 
 

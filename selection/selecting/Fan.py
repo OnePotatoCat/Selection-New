@@ -21,14 +21,16 @@ class Fan_Cal(object):
         return self._current
 
     def set_properties(self, q :float, p :float) -> float:
-        if self.type != "AC":
-            self.__set_rpm(q, p)
-            self.__set_power(q, p)
-            self.__set_current(q, p)
-        else:
-            self._rpm = 100
-            self._power = 100
-            self._current = 100
+        self.__set_rpm(q, p)
+        self.__set_power(q, p)
+        self.__set_current(q, p)
+
+    def get_ac_staticpressure(self, q) -> float:
+        c = self._rpm_coef
+        self._rpm = c[3]
+        self._power = c[4]
+        self._current = c[5]
+        return c[0] + c[1] * q + c[2] * q**2 
 
     def __set_rpm(self, q, p):
         # Output = rpm (rpm)

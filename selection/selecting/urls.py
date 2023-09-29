@@ -12,6 +12,8 @@ urlpatterns = [
     path("inverter_compressor/<int:comp>", views.inverter_compressor, name="inverter_compressor"),
     path("set_default_airflow/<int:unit>", views.set_default_airflow, name="set_default_airflow"),
     path("add_calculation_to_cart/<int:cal_id>", views.add_calculation_to_cart, name="add_calculation_to_cart"),
+    path("ac_fan_airflow/<int:unit>/<int:esp>/<str:filter>", views.ac_fan_airflow, name="ac_fan_airflow"),
+    path("ac_fan_esp/<int:unit>/<int:airflow>/<str:filter>", views.ac_fan_esp, name="ac_fan_esp"),
 
     # CIDC/CIRC
     path("download_pdf/<str:pdf>", views.download_pdf, name="download_pdf"),

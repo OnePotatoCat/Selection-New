@@ -134,21 +134,42 @@
                 airflow.min=data.min_airflow;
                 airflow.innerHTML= data.default_airflow;
                 
-                console.log(data.fan_motor_type);
+                // Change airflow based on fan motor type (for AC mostly)
                 if (data.fan_motor_type === 1){
-                    airflow.disabled = true;
-                    console.log("Hello");
+                    // airflow.disabled = true;
+                    // let esp = document.getElementById('esp');
+                    // let filter = document.getElementById('filter').value;
+                    // esp.addEventListener('input', function(event){
+                    //     Number(getAcFanAirflow(unit, esp.value, filter));
+                    // })
                     let esp = document.getElementById('esp');
-                    esp.addEventListener('input', function(event){
-                        // TODO: dynamic changing airflow rate
-                        airflow.value = 1000;
+                    let filter = document.getElementById('filter').value;
+                    
+                    esp.disabled = false;
+                    airflow.addEventListener('input', function(event){
+                        Number(getAcFanEsp(unit, airflow.value, filter));
                     })
                 }
             });
         }
 
-        function getAcFanSpeed(tsp){
-            // TODO: dynamic changing airflow rate
+        function getAcFanAirflow(unit, esp, filter){
+            fetch(`ac_fan_airflow/${unit}/${esp}/${filter}`)
+            .then(response => response.json())
+            .then(data => {
+                let airflow = document.getElementById('airflow');
+                airflow.value = data.airflow;
+            });
+        }
+
+        function getAcFanEsp(unit, airflow, filter){
+            fetch(`ac_fan_esp/${unit}/${airflow}/${filter}`)
+            .then(response => response.json())
+            .then(data => {
+                let esp = document.getElementById('esp');
+                console.log(data.esp);
+                esp.value = data.esp;
+            });
         }
 
         // Populate option's selection with component dictionary based on Id name.
