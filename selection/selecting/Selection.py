@@ -269,7 +269,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2
 
-            print(f'te = {t_evap} Q_total = {Q_total} Comp = {cap_comp*number_comp} | Uh ={U_h_new} lmed=|lmed| | te_max = {t_evap_temp_max} te_min = {t_evap_temp_min}| tc = {t_cond}')
+            print(f'te = {round(t_evap,2)} | tc = {round(t_cond,2)} | Q_total = {round(Q_total,2)} Comp = {round(cap_comp*number_comp,2)} | Uh ={round(U_h_new,5)} lmed=|lmed| | te_max = {round(t_evap_temp_max,3)} te_min = {round(t_evap_temp_min,3)}')
             if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
                 print('break ??')
                 break

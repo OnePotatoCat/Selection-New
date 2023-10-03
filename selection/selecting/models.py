@@ -53,6 +53,7 @@ class Compressor(models.Model):
     superheat = models.FloatField()
     volume = models.FloatField()
     evap_temp_limit = models.FloatField()
+    capacity_factor = models.FloatField()
     capacity_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
     power_coefficient = ArrayField(models.FloatField(), size = 24, null=True)
     current_coefficient = ArrayField(models.FloatField(), size = 24, null=True)

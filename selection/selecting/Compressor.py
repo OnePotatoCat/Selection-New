@@ -8,6 +8,7 @@ class Compressor_Cal(object):
         self.hp = compressor.hp
         self.refrigerant = compressor.refrigerant
         self.evap_temp_limit = compressor.evap_temp_limit
+        self.cap_factor = compressor.capacity_factor
         self.cap_coef = compressor.capacity_coefficient
         self.pow_coef = compressor.power_coefficient
         self.cur_coef = compressor.current_coefficient
@@ -58,12 +59,12 @@ class Compressor_Cal(object):
     @dispatch(float, float)
     def set_capacity(self, t_evap, t_cond):
         # Output = Cooling Capacity (kW)
-        self._capacity = self.calculate_properties(t_evap, t_cond, self.cap_coef)
+        self._capacity = self.cap_factor*self.calculate_properties(t_evap, t_cond, self.cap_coef)
 
     @dispatch(float, float, float)
     def set_capacity(self, t_evap, t_cond, freq):
         # Output = Cooling Capacity (kW)
-        self._capacity = self.calculate_properties(t_evap, t_cond, freq, self.cap_coef)
+        self._capacity = self.cap_factor*self.calculate_properties(t_evap, t_cond, freq, self.cap_coef)
     # -----------------------------------------------------------
 
 

@@ -225,7 +225,7 @@ def inverter_compressor(request, comp):
     return JsonResponse({"inverter": compressor.inverter})
 
 
-def ac_fan_airflow(request, unit, esp, filter):
+def ac_fan_airflow(unit, esp, filter):
     unit_obj = Unit.objects.get(pk=int(unit))
     unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, unit_obj.fan.id, esp, filter)
     fan = Fan_Cal(unit_obj.fan.id)
@@ -246,12 +246,13 @@ def ac_fan_airflow(request, unit, esp, filter):
 
         temp_airflow = 0.5*(max_airflow + min_airflow)
         i += 1
-        
-    # print(temp_airflow)
-    return JsonResponse({"airflow": round(temp_airflow,0)})
+
+    return temp_airflow
 
 
 def ac_fan_esp(request, unit, airflow, filter):
+    max_esp = 200
+    min_esp = 20
     unit_obj = Unit.objects.get(pk=int(unit))
     unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, unit_obj.fan.id, 0, filter)
     fan = Fan_Cal(unit_obj.fan.id)
@@ -260,7 +261,15 @@ def ac_fan_esp(request, unit, airflow, filter):
     unit_isp = unit_cal.get_isp(airflow)
     esp =  fan_staticpressure - unit_isp
 
-    return JsonResponse({"esp": round(esp,0)})
+    if esp < min_esp:
+        esp = 20
+        airflow = ac_fan_airflow(unit, esp, filter)
+
+    elif max_esp < esp:
+        esp = 200
+        airflow = ac_fan_airflow(unit, esp, filter)
+
+    return JsonResponse({"airflow": round(airflow), "esp": round(esp)})
 
 
 def calculate_capacity(request):
@@ -315,33 +324,6 @@ def calculate_capacity(request):
                 outlet_temp = result["air"]["Outlet Temperature"][0], 
                 outlet_rh = result["air"]["Outlet RH"][0],
             )
-
-            print(new_calculation.add_to_cart)
-            print(new_calculation.date_time)
-            print(new_calculation.model)
-            print(new_calculation.flow_orientaion)
-            print(new_calculation.cond)
-            print(new_calculation.inlet_temp)
-            print(new_calculation.inlet_rh)
-            print(new_calculation.airflow)
-            print(new_calculation.esp)
-            print(new_calculation.amb_temp)
-            print(new_calculation.filter)
-            print(new_calculation.comp)
-            print(new_calculation.comp_spd)
-            print(new_calculation.total_cap)
-            print(new_calculation.sen_cap)
-            print(new_calculation.heat_rejection)
-            print(f"fan_power = {new_calculation.fan_power}")
-            print(f"fan_rpm = {new_calculation.fan_rpm}")
-            print(f"fan tsp ={new_calculation.tsp}")
-            print(f"t_evap ={new_calculation.t_evap}")
-            print(new_calculation.t_cond)
-            print(new_calculation.off_temp)
-            print(new_calculation.off_rh)
-            print(new_calculation.outlet_temp)
-            print(new_calculation.outlet_rh)
-
             new_calculation.save()
             
             result["calculation id"] = new_calculation.id
@@ -354,6 +336,7 @@ def download_pdf(request, pdf):
     response['Content-Disposition'] = 'attachment; filename = "catalogue_pdfs.pdf'
     response['Content-Length'] = os.path.getsize(pdf)
     return response
+
 
 def add_calculation_to_cart(request, cal_id):
     calculation_data = Calculation.objects.get(pk=int(cal_id))

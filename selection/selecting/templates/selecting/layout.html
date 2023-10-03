@@ -134,20 +134,18 @@
                 airflow.min=data.min_airflow;
                 airflow.innerHTML= data.default_airflow;
                 
-                // Change airflow based on fan motor type (for AC mostly)
+                // Change ESP based on fan motor type (for AC mostly)
                 if (data.fan_motor_type === 1){
-                    // airflow.disabled = true;
-                    // let esp = document.getElementById('esp');
-                    // let filter = document.getElementById('filter').value;
-                    // esp.addEventListener('input', function(event){
-                    //     Number(getAcFanAirflow(unit, esp.value, filter));
-                    // })
                     let esp = document.getElementById('esp');
-                    let filter = document.getElementById('filter').value;
+                    let filter = document.getElementById('filter');
                     
-                    esp.disabled = false;
-                    airflow.addEventListener('input', function(event){
-                        Number(getAcFanEsp(unit, airflow.value, filter));
+                    esp.disabled = true;
+                    airflow.addEventListener('change', function(event){
+                        getAcFanEsp(unit, ~~airflow.value, filter.value);
+                    })
+
+                    filter.addEventListener('change', function(event){
+                        getAcFanEsp(unit, ~~airflow.value, filter.value);
                     })
                 }
             });
@@ -166,8 +164,9 @@
             fetch(`ac_fan_esp/${unit}/${airflow}/${filter}`)
             .then(response => response.json())
             .then(data => {
+                let airflow = document.getElementById('airflow');
                 let esp = document.getElementById('esp');
-                console.log(data.esp);
+                airflow.value = data.airflow;
                 esp.value = data.esp;
             });
         }
@@ -228,6 +227,12 @@
             let alert_message = document.getElementById("calculation_message");
             alert_message.style.display = "none";
 
+            let esp = document.getElementById("esp");
+            if (esp.disabled) {
+                initialEsp = esp.disabled;
+                esp.disabled = false;
+            }
+
             let data = new FormData(form);
             data.append('unit', unit);
             data.append('flow', flow);
@@ -257,6 +262,7 @@
             })
             .then(response => response.json())
             .then(result => {
+                esp.disabled = initialEsp;
                 let calculation = document.getElementById('calculation');
                 calculation.style.display = "";
 
