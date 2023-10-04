@@ -271,14 +271,13 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
             print(f'te = {round(t_evap,2)} | tc = {round(t_cond,2)} | Q_total = {round(Q_total,2)} Comp = {round(cap_comp*number_comp,2)} | Uh ={round(U_h_new,5)} lmed=|lmed| | te_max = {round(t_evap_temp_max,3)} te_min = {round(t_evap_temp_min,3)}')
             if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
-                print('break ??')
                 break
 
 
         # Condenser Capacity Calculation
         heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
         condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)*number_comp
-
+        print(f'cond_cap = {condenser_cap} | heat_reject ={heat_reject}' )
         if ((condenser_cap - (heat_reject+0.05))**2 < 10**(-5) and flag_compressor):
             flag_condenser = True
         elif (condenser_cap - (heat_reject+0.05)) > 0:

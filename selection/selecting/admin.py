@@ -3,7 +3,7 @@ from .models import Series, Calculation, Cart, History, Unit, Evaporator, Conden
 
 # Register your models here.
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ("id", "model")
+    list_display = ("arrange_id", "series", "model")
     filter_horizontal = ("flow_direction", "condenser",)
 
 class SeriesAdmin(admin.ModelAdmin):

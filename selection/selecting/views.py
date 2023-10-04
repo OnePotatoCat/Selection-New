@@ -161,7 +161,7 @@ def show_unit_selection(request, series):
     if series_name == "CIRC":
         return render(request, "selecting/circ.html")
     
-    units = Unit.objects.filter(series = int(series))
+    units = Unit.objects.filter(series = int(series)).order_by('arrange_id')
     if units.count() == 0:
         context = {"series":series_name}
         return render(request, "selecting/not_available.html", context)

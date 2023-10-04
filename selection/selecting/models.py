@@ -105,6 +105,7 @@ class Series(models.Model):
 
 class Unit(models.Model):
     series = models.ForeignKey(Series, null = True, on_delete = models.RESTRICT, related_name = "series")
+    arrange_id = models.PositiveIntegerField()
     model = models.CharField(max_length = 16, blank = True)
     length = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])
     depth = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])

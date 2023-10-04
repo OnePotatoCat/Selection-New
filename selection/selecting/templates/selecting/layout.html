@@ -228,8 +228,8 @@
             alert_message.style.display = "none";
 
             let esp = document.getElementById("esp");
-            if (esp.disabled) {
-                initialEsp = esp.disabled;
+            initialEsp = esp.disabled;
+            if (initialEsp) {
                 esp.disabled = false;
             }
 
