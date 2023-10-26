@@ -116,6 +116,7 @@
         // Components such as : compressor model, flow orientation, compressor [Admin], fan [Admin], condenser, airflow rate: default, max and mix
         // Parameters:
         //   -unit: unit's id(according to database)
+        var callback  // callback function container for removing existing EL function
         function showComponents(unit) {
             fetch(`show_components/${unit}`)
             .then(response => response.json())
@@ -138,15 +139,20 @@
                 if (data.fan_motor_type === 1){
                     let esp = document.getElementById('esp');
                     let filter = document.getElementById('filter');
-                    
+                    const eventType = 'change';
                     esp.disabled = true;
-                    airflow.addEventListener('change', function(event){
-                        getAcFanEsp(unit, ~~airflow.value, filter.value);
-                    })
-
-                    filter.addEventListener('change', function(event){
-                        getAcFanEsp(unit, ~~airflow.value, filter.value);
-                    })
+                    
+                    // Remove existing EL
+                    if (callback){
+                        airflow.removeEventListener(eventType, callback);
+                        filter.removeEventListener(eventType, callback);
+                    }
+                    
+                    // Record the current EL function and add it as new EL function
+                    callback = function(event){getAcFanEsp(unit, ~~airflow.value, filter.value);};
+                    airflow.addEventListener(eventType, callback);
+                    filter.addEventListener(eventType, callback);
+                    callback();
                 }
             });
         }
@@ -161,6 +167,7 @@
         }
 
         function getAcFanEsp(unit, airflow, filter){
+            console.log(unit);
             fetch(`ac_fan_esp/${unit}/${airflow}/${filter}`)
             .then(response => response.json())
             .then(data => {

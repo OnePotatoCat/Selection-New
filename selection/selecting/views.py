@@ -235,9 +235,10 @@ def ac_fan_airflow(unit, esp, filter):
     min_airflow = unit_obj.evaporator.min_airflow
     i = 1
     while i < 500:
+        print(f"cur_airflow: {temp_airflow} ({esp})| max_airflow: {max_airflow} | min_airflow: {min_airflow}")
         tsp = unit_cal.get_tsp(temp_airflow)
         sp_diff = tsp - fan.get_ac_staticpressure(temp_airflow)
-        if abs(sp_diff) < 0.1:
+        if abs(sp_diff) < 0.5:
             break
         if sp_diff > 0:
             max_airflow = temp_airflow
@@ -264,11 +265,14 @@ def ac_fan_esp(request, unit, airflow, filter):
     if esp < min_esp:
         esp = 20
         airflow = ac_fan_airflow(unit, esp, filter)
+        print(f"Airflow to high : {airflow}")
 
     elif max_esp < esp:
         esp = 200
         airflow = ac_fan_airflow(unit, esp, filter)
+        print(f"Airflow to low : {airflow}")
 
+    print(f"Airflow: {airflow} | esp : {esp}")
     return JsonResponse({"airflow": round(airflow), "esp": round(esp)})
 
 
