@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Series, Calculation, Cart, History, Unit, Evaporator, Condenser, Compressor, MotorType, Fan, FlowOrientation
+from .models import Series, Calculation, Cart, History, Unit, Evaporator, Condenser, ChillwaterCoil, Compressor, MotorType, Fan, FlowOrientation
 
 # Register your models here.
 class UnitAdmin(admin.ModelAdmin):
@@ -28,6 +28,7 @@ admin.site.register(Cart,CartAdmin)
 admin.site.register(History, HistoryAdmin)
 admin.site.register(Calculation, CalculationAdmin)
 admin.site.register(Evaporator, EvaporatorAdmin)
+admin.site.register(ChillwaterCoil)
 admin.site.register(Condenser)
 admin.site.register(Compressor)
 admin.site.register(MotorType)

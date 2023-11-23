@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'selection.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-if 'selection-4.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com' in os.environ:
+if 'model-db.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',

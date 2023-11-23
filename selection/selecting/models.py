@@ -6,7 +6,9 @@ import datetime
 
 date_time_format = "%Y %b %d %H:%M"    
 
-# Create your models here.
+# ---------------------------------------- #
+#        DX Components Database
+# ---------------------------------------- #
 class Condenser(models.Model):
     model = models.CharField(max_length=16)
     airflow_m3hr = models.FloatField()
@@ -19,7 +21,6 @@ class Condenser(models.Model):
         model_name = self.model.split("-")
         return model_name[0].upper()
     
-
     def __str__(self):
         return f"{self.model.upper()}"
 
@@ -103,6 +104,41 @@ class Series(models.Model):
         return f"{self.series_name.upper()}"
 
 
+# ---------------------------------------- #
+# Chill Water Database
+# ---------------------------------------- #
+class ChillwaterCoil(models.Model):
+    model = models.CharField(max_length=16)
+    # area_surface = models.FloatField()
+    # area_frontal = models.FloatField()
+    # min_airflow = models.FloatField()
+    # max_airflow = models.FloatField()
+
+    # Dry coil coefficients
+    udry_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+
+    # Wet coil coefficients
+    uwet_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+
+    # Flowrate(Dry) model
+    mdry_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+
+    # Flowrate(Wet) model
+    mdwet_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+    
+    # Starting Dewpoint
+    starting_dewpoint = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+    
+    # Pressure Drop model
+    dp_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.model.upper()}"
+
+
+# ---------------------------------------- #
+#  Bootstrap Unit Database
+# ---------------------------------------- #
 class Unit(models.Model):
     series = models.ForeignKey(Series, null = True, on_delete = models.RESTRICT, related_name = "series")
     arrange_id = models.PositiveIntegerField()
@@ -112,10 +148,15 @@ class Unit(models.Model):
     height = models.PositiveIntegerField(default=100, validators = [MinValueValidator(50), MaxValueValidator(4000)])
     power_supply = models.CharField(max_length = 13, default="400V-3ph-50Hz")
     flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="flow")
+
+    # DX Components
     evaporator = models.ForeignKey(Evaporator, null = True, on_delete = models.RESTRICT, related_name = "evaporator")
     compressor = models.ForeignKey(Compressor, null = True, on_delete = models.RESTRICT, related_name = "compressor")
     number_of_compressor = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(3)])
     condenser = models.ManyToManyField(Condenser, blank = True, related_name = "condenser")
+    # CW Component
+    cw_coil = models.ForeignKey(ChillwaterCoil, null=True, on_delete = models.RESTRICT, related_name = "cw_coil")
+
     fan = models.ForeignKey(Fan, null = True, on_delete = models.RESTRICT, related_name = "fan")
     number_of_fan = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(10)])
     default_airflow = models.FloatField(default=0)
@@ -126,6 +167,9 @@ class Unit(models.Model):
         return f"{self.model.upper()}"
 
 
+# ---------------------------------------- #
+#  Calculation, Cart and History Database
+# ---------------------------------------- #
 class Calculation(models.Model):
     add_to_cart = models.BooleanField()
     date_time = models.DateTimeField(default=datetime.datetime.now())

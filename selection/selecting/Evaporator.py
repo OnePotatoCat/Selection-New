@@ -14,7 +14,6 @@ class Evaporator_Cal(Coil):
         return t_startdew
 
 
-
 def main():
     evap = Evaporator_Cal(1)
     print(evap.model)

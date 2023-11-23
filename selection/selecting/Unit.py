@@ -2,6 +2,7 @@ from .Evaporator import Evaporator_Cal as evap
 from .Condenser import Condenser_Cal as cond
 from .Fan import Fan_Cal as fn
 from .Compressor import Compressor_Cal as comp
+from .CWCoil import CWCoil_Cal as cw
 from .models import Unit as unit_obj
 
 class Unit_Cal(object):
@@ -9,14 +10,14 @@ class Unit_Cal(object):
                  evap_id :int, cond_id :int,
                  comp_id :int, fan_id :int,
                  esp :float, filter_type :str) -> None:
-        # model = unit model
-        # filter type = G4 , F7
+
         unit = unit_obj.objects.get(pk = unit_id)
         self.model = unit.model
         self.evaporator = evap(evap_id)
         self.condenser = cond(cond_id)
         self.compressor = comp(comp_id)
         self.no_of_comp = unit.number_of_compressor
+        
         self.fan = fn(fan_id)
         self.no_of_fan = unit.number_of_fan
         self._isp_g4_coef = unit.g4_static_coefficient
@@ -30,6 +31,26 @@ class Unit_Cal(object):
         self.total_capacity = 0
         self.sensible_capacity = 0
 
+    @classmethod
+    def as_cw(cls, unit_id :int,
+              cw_id :int, fan_id :int,
+              esp :float, filter_type :str) ->None:
+        unit = unit_obj.objects.get(pk = unit_id)
+        cls.model = unit.model
+        cls.cw = cw(cw_id)
+        cls.fan = fn(fan_id)
+        cls.no_of_fan = unit.number_of_fan
+        cls._isp_g4_coef = unit.g4_static_coefficient
+        cls._isp_f7_coef = unit.f7_static_coefficient
+
+        cls.esp = esp
+        cls.filter_type = filter_type
+
+        cls.outlet_temp = 0
+        cls.outlet_rh = 0
+        cls.total_capacity = 0
+        cls.sensible_capacity = 0
+        return cls
 
     def get_isp(self, airflow :float) -> float:
         if self.filter_type == "g4":

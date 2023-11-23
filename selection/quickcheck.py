@@ -6,4 +6,4 @@ water = Fluid(FluidsList.Water).with_state(
             Input.pressure(101325),
         )
 
-print(water.density)
+print(water.enthalpy)

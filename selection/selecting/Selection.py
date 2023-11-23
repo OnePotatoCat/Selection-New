@@ -1,6 +1,9 @@
 from pyfluids import Fluid, FluidsList, Input, HumidAir, InputHumidAir
 import math
 import sys
+from sklearn.linear_model import LinearRegression
+import pickle
+from .models import ChillwaterCoil as cw
 
 sys.path.append('../../selection')
 from .Unit import Unit_Cal
@@ -21,7 +24,7 @@ MAX_COUNTER = 1000
 def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int, 
         t :float, rh :float, q :float, 
         esp = 50.0, abm_temp = 35, comp_speed = 100.0, filter_type="g4"):
-   
+    
     # Declare component
     unit = Unit_Cal(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
 
@@ -50,7 +53,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
     # Calculating Total Static Pressure and Fan Motor performance
     total_static_pressure = unit.get_tsp(airflow)
-    print(unit.fan.type)
+
     # checking for AC fan= 1
     if unit.fan.type == 1:
         unit.fan.get_ac_staticpressure(airflow)
@@ -269,7 +272,6 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2
 
-            print(f'te = {round(t_evap,2)} | tc = {round(t_cond,2)} | Q_total = {round(Q_total,2)} Comp = {round(cap_comp*number_comp,2)} | Uh ={round(U_h_new,5)} lmed=|lmed| | te_max = {round(t_evap_temp_max,3)} te_min = {round(t_evap_temp_min,3)}')
             if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
                 break
 
@@ -277,7 +279,6 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         # Condenser Capacity Calculation
         heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
         condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)*number_comp
-        print(f'cond_cap = {condenser_cap} | heat_reject ={heat_reject}' )
         if ((condenser_cap - (heat_reject+0.05))**2 < 10**(-5) and flag_compressor):
             flag_condenser = True
         elif (condenser_cap - (heat_reject+0.05)) > 0:
