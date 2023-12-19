@@ -109,10 +109,10 @@ class Series(models.Model):
 # ---------------------------------------- #
 class ChillwaterCoil(models.Model):
     model = models.CharField(max_length=16)
-    # area_surface = models.FloatField()
-    # area_frontal = models.FloatField()
-    # min_airflow = models.FloatField()
-    # max_airflow = models.FloatField()
+    area_surface = models.FloatField()
+    area_frontal = models.FloatField()
+    min_airflow = models.FloatField()
+    max_airflow = models.FloatField()
 
     # Dry coil coefficients
     udry_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
@@ -124,7 +124,7 @@ class ChillwaterCoil(models.Model):
     mdry_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
 
     # Flowrate(Wet) model
-    mdwet_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
+    mwet_model = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
     
     # Starting Dewpoint
     starting_dewpoint = models.FileField(upload_to="cwmodel", default=None, blank=True, null=True)
@@ -150,13 +150,14 @@ class Unit(models.Model):
     flow_direction = models.ManyToManyField(FlowOrientation, blank=True, related_name="flow")
 
     # DX Components
-    evaporator = models.ForeignKey(Evaporator, null = True, on_delete = models.RESTRICT, related_name = "evaporator")
-    compressor = models.ForeignKey(Compressor, null = True, on_delete = models.RESTRICT, related_name = "compressor")
+    evaporator = models.ForeignKey(Evaporator, blank=True, null = True, on_delete = models.RESTRICT, related_name = "evaporator")
+    compressor = models.ForeignKey(Compressor, blank=True, null = True, on_delete = models.RESTRICT, related_name = "compressor")
     number_of_compressor = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(3)])
     condenser = models.ManyToManyField(Condenser, blank = True, related_name = "condenser")
     # CW Component
-    cw_coil = models.ForeignKey(ChillwaterCoil, null=True, on_delete = models.RESTRICT, related_name = "cw_coil")
+    cw_coil = models.ForeignKey(ChillwaterCoil, blank=True, null=True, on_delete = models.RESTRICT, related_name = "cw_coil")
 
+    # Fan and Statics Pressure
     fan = models.ForeignKey(Fan, null = True, on_delete = models.RESTRICT, related_name = "fan")
     number_of_fan = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(10)])
     default_airflow = models.FloatField(default=0)

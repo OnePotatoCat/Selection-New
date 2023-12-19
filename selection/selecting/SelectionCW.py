@@ -19,11 +19,11 @@ DENSITY = 1.176103
 MAX_COUNTER = 1000
 
 def main(unit_id :int, cw_id :int, fan_id :int, 
-         t :float, rh :float, q :float, 
+         t :float, rh :float, q :float, t_win :float, t_wout :float,
          esp = 50.0, filter_type="g4"):
     
     # Declare component
-    unit = Unit_Cal.as_cw(unit_id, cw_id, fan_id, esp, filter_type)
+    unit = Unit_Cal.as_cw(unit_id,cw_id, fan_id, esp, filter_type)
 
     # Inlet air Properties
     t_inlet = t
@@ -32,10 +32,11 @@ def main(unit_id :int, cw_id :int, fan_id :int,
     # Airflow/Massflow rate
     airflow = q
     massflow = DENSITY*airflow/3600
+    v=airflow/3600/unit.cw.frontal_area
 
     # Calculating Total Static Pressure and Fan Motor performance
     total_static_pressure = unit.get_tsp(airflow)
-    print(unit.fan.type)
+
     # checking for AC fan= 1
     if unit.fan.type == 1:
         unit.fan.get_ac_staticpressure(airflow)
@@ -60,21 +61,74 @@ def main(unit_id :int, cw_id :int, fan_id :int,
     w_inlet = inlet_air.humidity
     cp_inlet = inlet_air.specific_heat/1000
 
+    print(f'{v}  {t_inlet} {t_win} {t_wout}')
+    t_stardew= unit.cw.starting_dewpoint(v, t_inlet, t_win, t_wout)
 
-    # Initiate Calculation
-    flag_dew = False
-    flag_rh = True
-    counter = 0
+    if(dp_inlet <= t_stardew):
+        # Dry Coil Evaporator Capacity Calculation
+        m_dot = unit.cw.mdot_dry(v, t_inlet, t_win, t_wout)
+        Q_total = (m_dot/3600)*4.18*(t_wout-t_win)
+        Q_sen = Q_total
+        h_outlet = h_inlet - Q_sen/massflow
+        outlet_air = HumidAir().with_state(
+            InputHumidAir.altitude(0),
+            InputHumidAir.enthalpy(h_outlet*1000),
+            InputHumidAir.humidity(w_inlet)
+        )
+        t_outlet = outlet_air.temperature
+        rh_outlet = outlet_air.relative_humidity
 
-    
+        dp = unit.cw.pressure_drop(m_dot)
 
+        print(f'Total Capacity: {Q_total} ')
+        print(f'Outlet Temp: {t_outlet} ')
+        print(f'Outlet RH: {rh_outlet} ')
+        print(f'Flow Rate:{m_dot} ')
+        print(f'Pressure Drop:{dp} ')
 
+    else:
+        m_dot = unit.cw.mdot_wet(v, t_inlet, dp_inlet, t_win, t_wout)
+        Q_total = (m_dot/3600)*4.18*(t_wout-t_win)
+        Q_sen = Q_total
+        h_outlet = h_inlet - Q_sen/massflow
+        U_wet=unit.cw.U_wet(v, t_inlet, dp_inlet, t_win, t_wout)
+        bypass = math.exp(-U_wet*unit.cw.surface_area/(m_dot))
+
+        # apperant air propreties 
+        t_app = 0.5*(t_win + t_wout)
+        app_air = HumidAir().with_state(
+                InputHumidAir.altitude(0),
+                InputHumidAir.temperature(t_app),
+                InputHumidAir.relative_humidity(100)
+            )
+        w_app = app_air.humidity
+
+        w_outlet = w_app + (w_inlet - w_app) * bypass
+        outlet_air = HumidAir().with_state(
+            InputHumidAir.altitude(0),
+            InputHumidAir.enthalpy(h_outlet*1000),
+            InputHumidAir.humidity(w_outlet)
+        )
+        t_outlet = outlet_air.temperature
+        rh_outlet = outlet_air.relative_humidity
+
+        dp = unit.cw.pressure_drop(m_dot)
+
+        print(f'Total Capacity: {Q_total} ')
+        print(f'Outlet Temp.: {t_outlet} ')
+        print(f'Outlet RH: {rh_outlet} ')
+        print(f'Flow Rate:{m_dot} ')
+        print(f'Pressure Drop:{dp}')
+
+        return 
+    """
     t_outlet_net = t_outlet + unit.fan.get_power()/(massflow*1.006)
     net_outlet_air = HumidAir().with_state(
         InputHumidAir.altitude(0),
         InputHumidAir.humidity(w_outlet),
         InputHumidAir.temperature(t_outlet_net)
     )
+
     try:
         rh_outlet_net = net_outlet_air.relative_humidity
         wb_outlet_net = net_outlet_air.wet_bulb_temperature
@@ -83,36 +137,13 @@ def main(unit_id :int, cw_id :int, fan_id :int,
         wb_outlet_net = net_outlet_air.wet_bulb_temperature
         flag_rh = False
 
-    # print("Issue")
-    # print(w_outlet)
-    # print(wb_outlet_net)
-    # print(t_outlet_net)
-
-    # print(f'{t_inlet} , {dp_inlet}, {t_evap}, {airflow/3600/unit.evaporator.frontal_area}')
-    # print(f'Uh :{U_h_new}')
-    # print(f'Bypass : {bypass}')
-    # print(f'LMED :{lmed}')
-    # print(f't_evap_mid : {t_evap_mid}')
-    # print(f'Hinlet :{h_inlet}')
-    # print(f'Houtlet :{h_real_outlet}')
-    # print(f'massflow :{massflow}')
-    # print(f'{counter}')
-    # print(f'{cond_airflow}, {condenser_cap}')
-    # print(f'unit = {Q_total} | compressor = {cap_comp*number_comp}')
-    # print(f'diff = {cap_comp*number_comp - Q_total}')
-    # print(f'condenser = {condenser_cap} | heat_reject = {heat_reject}')
-    # print(f'te = {t_evap} | tc = {t_cond}')
-    # print(f'te_max = {t_evap_temp_max} | te_min = {t_evap_temp_min}')
-    # print(f'tc_max = {t_cond_temp_max} | tc_min = {t_cond_temp_min}')
 
     unit.total_capacity = Q_total
     unit.sensible_capacity = Q_sen
     unit.outlet_temp = t_outlet_net
     unit.outlet_rh = rh_outlet_net
-    unit.evaporator.saturated_temp = t_evap
-    unit.condenser.saturated_temp = t_cond
-    unit.compressor.get_power()
 
+    
     cap_dict = {
         "Total Capacity": (round(Q_total, 2), "kW"),
         "Total Sensible Cap.": (round(Q_sen, 2), "kW"),
@@ -153,8 +184,8 @@ def main(unit_id :int, cw_id :int, fan_id :int,
         "compressor": comp_dict,
         "air": air_dict
     }
-
-    return performance_dict
+    """
+    return 
 
 
 def check_diverge_counter(counter: int) -> bool:
@@ -177,44 +208,8 @@ def dry_capacity(coil :Coil,t_drybulb :float, t_sat :float, t_sat_mid :float, ai
     return abs(e*cp_min*(t_drybulb - t_sat_mid))
 
 
-def starting_dewpoint(vel :float, t_evap :float, t_inlet :float):
-    c = [-1.170695802,
-        0.28936308,
-        0.008312431,
-        -0.059279856,
-        -0.00982999,
-        0.043792714,
-        0.000587257
-        ]   
-
-    t_startdew = t_evap+ c[0] + c[1] * vel + c[2] * t_evap + c[3] * vel * t_evap + \
-                 c[4] * t_inlet + c[5] * t_inlet * vel + c[6] * t_inlet * t_evap
-
-    return t_startdew
-
-
-def LMED_U(t_drybulb :float, t_dewpoint :float, t_evap :float, vel :float):
-    c = [12.29230419,
-         0.398495745,
-         0.123584793,
-         -0.650576675,
-         6.853474482,
-         -0.124564167,
-         0.011297419,
-         -0.009147343,
-         -0.003567652
-        ]
-
-    LMDED_U = c[0] + c[1] * t_dewpoint + c[2] * t_drybulb + c[3] * t_evap + c[4] * vel + \
-              c[5] * t_evap * vel + c[6] * vel / (t_drybulb - t_dewpoint) + \
-              c[7] * (t_dewpoint - t_evap) ** 2 + c[8] * vel * (t_dewpoint - t_evap) ** 2
-
-    return LMDED_U
-
-
 def ConvertPsi_Pa(pressure_psi):
     return pressure_psi*6894.75728
-
 
 def ConvertPa_Psi(pressure_pa):
     return pressure_pa/6894.75728

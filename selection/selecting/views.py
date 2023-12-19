@@ -29,6 +29,7 @@ from PIL import Image
 # import Selection
 import datetime
 from . import Selection as sel
+from . import SelectionCW as sel_cw
 from .Compressor import Compressor_Cal as cond
 from .Evaporator import Evaporator_Cal as evap
 from .Condenser import Condenser_Cal
@@ -175,7 +176,11 @@ def show_unit_selection(request, series):
     for unit in units:
         units_dict[unit.id] = unit.model.upper()
 
-    template = loader.get_template("selecting/newselection.html")
+    if series_name =="EC":
+        template = loader.get_template("selecting/newselection_cw.html")
+    else:
+        template = loader.get_template("selecting/newselection.html")
+        
     selection_html = template.render(context, request)
     return HttpResponse(selection_html)
 
@@ -184,32 +189,51 @@ def show_components(request, unit):
     data = {}
     unit = Unit.objects.get(pk=int(unit))
     
+    # Flow orientation data
     flows = unit.flow_direction.all()
     flow_dict = {}
     for flow in flows:
         flow_dict[flow.id] = flow.flow_orientaion.upper()
     data["flow"] = flow_dict
 
-    comp = unit.compressor
-    comp_dict = {}
-    comp_dict[comp.id] = comp.model.upper()
-    data["compressor"] = comp_dict
-
+    # Fan model data
     fan = unit.fan
     fan_dict = {}
     fan_dict[fan.id] = fan.model.upper()
     data["fan"] = fan_dict
-
-    condensers = unit.condenser.all()
-    cond_dict = {}
-    for condenser in condensers:
-        cond_dict[condenser.id] = condenser.get_model_name()
-    data["condenser"] = cond_dict
-
-    data["default_airflow"] = unit.default_airflow
-    data["max_airflow"] = unit.evaporator.max_airflow
-    data["min_airflow"] = unit.evaporator.min_airflow
+    # Fan motor type data
     data["fan_motor_type"] = unit.fan.type
+
+    # Default airflow
+    data["default_airflow"] = unit.default_airflow
+
+    # ----- DX ----- # 
+    # Compressor model data
+    if unit.compressor is not None:
+        comp = unit.compressor
+        comp_dict = {}
+        comp_dict[comp.id] = comp.model.upper()
+        data["compressor"] = comp_dict
+
+    # Condenser model data
+    if unit.condenser:
+        condensers = unit.condenser.all()
+        cond_dict = {}
+        for condenser in condensers:
+            cond_dict[condenser.id] = condenser.get_model_name()
+        data["condenser"] = cond_dict
+
+    # Evaporator airflow limit data
+    if unit.evaporator:
+        data["max_airflow"] = unit.evaporator.max_airflow
+        data["min_airflow"] = unit.evaporator.min_airflow
+    
+
+    # ----- CW ----- # 
+    # chillwater coil airflow limit data
+    if unit.cw_coil:
+        data["max_airflow"] = unit.cw_coil.max_airflow
+        data["min_airflow"] = unit.cw_coil.min_airflow
 
     jsonData = json.dumps(data)
     return JsonResponse(data)
@@ -280,24 +304,41 @@ def calculate_capacity(request):
     if request.method =="POST":
         form = request.POST
         unit_id = int(form["unit"])
-        evap_id = Unit.objects.get(pk=int(unit_id)).evaporator.id
         flow_id = int(form["flow"])
-        comp_id = int(form["comp"])
         fan_id = int(form["fan"])
-        cond_id = int(form["cond"])
         inlet_temp = float(form["temp"])
         rh = float(form["rh"])
         airflow = float(form["airflow"])
         esp = float(form["esp"])
-        amb_temp = float(form["amb_temp"])
         filter_type = form["filter"].lower()
 
-        if (form["comp_sp"] != ''):
-            comp_speed = float(form["comp_sp"])
-        else:
-            comp_speed = float(0)
+        # DX
+        if form['type']=="DX":
+            cond_id = int(form["cond"])
+            evap_id = Unit.objects.get(pk=int(unit_id)).evaporator.id
+            comp_id = int(form["comp"])
+            amb_temp = float(form["amb_temp"])
 
-        result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
+            if (form["comp_sp"] != ''):
+                comp_speed = float(form["comp_sp"])
+            else:
+                comp_speed = float(0)
+
+            result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
+       
+        elif form['type']=="CW":
+            # TODO:
+            # vavle_id = 0
+            cw_id=Unit.objects.get(pk=unit_id).cw_coil.id
+            t_water_inlet = float(form['temp_water_in'])
+            t_water_outlet = float(form['temp_water_out'])
+            result = sel_cw.main(unit_id, cw_id, fan_id, inlet_temp, rh, airflow, t_water_inlet, t_water_outlet, esp, filter_type)
+            print(result)
+            return
+
+        
+
+        # result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
         result["calculation id"] = ""
 
         if result["converged"]:

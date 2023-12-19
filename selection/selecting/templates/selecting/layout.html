@@ -126,8 +126,11 @@
                 selectionUpdate(data.fan, 'fan');
                 selectionUpdate(data.condenser, 'cond');
 
-                let compressor = document.getElementById('comp').value;
-                showInverterSpeed(compressor);
+                let compressor = document.getElementById('comp');
+                if (compressor!=null){
+                    showInverterSpeed(compressor.value);
+                }
+                
 
                 let airflow = document.getElementById('airflow');
                 airflow.value= data.default_airflow;
@@ -184,6 +187,9 @@
         //   -name: id of the DOM option element
         function selectionUpdate(data, name){
             const selection = document.getElementById(name);
+            if (selection == null){
+                return;
+            }
             while (selection.options.length > 0){
                 selection.remove(0);
             }
@@ -228,9 +234,24 @@
         function calculateSelection(form){
             let unit = document.getElementById('unit').value;
             let flow = document.getElementById('flow').value;
-            let compressor = document.getElementById('comp').value;
             let fan = document.getElementById('fan').value;
-            let condenser = document.getElementById('cond').value;
+            let type;
+            let compressor;
+            let condenser;
+            let valve;
+            // if DX :
+            if (document.getElementById('comp')!=null) {
+                type = 'DX';
+                compressor = document.getElementById('comp').value;
+                condenser = document.getElementById('cond').value;
+            }
+            else{
+                type = 'CW';
+                // TODO:
+                // valve = document.getElementById('valve').value;
+            }
+            
+
             let alert_message = document.getElementById("calculation_message");
             alert_message.style.display = "none";
 
@@ -241,11 +262,17 @@
             }
 
             let data = new FormData(form);
+            data.append('type', type);
             data.append('unit', unit);
             data.append('flow', flow);
-            data.append('comp', compressor);
             data.append('fan', fan);
-            data.append('cond', condenser);
+            if (type=='DX'){
+                data.append('comp', compressor);
+                data.append('cond', condenser);
+            }
+            else if (type=='CW'){
+                // data.append('valve', valve;)
+            }
 
             var calculating_tag = document.getElementById("calculating_tag");
             calculating_tag.style.color = "black";

@@ -1,0 +1,274 @@
+{% block body %}
+<h1 class="fs-1 submain-text">Unit Selection | {{ series }}</h1>
+    <div class="container subcontainer py-3 label-text">
+        <div class="row flex-xl-nowarp">
+            <div class="model-sheet border border-dark rounded">
+                <div class="m-1 mb-4 ps-3">
+                    <div class="row border-bottom border-dark">
+                        <div class="col fs-4 mt-2">Model Selection </div>
+                    </div>
+                    
+                    <!-- Unit Selection -->
+                    <div class="row">
+                        <div class="col-sm-1 indent"></div>
+                        <div class="col-sm-11 border-bottom border-dark">
+                            <div class="row">
+                                <label class ="col-sm-5 col-form-label">Unit Model</label>
+                                <div class="col-sm-7">
+                                    <select id="unit" name="unit" class="h-100 form-select form-select-sm">
+                                        {% for unit in units %}
+                                            <option data-unit="{{ unit.id }}" value ="{{ unit.id }}">{{ unit }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Unit Selection -->
+                    <div class="row">
+                        <div class="col-sm-1 indent"></div>
+                        <div class="col-sm-11 border-bottom border-dark">
+                            <div class="row">
+                                <label class ="col-sm-5 col-form-label">Flow Orientation</label>
+                                <div class="col-sm-7">
+                                    <select id="flow" name="flow" class="h-100 form-select form-select-sm">
+                                        <!-- {% for flow in flows %}
+                                            <option data-unit="{{ flow.id }}">{{ flow }}</option>
+                                        {% endfor %} -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <!-- Valve Selection -->
+                    {% if admin %}
+                    <div id="valve_selection" class="row">
+                    {% else %}   
+                    <div id="valve_selection" style="display:none" class="row">
+                    {% endif %}
+                        <div class="col-sm-1 indent"></div>
+                        <div class="col-sm-11 border-bottom border-dark">
+                            <div class="row">
+                                <label class ="col-sm-5 col-form-label">Valve</label>
+                                <div class="col-sm-7">
+                                    <select id="valve" name="valve" class="h-100 form-select form-select-sm">
+                                        <!-- {% for comp in comps %}
+                                            <option data-unit="{{ comp.id }}">{{ comp }}</option>
+                                        {% endfor %} -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                        
+                    <!-- Fan Selection -->
+                    {% if admin %}
+                    <div id="fan_selection" class="row">
+                    {% else %}
+                    <div id="fan_selection" style="display:none" class="row">
+                    {% endif %}
+                        <div class="col-sm-1 indent"></div>
+                        <div class="col-sm-11 border-bottom border-dark">
+                            <div class="row">
+                                <label class ="col-sm-5 col-form-label">Fan</label>
+                                <div class="col-sm-7">
+                                    <select id="fan" name="fan" class="h-100 form-select form-select-sm">
+                                        <!-- {% for fan in fans %}
+                                            <option data-unit="{{ fan.id }}">{{ fan }}</option>
+                                        {% endfor %} -->
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="spacer"></div>
+
+            <div class="form-sheet">
+                <form id="inputs" method = "post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="input-sheet border border-dark rounded">
+                            <div class="m-1 mb-4 ps-3">
+                                <div class="row border-bottom border-dark">
+                                    <div class="col fs-4 mt-2 mr-auto">Inlet Condition</div>
+                                    <button type="button" class="btn btn-secondary border border-dark mb-2 button-sheet" onclick="calculateSelection(this.form)">Calc.</button>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Inlet Temperature</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="temp" name="temp" class="h-100 form-control form-control-sm text-right" value="24" placeholder="24" max="35" min="15">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Inlet RH</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="rh" name="rh" class="h-100 form-control form-control-sm text-right" value="45" placeholder="45" max="65" min="10">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">%</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Airflow Rate</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="airflow" name="airflow" max="" min="" class="h-100 form-control form-control-sm text-right">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">m<sup>3</sup>/hr</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Water Inlet Temp.</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="temp_water_in" name="temp_water_in" class="h-100 form-control form-control-sm text-right" value="35" placeholder="35" max="40" min="10">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Water Outlet Temp.</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="temp_water_out" name="temp_water_out" class="h-100 form-control form-control-sm text-right" value="35" placeholder="35" max="40" min="10">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">&#176;C</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">ESP</label>
+                                            <div class="col-sm-4">
+                                                <input type="number" id="esp" name="esp" class="h-100 form-control form-control-sm text-right" value="50" placeholder="50" max="300" min="10">
+                                            </div>
+                                            <label class="col-sm-2 col-form-label input-unit">Pa</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-sm-1 indent"></div>
+                                    <div class="col-sm-11 border-bottom border-dark">
+                                        <div class="row">
+                                            <label class="col-sm-5 col-form-label">Filter Type</label>
+                                            <div class="col-sm-4">
+                                                <select id="filter" name="filter" class="h-100 form-select form-select-sm">
+                                                    <option value="g4">G4</option>
+                                                    <option value="f7">F7</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                </div>              
+                            </div>
+                        </div>
+                        
+                        <div class="form-spacer-sheet"></div>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+        <br>
+
+        <div id="calculation">
+            <div class="row flex-xl-nowarp">
+                <div class="result-sheet border border-dark rounded bg-light">
+                    <div class="m-3 ps-2">
+                        <div class="row">
+                            <h1 class="col mr-auto">Result 
+                                <small id="calculating_tag" class="font-italic"></small>
+                                <small id="calculation_message" class="alert alert-success alert-text ms-3 py-2" role="alert"></small>
+                            </h1>
+                            <button type="button" id="cart_button" class="m-2 btn btn-secondary border border-dark button-add" value="" onclick="addCalculationToCart(this.value)">Add to Cart</button>
+                        </div>
+                        
+    
+                        <div id="result_table" class="m-3">
+                            <!-- First row of tables -->
+                            <div class="row flex-xl-nowarp">
+                                <div class="col-md-6">
+                                    <p class="subtitle px-1">Capacity</p>
+                                    <hr>
+                                    <table class="table">
+                                        <tbody id="result_table_cap">
+            
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <p class="subtitle px-1">Air Properties</p>
+                                    <hr>
+                                    <table class="table">
+                                        <tbody id="result_table_outlet">
+            
+                                        </tbody>
+                                    </table>
+                                </div>                             
+                            </div>
+            
+                            <!-- Second row of tables -->
+                            <div class="row flex-xl-nowarp">
+                                <div class="col-md-6">
+                                    <p class="subtitle px-1">Fan</p>
+                                    <hr>
+                                    <table class="table">
+                                        <tbody id="result_table_fan">
+            
+                                        </tbody>
+                                    </table>
+                                </div>
+            
+                                <div class="col-md-6">
+                                    <p class="subtitle px-1">Chillwater</p>
+                                    <hr>
+                                    <table class="table">
+                                        <tbody id="result_table_chillwater">
+            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spacer"></div>
+            </div>
+        </div>
+    </div>
+  {% endblock %}

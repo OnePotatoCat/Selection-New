@@ -26,7 +26,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         esp = 50.0, abm_temp = 35, comp_speed = 100.0, filter_type="g4"):
     
     # Declare component
-    unit = Unit_Cal(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
+    unit = Unit_Cal.as_dx(unit_id, evap_id, cond_id, comp_id, fan_id, esp, filter_type)
 
     # Determine refrigerant type
     if unit.compressor.refrigerant == "R407C":
@@ -189,7 +189,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             w_app = app_air.humidity
 
             U_h_new = 30/1000
-            
+
             if unit.compressor.inverter:
                 unit.compressor.set_properties(t_evap, t_cond, freq)
             else:
@@ -212,6 +212,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                 )
                 t_outlet = outlet_air.temperature
                 w_outlet = w_inlet
+
                 counter += 1
                 try:
                     rh_outlet = outlet_air.relative_humidity
@@ -228,7 +229,6 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     bypass = math.exp(-U_h_guess*unit.evaporator.surface_area/(massflow))
                     h_outlet = h_saturated_te +(h_inlet-h_saturated_te) * bypass
                     w_outlet = w_app + (w_inlet - w_app) * bypass
-                    
                     
                     # Apparent Outlet Air Properties
                     outlet_air = HumidAir().with_state(
@@ -256,7 +256,6 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     lmed = (h_inlet - h_outlet)/math.log((h_inlet - h_saturated_te)/(h_outlet - h_saturated_te))
                     U_h_new = 1.05*unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
 
-                    # Capacity Calculation
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
                     Q_lat = massflow * (h_inlet - h_sensible)
                     Q_sen = Q_total - Q_lat
@@ -264,7 +263,14 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                     counter += 1
                     if (U_h_new - U_h_guess)**2 < 10 ** (-5):
                         flag_U= True
-                
+            
+            # print(f'U_h_new = {U_h_new*1000:.2f}')
+            # print(f'unit = {Q_total:.2f} | compressor = {cap_comp*number_comp:.2f}')
+            # print(f'te = {t_evap:.2f} | tc = {t_cond:.2f}')
+            # print(f'te_max = {t_evap_temp_max:.2f} | te_min = {t_evap_temp_min:.2f}')
+            # print(f'tc_max = {t_cond_temp_max:.2f} | tc_min = {t_cond_temp_min:.2f}')
+            # print('-----------------------------------')
+
             if ((cap_comp*number_comp-0.05) - Q_total)**2 < 10 ** (-5):
                 flag_compressor = True
             elif ((cap_comp*number_comp-0.05) - Q_total) > 0:
@@ -274,11 +280,12 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
             if (t_evap_temp_max - t_evap_temp_min)**2 <  10 ** (-7):
                 break
-
+            
 
         # Condenser Capacity Calculation
         heat_reject = (unit.compressor.get_power() + cap_comp)*number_comp
         condenser_cap = dry_capacity(unit.condenser, t_amb, t_cond, t_cond_mid, cond_airflow)*number_comp
+        
         if ((condenser_cap - (heat_reject+0.05))**2 < 10**(-5) and flag_compressor):
             flag_condenser = True
         elif (condenser_cap - (heat_reject+0.05)) > 0:
@@ -288,7 +295,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
         else:
             t_evap_temp_max = t_evap_temp_max +2
             t_evap_temp_min = t_evap_temp_min -2
-            t_cond_temp_min= t_cond - 2
+            t_cond_temp_min = t_cond - 2
 
         if t_evap_temp_max > T_EVAP_MAX: t_evap_temp_max = T_EVAP_MAX
         if t_evap_temp_min < T_EVAP_MIN: t_evap_temp_min = T_EVAP_MIN
