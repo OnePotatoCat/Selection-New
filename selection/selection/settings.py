@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import django_heroku
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +30,10 @@ SECRET_KEY = 'django-insecure-b+leae(d+0!j*vvpainq)sv8-syts^q_o^=&gw-%$v9z^ogmnm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1',
+ALLOWED_HOSTS = ['*',
                  '192.168.0.29',
                  '192.168.0.30',
+                 '192.168.0.32',
                  '192.168.228.204',
                  'selection-env.eba-7ciaxb3e.ap-southeast-1.elasticbeanstalk.com']
 
@@ -93,28 +96,29 @@ if 'model-db.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com' in os.environ:
             'PORT': os.environ[''],
         }
     }
-# For AWS EB
+# For AWS RDS
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'db_model_trial',
+            'USER': 'postgres',
+            'PASSWORD': 'adminleon',
+            'HOST': 'db-model-trial.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com',
+            'PORT':'5432'
+        }
+    }
+# For local test database
 # else:
 #     DATABASES = {
 #         'default': {
 #             'ENGINE': 'django.db.backends.postgresql',
 #             'NAME': 'model_db',
-#             'USER': 'postgres',
-#             'PASSWORD': '2301123leon',
-#             'HOST': 'model-db.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com',
-#             'PORT':'5432'
+#             'USER': 'admin',
+#             'PASSWORD': 'admin',
+#             'PORT':'5433'
 #         }
 #     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'model_db',
-            'USER': 'admin',
-            'PASSWORD': 'admin',
-            'PORT':'5433'
-        }
-    }
 
 
 
@@ -154,6 +158,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+django_heroku.settings(locals())
 
 
 # Default primary key field type

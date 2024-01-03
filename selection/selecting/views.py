@@ -251,7 +251,7 @@ def inverter_compressor(request, comp):
 
 def ac_fan_airflow(unit, esp, filter):
     unit_obj = Unit.objects.get(pk=int(unit))
-    unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, unit_obj.fan.id, esp, filter)
+    unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, 1, unit_obj.fan.id, esp, filter)
     fan = Fan_Cal(unit_obj.fan.id)
 
     temp_airflow = unit_obj.default_airflow
@@ -279,7 +279,7 @@ def ac_fan_esp(request, unit, airflow, filter):
     max_esp = 200
     min_esp = 20
     unit_obj = Unit.objects.get(pk=int(unit))
-    unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, unit_obj.fan.id, 0, filter)
+    unit_cal = Unit_Cal(unit, unit_obj.evaporator.id, 1, 1, 1, unit_obj.fan.id, 0, filter)
     fan = Fan_Cal(unit_obj.fan.id)
 
     fan_staticpressure = fan.get_ac_staticpressure(airflow)
@@ -289,14 +289,11 @@ def ac_fan_esp(request, unit, airflow, filter):
     if esp < min_esp:
         esp = 20
         airflow = ac_fan_airflow(unit, esp, filter)
-        print(f"Airflow to high : {airflow}")
 
     elif max_esp < esp:
         esp = 200
         airflow = ac_fan_airflow(unit, esp, filter)
-        print(f"Airflow to low : {airflow}")
 
-    print(f"Airflow: {airflow} | esp : {esp}")
     return JsonResponse({"airflow": round(airflow), "esp": round(esp)})
 
 
@@ -326,6 +323,7 @@ def calculate_capacity(request):
 
             result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
        
+        # CW
         elif form['type']=="CW":
             # TODO:
             # vavle_id = 0
