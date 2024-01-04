@@ -93,6 +93,8 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
     flag_compressor = False
     flag_rh = True
     counter = 0
+    prev_Uh = 0
+    lmed = 0
 
     while(not flag_condenser) and (check_diverge_counter(counter)):
         t_cond = 0.5*(t_cond_temp_max + t_cond_temp_min)
@@ -188,7 +190,10 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             )
             w_app = app_air.humidity
 
-            U_h_new = 30/1000
+            if prev_Uh != 0:
+                U_h_new = prev_Uh
+            else:   
+                U_h_new = 30/1000
 
             if unit.compressor.inverter:
                 unit.compressor.set_properties(t_evap, t_cond, freq)
@@ -224,7 +229,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                 # Wet Coil Evaporator Capacity Calculation
                 flag_U = False
                 while(not flag_U and check_diverge_counter(counter)):
-                    U_h_guess = U_h_new
+                    U_h_guess= U_h_new
                     
                     bypass = math.exp(-U_h_guess*unit.evaporator.surface_area/(massflow))
                     h_outlet = h_saturated_te +(h_inlet-h_saturated_te) * bypass
@@ -255,7 +260,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
 
                     lmed = (h_inlet - h_outlet)/math.log((h_inlet - h_saturated_te)/(h_outlet - h_saturated_te))
                     U_h_new = 1.05*unit.evaporator.U_wet(t_inlet, dp_inlet, t_evap, airflow/3600/unit.evaporator.frontal_area)/1000 
-
+                    prev_Uh = U_h_new
                     Q_total = U_h_new* unit.evaporator.surface_area * lmed 
                     Q_lat = massflow * (h_inlet - h_sensible)
                     Q_sen = Q_total - Q_lat
@@ -265,15 +270,17 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
                         flag_U= True
             
             # print(f'U_h_new = {U_h_new*1000:.2f}')
+            # if lmed:
+            #     print(f'lmed = {lmed:.2f}')
             # print(f'unit = {Q_total:.2f} | compressor = {cap_comp*number_comp:.2f}')
             # print(f'te = {t_evap:.2f} | tc = {t_cond:.2f}')
             # print(f'te_max = {t_evap_temp_max:.2f} | te_min = {t_evap_temp_min:.2f}')
             # print(f'tc_max = {t_cond_temp_max:.2f} | tc_min = {t_cond_temp_min:.2f}')
             # print('-----------------------------------')
 
-            if ((cap_comp*number_comp-0.05) - Q_total)**2 < 10 ** (-5):
+            if ((cap_comp*number_comp-(0.05)*number_comp) - Q_total)**2 < 10 ** (-5):
                 flag_compressor = True
-            elif ((cap_comp*number_comp-0.05) - Q_total) > 0:
+            elif ((cap_comp*number_comp-(0.05)*number_comp) - Q_total) > 0:
                 t_evap_temp_max = t_evap + (t_evap_temp_max - t_evap)/2
             else:
                 t_evap_temp_min= t_evap + (t_evap_temp_min - t_evap)/2

@@ -152,6 +152,7 @@ class Unit(models.Model):
     # DX Components
     evaporator = models.ForeignKey(Evaporator, blank=True, null = True, on_delete = models.RESTRICT, related_name = "evaporator")
     compressor = models.ForeignKey(Compressor, blank=True, null = True, on_delete = models.RESTRICT, related_name = "compressor")
+    default_comp_speed = models.PositiveIntegerField(default=100, validators = [MinValueValidator(30), MaxValueValidator(120)])
     number_of_compressor = models.PositiveIntegerField(default=1, validators = [MinValueValidator(1), MaxValueValidator(3)])
     condenser = models.ManyToManyField(Condenser, blank = True, related_name = "condenser")
     # CW Component

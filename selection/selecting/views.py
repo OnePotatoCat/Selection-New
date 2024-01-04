@@ -204,6 +204,9 @@ def show_components(request, unit):
     # Fan motor type data
     data["fan_motor_type"] = unit.fan.type
 
+    # Default compressor speed
+    data["default_comp_speed"] = unit.default_comp_speed
+
     # Default airflow
     data["default_airflow"] = unit.default_airflow
 
@@ -246,7 +249,8 @@ def set_default_airflow(request, unit):
 
 def inverter_compressor(request, comp):
     compressor = Compressor.objects.get(pk=int(comp))
-    return JsonResponse({"inverter": compressor.inverter})
+    
+    return JsonResponse({"inverter": compressor.inverter and request.user.is_staff})
 
 
 def ac_fan_airflow(unit, esp, filter):
@@ -259,7 +263,6 @@ def ac_fan_airflow(unit, esp, filter):
     min_airflow = unit_obj.evaporator.min_airflow
     i = 1
     while i < 500:
-        print(f"cur_airflow: {temp_airflow} ({esp})| max_airflow: {max_airflow} | min_airflow: {min_airflow}")
         tsp = unit_cal.get_tsp(temp_airflow)
         sp_diff = tsp - fan.get_ac_staticpressure(temp_airflow)
         if abs(sp_diff) < 0.5:
@@ -331,10 +334,7 @@ def calculate_capacity(request):
             t_water_inlet = float(form['temp_water_in'])
             t_water_outlet = float(form['temp_water_out'])
             result = sel_cw.main(unit_id, cw_id, fan_id, inlet_temp, rh, airflow, t_water_inlet, t_water_outlet, esp, filter_type)
-            print(result)
             return
-
-        
 
         # result = sel.main(unit_id, evap_id, cond_id, comp_id, fan_id, inlet_temp, rh, airflow, esp, amb_temp, comp_speed, filter_type)
         result["calculation id"] = ""
@@ -543,9 +543,9 @@ def generate_pdf(file_path, history):
     date_time = history.generated_date_time
     temp_model = re.compile("([a-zA-Z]+)([0-9]+)([a-zA-Z]+[0-9])")
     prefix, cap, suffix = temp_model.match(hist.calculation.model.model).groups()
-    print(suffix)
+    # print(suffix)
     full_model = f"{prefix}{hist.calculation.flow_orientaion.discharge_orientation}{cap}{suffix}"
-    print(full_model)
+    # print(full_model)
 
     # Logo and top bar
     bar_height = 45

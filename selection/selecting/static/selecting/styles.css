@@ -47,7 +47,7 @@ body{
  * Sidebar
  */
 
- .sidebar {
+.sidebar {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -102,7 +102,6 @@ body{
 /*
  * Main
  */
-
 .ml-sm-auto, .mx-sm-auto{
     min-width: 330px;
     margin-left: auto!important;
@@ -191,6 +190,7 @@ html {
  */
 .card{
     --blur: 16px;
+    background-color: grey;
 }
 
 .card-footer {

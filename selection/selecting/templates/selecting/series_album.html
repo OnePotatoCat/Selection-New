@@ -7,7 +7,7 @@
 
                 {% for s in series %}
                     <div class="col-md-4 px-4">
-                        <figure class="reveal card my-4 box-shadow bg-transparent" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage(this)">
+                        <figure class="reveal card my-4 box-shadow" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage(this)">
                             <img class="card-img" src="{{ s.image.url }}"  alt="{{ s.series_name }}">
                             <span class="card-footer">
                                 <span class="card-title">{{ s.series_name }}</span>

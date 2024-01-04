@@ -123,9 +123,15 @@
                                     <div class="col-sm-11 border-bottom border-dark">
                                         <div class="row">
                                             <label class ="col-sm-5 col-form-label">Comp. Speed</label>
+                                            {% if admin %}
                                             <div class="col-sm-4">
-                                                <input type="number" id="comp_sp" name="comp_sp" class="h-100 form-control form-control-sm text-right" value="100" placeholder="100" max="100" min="40">
+                                                <input type="number" id="comp_sp" name="comp_sp" class="h-100 form-control form-control-sm text-right" max="120" min="40">
                                             </div>
+                                            {% else %}   
+                                            <div class="col-sm-4">
+                                                <input type="number" id="comp_sp" name="comp_sp" class="h-100 form-control form-control-sm text-right" max="120" min="40" readonly>
+                                            </div>
+                                            {% endif %}
                                             <label class="col-sm-2 col-form-label input-unit">rps</label>
                                         </div>
                                     </div>
@@ -135,7 +141,7 @@
                                     <div class="col-sm-1 indent"></div>
                                     <div class="col-sm-11 border-bottom border-dark">
                                         <div class="row">
-                                            <label class="col-sm-5 col-form-label">Inlet Temperature</label>
+                                            <label class="col-sm-5 col-form-label">Inlet Temp.</label>
                                             <div class="col-sm-4">
                                                 <input type="number" id="temp" name="temp" class="h-100 form-control form-control-sm text-right" value="24" placeholder="24" max="35" min="15">
                                             </div>

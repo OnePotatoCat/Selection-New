@@ -1,3 +1,7 @@
+# ----------------------------------------------------------- #
+# For checking fluid properties
+# **Unrelated to the web app
+# ----------------------------------------------------------- #
 from pyfluids import Fluid, FluidsList, Input, HumidAir, InputHumidAir
 
 def ConvertPsi_Pa(pressure_psi):
@@ -27,21 +31,6 @@ Q_need = 51.6*1000*2
 
 mdot_need = Q_need/dH
 vdot_need = mdot_need/rho*3600
-# refrigerant = FluidsList.R513A
-# ref_point= Fluid(refrigerant).with_state(
-#     Input.temperature(20),
-#     Input.quality(100)
-# )
-
-# pres_evaporating = ConvertPa_Psi(ref_point.pressure) - ATM_PRESSURE
-
-# ref_out = Fluid(refrigerant).with_state(
-#     Input.temperature(26),
-#     Input.pressure(pres_evaporating)
-# ) 
-
-
-
 
 print(mdot_need)
 
