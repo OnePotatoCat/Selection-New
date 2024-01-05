@@ -148,6 +148,8 @@ def show_series(request):
     
     # if request.method == 'POST':
     seriess = Series.objects.all().order_by('arrange_id')
+    for series in seriess:
+        series.static_url = "/staticfiles/selecting/series/" + series.series_name.lower()+".png"
     context ={"series" :seriess}
     template = loader.get_template("selecting/series_album.html")
     selection_html = template.render(context, request)

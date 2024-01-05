@@ -98,8 +98,7 @@ class FlowOrientation(models.Model):
 class Series(models.Model):
     arrange_id = models.PositiveIntegerField(unique=True)
     series_name = models.CharField(max_length=10, blank = False)
-    image = models.ImageField(upload_to='images/', null = True)
-
+    is_ready = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.series_name.upper()}"
 

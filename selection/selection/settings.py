@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b+leae(d+0!j*vvpainq)sv8-syts^q_o^=&gw-%$v9z^ogmnm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*',
                  '192.168.0.29',
@@ -106,15 +106,15 @@ else:
     }
 # For local test database
 # else:
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': 'model_db',
-    #         'USER': 'admin',
-    #         'PASSWORD': 'admin',
-    #         'PORT':'5433'
-    #     }
-    # }
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'model_db',
+#             'USER': 'admin',
+#             'PASSWORD': 'admin',
+#             'PORT':'5433'
+#         }
+#     }
 
 
 

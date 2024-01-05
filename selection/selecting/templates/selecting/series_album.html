@@ -6,14 +6,16 @@
             <div class="row">
 
                 {% for s in series %}
-                    <div class="col-md-4 px-4">
-                        <figure class="reveal card my-4 box-shadow" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage(this)">
-                            <img class="card-img" src="{{ s.image.url }}"  alt="{{ s.series_name }}">
-                            <span class="card-footer">
-                                <span class="card-title">{{ s.series_name }}</span>
-                            </span>
-                        </figure>
-                    </div>
+                    {% if s.is_ready %}
+                        <div class="col-md-4 px-4">
+                            <figure class="reveal card my-4 box-shadow" type="button" data-series="{{ s.id }}" onclick="unitSelectionPage(this)">
+                                <img class="card-img" src="{{ s.static_url }}"  alt="{{ s.series_name }}">
+                                <span class="card-footer">
+                                    <span class="card-title">{{ s.series_name }}</span>
+                                </span>
+                            </figure>
+                        </div>
+                    {% endif %}
                 {% endfor %}
                 
             </div>
