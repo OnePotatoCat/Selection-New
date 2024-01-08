@@ -281,6 +281,10 @@ def ac_fan_airflow(unit, esp, filter):
 
 
 def ac_fan_esp(request, unit, airflow, filter):
+    return JsonResponse(ac_fan_esp_internal(unit, airflow, filter))
+
+
+def ac_fan_esp_internal(unit, airflow, filter):
     max_esp = 200
     min_esp = 20
     unit_obj = Unit.objects.get(pk=int(unit))
@@ -298,8 +302,8 @@ def ac_fan_esp(request, unit, airflow, filter):
     elif max_esp < esp:
         esp = 200
         airflow = ac_fan_airflow(unit, esp, filter)
-
-    return JsonResponse({"airflow": round(airflow), "esp": round(esp)})
+    
+    return ({"airflow": round(airflow), "esp": round(esp)})
 
 
 def calculate_capacity(request):
@@ -310,9 +314,16 @@ def calculate_capacity(request):
         fan_id = int(form["fan"])
         inlet_temp = float(form["temp"])
         rh = float(form["rh"])
+
         airflow = float(form["airflow"])
-        esp = float(form["esp"])
         filter_type = form["filter"].lower()
+        esp = float(form["esp"])
+
+        fan = Fan_Cal(fan_id)
+        if fan.type==1:
+            dict = ac_fan_esp_internal(unit_id, airflow, filter_type)
+            airflow = dict["airflow"]
+            esp = dict["esp"]
 
         # DX
         if form['type']=="DX":

@@ -117,7 +117,7 @@
         // Components such as : compressor model, flow orientation, compressor [Admin], fan [Admin], condenser, airflow rate: default, max and mix
         // Parameters:
         //   -unit: unit's id(according to database)
-        var callback  // callback function container for removing existing EL function
+        var callback  // callback function container for removing existing element function
         function showComponents(unit) {
             fetch(`show_components/${unit}`)
             .then(response => response.json())
@@ -148,13 +148,13 @@
                     const eventType = 'change';
                     esp.disabled = true;
                     
-                    // Remove existing EL
+                    // Remove existing element
                     if (callback){
                         airflow.removeEventListener(eventType, callback);
                         filter.removeEventListener(eventType, callback);
                     }
                     
-                    // Record the current EL function and add it as new EL function
+                    // Record the current element function and add it as new element function
                     callback = function(event){getAcFanEsp(unit, ~~airflow.value, filter.value);};
                     airflow.addEventListener(eventType, callback);
                     filter.addEventListener(eventType, callback);
@@ -245,6 +245,7 @@
             let cart_button = document.getElementById('cart_button');
             cart_button.disabled = true;
 
+            
             // if DX :
             if (document.getElementById('comp')!=null) {
                 type = 'DX';
@@ -256,7 +257,7 @@
                 // TODO:
                 // valve = document.getElementById('valve').value;
             }
-            
+    
 
             let alert_message = document.getElementById("calculation_message");
             alert_message.style.display = "none";
@@ -265,6 +266,8 @@
             initialEsp = esp.disabled;
             if (initialEsp) {
                 esp.disabled = false;
+                esp.style.backgroundColor = '#f2f2f2'; 
+                esp.readOnly = true; 
             }
 
             let data = new FormData(form);
@@ -291,7 +294,7 @@
                     dots = "";
                     calculating_tag.innerHTML = "  calculating" + dots;
             }, 250);
-            
+            console.log(data.entries);
             let headers = new Headers();
             const csrftoken = getCookie('csrftoken');
             headers.append('X-CSRFToken', csrftoken);
@@ -302,7 +305,11 @@
             })
             .then(response => response.json())
             .then(result => {
+                // ---------------
                 esp.disabled = initialEsp;
+                // esp.style.backgroundColor = '#ffffff'; 
+                esp.readOnly = false; 
+                // ---------------
                 let calculation = document.getElementById('calculation');
                 calculation.style.display = "";
 
@@ -313,7 +320,6 @@
                 let result_table_outlet = document.getElementById('result_table_outlet');
                 let table1 = "";
                 let table2 = "";
-                
 
                 
                 result_table.style.display = "";

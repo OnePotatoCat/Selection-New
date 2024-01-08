@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b+leae(d+0!j*vvpainq)sv8-syts^q_o^=&gw-%$v9z^ogmnm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*',
                  '192.168.0.29',
@@ -106,15 +106,15 @@ else:
     }
 # For local test database
 # else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'model_db',
-#             'USER': 'admin',
-#             'PASSWORD': 'admin',
-#             'PORT':'5433'
-#         }
-#     }
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': 'model_db',
+    #         'USER': 'admin',
+    #         'PASSWORD': 'admin',
+    #         'PORT':'5433'
+    #     }
+    # }
 
 
 
@@ -142,7 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kuala_Lumpur'
 
 USE_I18N = True
 
@@ -151,14 +151,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # 1
-# TODO: which to S3 bucket storage
+# TODO: which to S3 bucket storage OR which to not using Media
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATICFILES_DIRS
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
