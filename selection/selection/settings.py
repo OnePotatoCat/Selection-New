@@ -92,29 +92,29 @@ if 'model-db.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com' in os.environ:
             'PORT': os.environ[''],
         }
     }
-# For AWS RDS
+# # For AWS RDS
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': 'db_model_trial',
+#             'USER': '',
+#             'PASSWORD': '',
+#             'HOST': '',
+#             'PORT':''
+#         }
+#     }
+# For local test database
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'db_model_trial',
-            'USER': 'postgres',
-            'PASSWORD': 'adminleon',
-            'HOST': 'db-model-trial.cp1pcmhobffm.ap-southeast-1.rds.amazonaws.com',
-            'PORT':'5432'
+            'NAME': 'model_db',
+            'USER': '',
+            'PASSWORD': '',
+            'PORT':''
         }
     }
-# For local test database
-# else:
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': 'model_db',
-    #         'USER': 'admin',
-    #         'PASSWORD': 'admin',
-    #         'PORT':'5433'
-    #     }
-    # }
 
 
 
