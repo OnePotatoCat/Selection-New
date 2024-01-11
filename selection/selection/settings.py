@@ -151,7 +151,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # 1
-# TODO: which to S3 bucket storage OR which to not using Media
+# TODO: which to S3 bucket storage OR switch to not use Media
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
