@@ -204,7 +204,7 @@ def main(unit_id :int, evap_id :int, cond_id :int, comp_id :int, fan_id :int,
             number_comp = unit.no_of_comp
 
             t_startdew = unit.evaporator.starting_dewpoint(airflow/3600/unit.evaporator.frontal_area, t_evap,t_inlet)
-
+            # print(dp_inlet, t_startdew, flag_dew)
             if (dp_inlet <= t_startdew) and (not flag_dew) and (check_diverge_counter(counter)):
                 # Dry Coil Evaporator Capacity Calculation
                 Q_total = dry_capacity(unit.evaporator,t_inlet, t_evap, t_evap_mid, airflow)

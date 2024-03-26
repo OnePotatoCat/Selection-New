@@ -9,6 +9,7 @@ class Fan_Cal(object):
         
         self._rpm_coef = fan.rpm_coefficient
         self._pow_coef = fan.power_coefficient
+        print(fan.power_coefficient)
         self._cur_coef = fan.current_coefficient
 
     def get_rpm(self) -> float:

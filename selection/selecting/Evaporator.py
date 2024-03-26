@@ -8,6 +8,7 @@ class Evaporator_Cal(Coil):
 
     def starting_dewpoint(self, vel :float, t_evap :float, t_inlet :float):
         c = self.start_dew_coef
+        print(c)
         t_startdew = t_evap+ c[0] + c[1] * vel + c[2] * t_evap + c[3] * vel * t_evap + \
                     c[4] * t_inlet + c[5] * t_inlet * vel + c[6] * t_inlet * t_evap
 

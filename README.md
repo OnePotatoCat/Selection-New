@@ -53,7 +53,7 @@ else:
    ```
    (venv) C:\Selection New\selection>py manage.py runserver 192.168.0.32:8000
    ```
-   If successful the following with show the following:
+   If successful the following will show the following:
    ```
    System check identified 0 issue (0 silenced).
    January 11, 2024 - 17:25:07
